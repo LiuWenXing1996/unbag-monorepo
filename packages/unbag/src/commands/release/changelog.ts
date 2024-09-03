@@ -90,14 +90,16 @@ export const changelogContentParser = (
   const footerIndex = content.indexOf(ChangelogFooterDividerTag);
   // FIXME:这个地方的解析有问题，会出现‘ag!!!)’乱码
   if (headerIndex > -1) {
-    result.header = content.substring(0, ChangelogHeaderDividerTag.length);
+    result.header = content.substring(0, headerIndex);
   }
   result.body = content.substring(
-    headerIndex > -1 ? ChangelogHeaderDividerTag.length : 0,
+    headerIndex > -1 ? ChangelogHeaderDividerTag.length + headerIndex : 0,
     footerIndex > -1 ? footerIndex : undefined
   );
   if (footerIndex > -1) {
-    result.footer = content.substring(ChangelogFooterDividerTag.length);
+    result.footer = content.substring(
+      footerIndex + ChangelogHeaderDividerTag.length
+    );
   }
   return result;
 };
@@ -128,7 +130,7 @@ export const changelog = async ({ config }: { config: FinalUserConfig }) => {
   } = config;
 
   // TODO：此处需要过滤 scope
-  log.debug.info({tagPrefix})
+  log.debug.info({ tagPrefix });
   const conventionalChangelogStream = conventionalChangelog({
     preset: resolvePresetPath(),
     tagPrefix,
@@ -139,6 +141,8 @@ export const changelog = async ({ config }: { config: FinalUserConfig }) => {
   const oldContent = await fileRead({
     config,
   });
+  log.debug.info({ oldContent });
+
   const newContent: ReleaseChangelogFileContent = {
     header,
     footer,

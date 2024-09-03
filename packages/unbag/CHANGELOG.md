@@ -2,6 +2,13 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## 0.6.24 (2024-09-03)
+
+### Bug Fixes
+
+* **unbag:** 修复 changelog 生成乱码问题 ([70bdd0c](https://github.com/LiuWenXing1996/unbag-monorepo/commit/70bdd0ca82937d1f7c6280f7886697c23a735572))
+* **unbag:** 修复 unbag 的 types 问题 ([1a00040](https://github.com/LiuWenXing1996/unbag-monorepo/commit/1a00040224a8f8de0247f9be9ef26334ed85be5d))
+
 ## 0.6.23 (2024-09-03)
 
 ### Bug Fixes

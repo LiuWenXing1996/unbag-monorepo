@@ -1,0 +1,29 @@
+{
+  "name": "unbag-monorepo",
+  "description": "unbag monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:unbag": "pnpm --filter 'unbag' build",
+    "build": "pnpm build:unbag",
+    "docs:build": "pnpm --filter 'unbag-docs' build",
+    "dev": "unbag parallel",
+    "ci:version": "changeset version",
+    "ci:publish": "pnpm build && changeset publish",
+    "clear": "rimraf 'packages/*/{lib,node_modules}' && rimraf node_modules",
+    "commit": "unbag commit",
+    "test": "echo 'test'",
+    "prepare": "husky",
+    "bump": "pnpm conventional-recommended-bump -p conventionalcommits",
+    "release": "pnpm commit-and-tag-version"
+  },
+  "license": "MIT",
+  "author": "LiuWenXing1996 lwx_redstone@163.com",
+  "devDependencies": {
+    "@types/wait-on": "^5.3.4",
+    "husky": "^9.0.11",
+    "unbag": "workspace:^",
+    "wait-on": "^7.2.0"
+  },
+  "version": "1.1.0"
+}

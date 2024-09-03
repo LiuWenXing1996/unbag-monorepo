@@ -1,0 +1,16 @@
+{
+    "cSpell.words": [
+        "arraify",
+        "bundleless",
+        "commitlint",
+        "extnames",
+        "memfs",
+        "pcss",
+        "styl",
+        "unbag",
+        "unbundle",
+        "uuidv",
+        "vitepress"
+    ],
+    "compile-hero.disable-compile-files-on-did-save-code": true
+}

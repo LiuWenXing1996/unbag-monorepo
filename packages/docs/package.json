@@ -1,0 +1,13 @@
+{
+  "name": "unbag-docs",
+  "private": true,
+  "description": "unbag docs",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "dependencies": {
+    "vitepress": "^1.1.4"
+  }
+}

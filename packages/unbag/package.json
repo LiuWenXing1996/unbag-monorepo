@@ -1,0 +1,77 @@
+{
+  "name": "unbag",
+  "version": "0.6.2",
+  "description": "一个专门用来开发npm工具的包",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "author": "LiuWenXing1996 lwx_redstone@163.com",
+  "keywords": [
+    "unbundle",
+    "bundleless",
+    "npm tool"
+  ],
+  "bin": {
+    "unbag": "./dist/esm/cli.mjs"
+  },
+  "scripts": {
+    "build": "tsx ./src/run.ts transform",
+    "dev": "tsx ./src/run.ts transform -w",
+    "release": "tsx ./src/run.ts release"
+  },
+  "main": "./dist/cjs/index.cjs",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    "import": "./dist/esm/index.mjs",
+    "require": "./dist/cjs/index.cjs"
+  },
+  "dependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/plugin-syntax-typescript": "^7.24.7",
+    "@commitlint/config-conventional": "^19.4.1",
+    "@commitlint/cz-commitlint": "^19.2.0",
+    "@commitlint/lint": "^19.2.2",
+    "@commitlint/load": "^19.2.0",
+    "@commitlint/types": "^19.0.3",
+    "babel-plugin-module-resolver": "^5.0.2",
+    "bundle-require": "^4.0.2",
+    "chalk": "^5.3.0",
+    "chokidar": "^3.6.0",
+    "commander": "^10.0.0",
+    "commitizen": "^4.3.0",
+    "concurrently": "^8.2.2",
+    "conventional-changelog": "^6.0.0",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "conventional-commits-parser": "^6.0.0",
+    "conventional-recommended-bump": "^10.0.0",
+    "dayjs": "^1.11.11",
+    "debounce-promise": "^3.1.2",
+    "deep-freeze-strict": "^1.1.1",
+    "detect-indent": "^7.0.1",
+    "detect-newline": "^4.0.1",
+    "esbuild": "^0.20.1",
+    "execa": "^9.2.0",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.0.0",
+    "lodash": "^4.17.21",
+    "semver": "^7.6.2",
+    "ts-essentials": "^10.0.2",
+    "typescript": "~5.1.6",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.24.8",
+    "@types/babel__core": "^7.20.5",
+    "@types/conventional-changelog": "^3.1.5",
+    "@types/debounce-promise": "^3.1.9",
+    "@types/deep-freeze-strict": "^1.1.2",
+    "@types/fs-extra": "^11.0.4",
+    "@types/lodash": "^4.14.202",
+    "@types/semver": "^7.5.8",
+    "@types/uuid": "^9.0.2",
+    "babel-plugin-add-import-extension": "^1.6.0",
+    "tsx": "^4.7.1"
+  }
+}

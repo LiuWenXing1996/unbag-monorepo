@@ -1,0 +1,4 @@
+echo $1
+message=$(cat $1)
+echo $message
+pnpm unbag commitlint --message "$message"

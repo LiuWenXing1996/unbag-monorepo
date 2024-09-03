@@ -130,6 +130,11 @@ export const genVersionByCommits = async (params: {
     prefix: tagPrefix,
   });
   let commits = await getCommits(bumper);
+  log.debug.info({
+    commits,
+    scope,
+    tagPrefix,
+  });
   if (scope) {
     commits = commits.filter((e) => e.scope === scope);
   }

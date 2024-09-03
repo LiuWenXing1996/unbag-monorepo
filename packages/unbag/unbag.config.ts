@@ -1,6 +1,9 @@
 import { defineUserConfig } from "./src";
 
 export default defineUserConfig({
+  log: {
+    debug: true,
+  },
   transform: {
     sourcemap: true,
     action: async ({ helper }) => {
@@ -66,15 +69,64 @@ export default defineUserConfig({
         options: {},
         parentUid: aliasUid,
       });
-      await out({ processUid: dtsProcess, output: "./dist/types" });
-      await out({ processUid: esmBabel, output: "./dist/esm" });
-      await out({ processUid: cjsBabel, output: "./dist/cjs" });
+      const [esmDts, cjsDts] = await Promise.all([
+        await babel({
+          name: "esmDts",
+          options: {
+            babel: {
+              plugins: [
+                "@babel/plugin-syntax-typescript",
+                ["babel-plugin-add-import-extension", { extension: "mts" }],
+              ],
+            },
+            extMapping: {
+              ".ts": ".mts",
+              ".mts": ".mts",
+              ".cts": ".mts",
+            },
+          },
+          parentUid: dtsProcess,
+        }),
+        await babel({
+          name: "cjsDts",
+          options: {
+            babel: {
+              plugins: [
+                "@babel/plugin-syntax-typescript",
+                ["babel-plugin-add-import-extension", { extension: "cts" }],
+              ],
+            },
+            extMapping: {
+              ".ts": ".cts",
+              ".mts": ".cts",
+              ".cts": ".cts",
+            },
+          },
+          parentUid: dtsProcess,
+        }),
+      ]);
+      await Promise.all([
+        await out({ processUid: dtsProcess, output: "./dist/types/default" }),
+        await out({ processUid: cjsDts, output: "./dist/types/cjs" }),
+        await out({ processUid: esmDts, output: "./dist/types/esm" }),
+        await out({ processUid: esmBabel, output: "./dist/esm" }),
+        await out({ processUid: cjsBabel, output: "./dist/cjs" }),
+      ]);
     },
   },
   release: {
     scope: "unbag",
     branch: {
       mainCheckDisable: true,
+      cleanCheckDisable: true,
+    },
+    changelog: {
+      header: "我是更新日志的头部!!!",
+      footer: "我是更新日志的脚部!!!",
+      fileWriteDisable: false,
+    },
+    commit: {
+      disable: true,
     },
     tag: {
       prefix: "unbag@",

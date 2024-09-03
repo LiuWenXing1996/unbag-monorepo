@@ -20,6 +20,8 @@
   "license": "MIT",
   "author": "LiuWenXing1996 lwx_redstone@163.com",
   "devDependencies": {
+    "@commitlint/config-pnpm-scopes": "^19.1.0",
+    "@commitlint/types": "^19.0.3",
     "@types/wait-on": "^5.3.4",
     "husky": "^9.0.11",
     "unbag": "workspace:^",

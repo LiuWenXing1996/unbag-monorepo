@@ -50,7 +50,10 @@ export const ReleaseChangelogConfigDefault: ReleaseChangelogConfig = {
       config,
     });
     const fs = useFs();
-    const content = await fs.readFile(changelogFileAbsolutePath, "utf-8");
+    const fileExist = await fs.pathExists(changelogFileAbsolutePath);
+    const content = fileExist
+      ? await fs.readFile(changelogFileAbsolutePath, "utf-8")
+      : "";
     return changelogContentParser(content);
   },
   fileWrite: async ({ config, changelogRes }) => {
@@ -125,11 +128,14 @@ export const changelog = async ({ config }: { config: FinalUserConfig }) => {
   } = config;
 
   // TODO：此处需要过滤 scope
+  log.debug.info({tagPrefix})
   const conventionalChangelogStream = conventionalChangelog({
     preset: resolvePresetPath(),
     tagPrefix,
   });
   const newChangeset = await streamToString(conventionalChangelogStream);
+  log.debug.info({ newChangeset });
+
   const oldContent = await fileRead({
     config,
   });

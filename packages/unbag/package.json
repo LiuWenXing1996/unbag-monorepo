@@ -1,6 +1,6 @@
 {
   "name": "unbag",
-  "version": "0.6.2",
+  "version": "0.6.9",
   "description": "一个专门用来开发npm工具的包",
   "type": "module",
   "files": [
@@ -21,12 +21,21 @@
     "dev": "tsx ./src/run.ts transform -w",
     "release": "tsx ./src/run.ts release"
   },
-  "main": "./dist/cjs/index.cjs",
-  "types": "./dist/types/index.d.ts",
   "exports": {
-    "import": "./dist/esm/index.mjs",
-    "require": "./dist/cjs/index.cjs"
+    ".": {
+      "import": {
+        "types": "./dist/types/esm/index.d.mts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/types/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    }
   },
+  "types": "./dist/types/default/index.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
   "dependencies": {
     "@babel/core": "^7.24.7",
     "@babel/plugin-syntax-typescript": "^7.24.7",

@@ -1,6 +1,6 @@
 {
   "name": "unbag",
-  "version": "0.6.24",
+  "version": "0.6.25",
   "description": "一个专门用来开发npm工具的包",
   "type": "module",
   "files": [

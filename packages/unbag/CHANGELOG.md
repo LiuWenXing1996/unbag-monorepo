@@ -2,6 +2,8 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## [0.6.25](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.6.24...unbag@0.6.25) (2024-09-03)
+
 ## [0.6.24](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.6.24...unbag@0.6.24) (2024-09-03)
 
 ## 0.6.24 (2024-09-03)

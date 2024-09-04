@@ -1,5 +1,5 @@
 import { Command, Option } from "commander";
-import { transform } from "../commands/transform";
+import { transform, TransformCommand } from "../commands/transform";
 import { clean } from "../commands/clean";
 import { parallel } from "../commands/parallel";
 import {
@@ -22,7 +22,8 @@ import path from "node:path";
 import _ from "lodash";
 import { Locale } from "./common";
 import { commitlint } from "@/commands/commit/lint";
-class CustomCommand extends Command {
+import { resolveUserConfigFromCli } from "@/core/user-config";
+class CustomCliCommand extends Command {
   addOptions(options: Option[]) {
     for (const option of options) {
       this.addOption(option);
@@ -34,6 +35,7 @@ const getCommonOptions = () => {
   const options: Option[] = [
     new Option("-c,--config <string>", "配置文件路径"),
     new Option("-r,--root <string>", "根路径"),
+    new Option("-l,--local <string>", "本地化语言"),
   ];
   return options;
 };
@@ -64,32 +66,43 @@ const resolveCliUserConfig = async (options: {
   return freezedConfig;
 };
 export const read = () => {
-  const program = new CustomCommand();
+  const program = new CustomCliCommand();
   program.name("unbag").description("unbag CLI").version("0.8.0");
   program
     .addCommand(
-      new CustomCommand()
+      new CustomCliCommand()
         .name("transform")
         .description("转换文件")
         .addOptions(getCommonOptions())
         .option("-w,--watch", "启用观察模式")
         .action(async (options) => {
-          const cliUserConfig = await resolveCliUserConfig(options);
-          const finalUserConfig = mergeConfig(cliUserConfig, {
-            transform: {
-              watch: options.watch,
+          const userConfig = await resolveUserConfigFromCli({
+            cliOptions: options,
+            overrides: {
+              transform: {
+                watch: options.watch,
+              },
             },
           });
-          await transform({ finalUserConfig });
+          const cmd = new TransformCommand(userConfig);
+          await cmd.run();
         })
     )
     .addCommand(
-      new CustomCommand().name("clean").action(() => {
-        clean();
-      })
+      new CustomCliCommand()
+        .name("clean")
+        .action(() => {
+          // clean();
+          console.log("clean");
+        })
+        .addCommand(
+          new CustomCliCommand().name("cleansss").action(() => {
+            console.log("cleansss");
+          })
+        )
     )
     .addCommand(
-      new CustomCommand()
+      new CustomCliCommand()
         .name("parallel")
         .description("运行多个npm script")
         .option("-c,--config <string>", "配置文件路径")
@@ -101,7 +114,7 @@ export const read = () => {
         })
     )
     .addCommand(
-      new CustomCommand()
+      new CustomCliCommand()
         .name(WaitCmdName)
         .description("parallel命令利用此命令来达到wait功能")
         .option("-n,--name <string>", "等待的命令名称")
@@ -127,7 +140,7 @@ export const read = () => {
         })
     )
     .addCommand(
-      new CustomCommand()
+      new CustomCliCommand()
         .name("release")
         .description("release")
         .addOptions(getCommonOptions())
@@ -138,7 +151,7 @@ export const read = () => {
         })
     )
     .addCommand(
-      new CustomCommand()
+      new CustomCliCommand()
         .name("commit")
         .description("commit")
         .addOptions(getCommonOptions())
@@ -151,7 +164,7 @@ export const read = () => {
         })
     )
     .addCommand(
-      new CustomCommand()
+      new CustomCliCommand()
         .name("commitlint")
         .description("commitlint")
         .addOptions(getCommonOptions())

@@ -68,6 +68,17 @@ export const message = {
       },
     },
   },
+  release: {
+    bump: {
+      end: (params: { version: string; oldVersion: string }) => {
+        const { version, oldVersion } = params;
+        return `版本号生成结束，旧版本号: ${oldVersion}，下一个版本号: ${version}`;
+      },
+      unValidVersionResult: () => {
+        return `生成的版本号无效`;
+      },
+    },
+  },
   releaseCurrentBranchUndefined: () => {
     return `现在没有处在任何分支,请切换到某分支下进行操作`;
   },

@@ -14,6 +14,7 @@ export interface LogConfig {
     type: LogTypeEnum;
     message: any;
   }) => void;
+  catchError: (error: any) => void;
 }
 export const LogConfigDefault: LogConfig = {
   disabled: false,
@@ -28,18 +29,16 @@ export const LogConfigDefault: LogConfig = {
       console.log(`${chalk.yellow(`[warn]`)}`, message);
     }
   },
+  catchError: () => {},
 };
 export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
   const { finalUserConfig } = params;
-  const _console = ({
-    type,
-    message,
-    onlyDebug,
-  }: {
+  const _console = (p: {
     type: LogTypeEnum;
     message: any;
     onlyDebug?: boolean;
   }) => {
+    const { type, message, onlyDebug } = p;
     const {
       log: { console, disabled, debug },
     } = finalUserConfig;
@@ -57,6 +56,16 @@ export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
   const warn = (message: any) => _console({ type: LogTypeEnum.Warn, message });
   const error = (message: any) =>
     _console({ type: LogTypeEnum.Error, message });
+  const errorAndThrow = (message: any) => {
+    _console({ type: LogTypeEnum.Error, message });
+    throw new Error(message);
+  };
+  const catchError = (error: any) => {
+    const {
+      log: { catchError: ce },
+    } = finalUserConfig;
+    ce(error);
+  };
   const debug = {
     info: (message: any) =>
       _console({
@@ -77,10 +86,13 @@ export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
         onlyDebug: true,
       }),
   };
+
   return {
     info,
     warn,
     error,
+    errorAndThrow,
+    catchError,
     debug,
   };
 };

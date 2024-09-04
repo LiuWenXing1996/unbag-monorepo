@@ -163,6 +163,7 @@ export const genVersionByCommits = async (params: {
     releaseType = VERSIONS[result.level];
   }
   if (!releaseType) {
+    log.error(message.releaseBumpCommitsGenUnValidReleaseType());
     throw new Error(message.releaseBumpCommitsGenUnValidReleaseType());
   }
   if (releasePre) {
@@ -173,6 +174,7 @@ export const genVersionByCommits = async (params: {
     }
   }
   if (!isReleaseType(releaseType)) {
+    log.error(message.releaseBumpCommitsGenUnValidReleaseType());
     throw new Error(message.releaseBumpCommitsGenUnValidReleaseType());
   }
   log.info(
@@ -182,6 +184,7 @@ export const genVersionByCommits = async (params: {
   );
   const version = semver.inc(oldVersion, releaseType, releasePreTag);
   if (!version) {
+    log.error(message.releaseBumpGenUnValidVersion());
     throw new Error(message.releaseBumpGenUnValidVersion());
   }
   return {
@@ -216,6 +219,7 @@ export const genVersion = async ({
     config,
   });
   if (!versionFileContent) {
+    log.error(message.releaseBumpNotFoundVersionFile());
     throw new Error(message.releaseBumpNotFoundVersionFile());
   }
   const oldVersion = versionFileContent.version;
@@ -270,18 +274,34 @@ export const bump = async ({
 }: {
   config: FinalUserConfig;
 }): Promise<BumpResult> => {
+  const log = useLog({ finalUserConfig: config });
+  const message = useMessage({
+    locale: config.locale,
+  });
   const versionResult = await genVersion({
     config,
   });
+  log.info(
+    message.release.bump.end({
+      version: versionResult.version,
+      oldVersion: versionResult.oldVersion,
+    })
+  );
+  if (semver.compare(versionResult.oldVersion, versionResult.version) >= 0) {
+    log.errorAndThrow(message.release.bump.unValidVersionResult());
+  }
+
+  if (versionResult.version === versionResult.oldVersion) {
+    // TODO:添加 log
+    throw new Error("版本号一致，需要退出");
+  }
+
   const {
     release: {
       bump: { versionFileWriteDisable, versionFileWrite },
     },
   } = config;
-  const log = useLog({ finalUserConfig: config });
-  const message = useMessage({
-    locale: config.locale,
-  });
+
   if (!versionFileWriteDisable) {
     await versionFileWrite({
       config,

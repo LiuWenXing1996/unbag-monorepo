@@ -18,6 +18,7 @@ export type UserConfig = {
   configFileResolvedPath?: string;
   tempDir: string;
   log: LogConfig;
+  catch: (error: any) => void;
   transform: TransformConfig;
   parallel: ParallelConfig;
   release: ReleaseConfig;
@@ -37,6 +38,8 @@ export const useDefaultConfig = () => {
     parallel: ParallelDefaultConfig,
     release: releaseDefaultConfig,
     commit: CommitConfigDefault,
+    // TODO:实现顶层 catch
+    catch: () => {},
   };
   return defaultConfig;
 };

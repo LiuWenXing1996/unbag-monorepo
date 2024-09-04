@@ -88,7 +88,6 @@ export const changelogContentParser = (
   const result: ReleaseChangelogFileContent = {};
   const headerIndex = content.indexOf(ChangelogHeaderDividerTag);
   const footerIndex = content.indexOf(ChangelogFooterDividerTag);
-  // FIXME:这个地方的解析有问题，会出现‘ag!!!)’乱码
   if (headerIndex > -1) {
     result.header = content.substring(0, headerIndex);
   }

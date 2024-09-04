@@ -130,7 +130,7 @@ export const genVersionByCommits = async (params: {
     prefix: tagPrefix,
   });
   let commits = await getCommits(bumper);
-  log.debug.info({
+  log.debug({
     commits,
     scope,
     tagPrefix,
@@ -163,7 +163,6 @@ export const genVersionByCommits = async (params: {
     releaseType = VERSIONS[result.level];
   }
   if (!releaseType) {
-    log.error(message.releaseBumpCommitsGenUnValidReleaseType());
     throw new Error(message.releaseBumpCommitsGenUnValidReleaseType());
   }
   if (releasePre) {
@@ -288,7 +287,7 @@ export const bump = async ({
     })
   );
   if (semver.compare(versionResult.oldVersion, versionResult.version) >= 0) {
-    log.errorAndThrow(message.release.bump.unValidVersionResult());
+    throw new Error(message.release.bump.unValidVersionResult());
   }
 
   if (versionResult.version === versionResult.oldVersion) {

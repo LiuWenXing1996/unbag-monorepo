@@ -24,7 +24,7 @@ export abstract class Command<P = void, R = void> {
     try {
       await this.task(params);
     } catch (error) {
-      log.catchError(error);
+      log.catchThrowError(error);
     }
   }
   abstract task(params: P): MaybePromise<R>;

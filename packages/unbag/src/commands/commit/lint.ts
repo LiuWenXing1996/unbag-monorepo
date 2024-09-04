@@ -21,7 +21,7 @@ export const commitLint = async (params: {
     report.warnings.map((e) => {
       log.warn(`${e.message}`);
     });
-    log.errorAndThrow(messageMap.commit.lint.error({ message }));
+    throw new Error(messageMap.commit.lint.error({ message }));
   }
   log.info(messageMap.commit.lint.success({ message }));
 };

@@ -16,7 +16,7 @@ const useCommitizenCommit = async (params: {
   const path = usePath();
   const log = useLog({ finalUserConfig });
   const commitizenPath = require.resolve("commitizen");
-  log.debug.info({ commitizenPath });
+  log.debug({ commitizenPath });
   const commitizenCommitJsFile = path.resolve(commitizenPath, "../commitizen");
   const process = require(commitizenCommitJsFile);
   return process.commit;
@@ -34,12 +34,12 @@ export const gitCz = async (params: { finalUserConfig: FinalUserConfig }) => {
   const prompter = (inquirerIns, commit) => {
     process(lintConfig.rules, lintConfig.prompt, inquirerIns).then(commit);
   };
-  log.debug.info({ lintConfig });
+  log.debug({ lintConfig });
   const message = useMessage({ locale: finalUserConfig.locale });
   const git = useGit();
   const gitRootPath = await git.gitRootPathGet();
   const stageFiles = await git.stageFilesGet();
-  log.debug.info({ stageFiles, gitRootPath });
+  log.debug({ stageFiles, gitRootPath });
   if (stageFiles.length <= 0) {
     log.error(message.commit.branch.stageFiles.empty());
     return;
@@ -51,7 +51,7 @@ export const gitCz = async (params: { finalUserConfig: FinalUserConfig }) => {
     {
       disableAppendPaths: true,
       emitData: true,
-      quiet: false,
+      quiet: finalUserConfig.log.disabled,
     },
     function (error) {
       if (error) {

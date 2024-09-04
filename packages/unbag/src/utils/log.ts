@@ -5,6 +5,7 @@ export enum LogTypeEnum {
   Info = "Info",
   Warn = "Warn",
   Error = "Error",
+  Debug = "Debug",
 }
 export interface LogConfig {
   disabled: boolean;
@@ -14,7 +15,7 @@ export interface LogConfig {
     type: LogTypeEnum;
     message: any;
   }) => void;
-  catchError: (error: any) => void;
+  catchThrowError: (error: any) => void;
 }
 export const LogConfigDefault: LogConfig = {
   disabled: false,
@@ -28,8 +29,11 @@ export const LogConfigDefault: LogConfig = {
     if (type === LogTypeEnum.Warn) {
       console.log(`${chalk.yellow(`[warn]`)}`, message);
     }
+    if (type === LogTypeEnum.Debug) {
+      console.log(`${chalk.green(`[debug]`)}`, message);
+    }
   },
-  catchError: () => {},
+  catchThrowError: () => {},
 };
 export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
   const { finalUserConfig } = params;
@@ -56,43 +60,25 @@ export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
   const warn = (message: any) => _console({ type: LogTypeEnum.Warn, message });
   const error = (message: any) =>
     _console({ type: LogTypeEnum.Error, message });
-  const errorAndThrow = (message: any) => {
-    _console({ type: LogTypeEnum.Error, message });
-    throw new Error(message);
+  const debug = (message: any) =>
+    _console({ type: LogTypeEnum.Debug, message });
+  const resolveMessageFromError = (error: any): string | void => {
+    return error?.message || error?.msg;
   };
-  const catchError = (error: any) => {
+  const catchThrowError = (e: any) => {
     const {
-      log: { catchError: ce },
+      log: { catchThrowError: cte },
     } = finalUserConfig;
-    ce(error);
-  };
-  const debug = {
-    info: (message: any) =>
-      _console({
-        type: LogTypeEnum.Info,
-        message,
-        onlyDebug: true,
-      }),
-    warn: (message: any) =>
-      _console({
-        type: LogTypeEnum.Warn,
-        message,
-        onlyDebug: true,
-      }),
-    error: (message: any) =>
-      _console({
-        type: LogTypeEnum.Error,
-        message,
-        onlyDebug: true,
-      }),
+    const message = resolveMessageFromError(e);
+    error(message || "unknown error");
+    cte(e);
   };
 
   return {
     info,
     warn,
     error,
-    errorAndThrow,
-    catchError,
     debug,
+    catchThrowError,
   };
 };

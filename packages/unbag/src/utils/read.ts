@@ -15,8 +15,8 @@ import {
   UserConfigOptional,
   deepFreezeConfig,
 } from "./config";
-import { release } from "../commands/release";
-import { commit, CommitCommand } from "../commands/commit";
+import { ReleaseCommand } from "../commands/release";
+import { CommitCommand } from "../commands/commit";
 import { AbsolutePath } from "./path";
 import path from "node:path";
 import _ from "lodash";
@@ -118,6 +118,19 @@ export const read = () => {
     )
     .addCommand(
       new CustomCliCommand()
+        .name("release")
+        .description("release")
+        .addOptions(getCommonOptions())
+        .action(async (options) => {
+          const userConfig = await resolveUserConfigFromCli({
+            cliOptions: options,
+          });
+          const cmd = new ReleaseCommand(userConfig);
+          await cmd.run();
+        })
+    )
+    .addCommand(
+      new CustomCliCommand()
         .name("clean")
         .action(() => {
           // clean();
@@ -165,17 +178,6 @@ export const read = () => {
           } else {
             process.exit(1);
           }
-        })
-    )
-    .addCommand(
-      new CustomCliCommand()
-        .name("release")
-        .description("release")
-        .addOptions(getCommonOptions())
-        .action(async (options) => {
-          const cliUserConfig = await resolveCliUserConfig(options);
-          const finalConfig = mergeConfig(cliUserConfig, {});
-          await release(finalConfig);
         })
     );
   program.parse();

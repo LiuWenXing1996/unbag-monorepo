@@ -1,10 +1,22 @@
-import { MaybePromise } from "../../utils/types";
 import { FinalUserConfig } from "../../utils/config";
 import { ReleaseBumpConfig, ReleaseBumpConfigDefault, bump } from "./bump";
-import { ReleaseChangelogConfig, ReleaseChangelogConfigDefault, changelog } from "./changelog";
-import { ReleaseCommitConfig, ReleaseCommitConfigDefault, commit } from "./commit";
+import {
+  ReleaseChangelogConfig,
+  ReleaseChangelogConfigDefault,
+  changelog,
+} from "./changelog";
+import {
+  ReleaseCommitConfig,
+  ReleaseCommitConfigDefault,
+  commit,
+} from "./commit";
 import { ReleaseTagConfig, ReleaseTagConfigDefault, TagData, tag } from "./tag";
-import { ReleaseBranchConfig, ReleaseBranchConfigDefault, branch } from "./branch";
+import {
+  ReleaseBranchConfig,
+  ReleaseBranchConfigDefault,
+  branch,
+} from "./branch";
+import { Command } from "@/core/command";
 export interface ReleaseConfig {
   scope?: string;
   branch: ReleaseBranchConfig;
@@ -18,30 +30,38 @@ export const releaseDefaultConfig: ReleaseConfig = {
   bump: ReleaseBumpConfigDefault,
   changelog: ReleaseChangelogConfigDefault,
   commit: ReleaseCommitConfigDefault,
-  tag: ReleaseTagConfigDefault
+  tag: ReleaseTagConfigDefault,
 };
 
 // TODO 实现 scope?
 // 还有commit？
 // 甚至 test?
-export const release = async (config: FinalUserConfig) => {
+export const release = async (params: { finalUserConfig: FinalUserConfig }) => {
+  const { finalUserConfig } = params;
   await branch({
-    config
+    config: finalUserConfig,
   });
   const bumpRes = await bump({
-    config
+    config: finalUserConfig,
   });
   const changelogRes = await changelog({
-    config
+    config: finalUserConfig,
   });
   await commit({
-    config,
+    config: finalUserConfig,
     bumpRes,
-    changelogRes
+    changelogRes,
   });
   await tag({
-    config,
+    config: finalUserConfig,
     bumpRes,
-    changelogRes
+    changelogRes,
   });
 };
+
+export class ReleaseCommand extends Command {
+  async task() {
+    const { finalUserConfig } = this;
+    await release({ finalUserConfig });
+  }
+}

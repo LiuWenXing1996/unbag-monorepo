@@ -130,18 +130,18 @@ export const changelog = async ({ config }: { config: FinalUserConfig }) => {
   } = config;
 
   // TODO：此处需要过滤 scope
-  log.debug.info({ tagPrefix });
+  log.debug({ tagPrefix });
   const conventionalChangelogStream = conventionalChangelog({
     preset: resolvePresetPath(),
     tagPrefix,
   });
   const newChangeset = await streamToString(conventionalChangelogStream);
-  log.debug.info({ newChangeset });
+  log.debug({ newChangeset });
 
   const oldContent = await fileRead({
     config,
   });
-  log.debug.info({ oldContent });
+  log.debug({ oldContent });
 
   const newContent: ReleaseChangelogFileContent = {
     header,

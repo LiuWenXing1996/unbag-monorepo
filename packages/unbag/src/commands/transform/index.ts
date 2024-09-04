@@ -155,7 +155,7 @@ export const transform = async (params: {
   }
 };
 
-export class TransformCommand extends Command {
+export class TransformCommand extends Command{
   async task() {
     const { finalUserConfig } = this;
     await transform({ finalUserConfig });

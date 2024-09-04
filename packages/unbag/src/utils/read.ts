@@ -21,7 +21,7 @@ import { AbsolutePath } from "./path";
 import path from "node:path";
 import _ from "lodash";
 import { Locale } from "./common";
-import { commitlint } from "@/commands/commit/lint";
+import { commitLint, CommitLintCommand } from "@/commands/commit/lint";
 import { resolveUserConfigFromCli } from "@/core/user-config";
 class CustomCliCommand extends Command {
   addOptions(options: Option[]) {
@@ -90,6 +90,50 @@ export const read = () => {
     )
     .addCommand(
       new CustomCliCommand()
+        .name("commit")
+        .description("提交文件")
+        .addOptions(getCommonOptions())
+        .action(async (options) => {
+          const cliUserConfig = await resolveCliUserConfig(options);
+          const finalConfig = mergeConfig(cliUserConfig, {});
+          await commit({
+            finalUserConfig: finalConfig,
+          });
+        })
+        .addCommand(
+          new CustomCliCommand()
+            .name("lint")
+            .description("校验提交信息")
+            .addOptions(getCommonOptions())
+            .option("-m,--message <string>", "信息")
+            .action(async (options) => {
+              const { message } = options;
+              const userConfig = await resolveUserConfigFromCli({
+                cliOptions: options,
+              });
+              const cmd = new CommitLintCommand(userConfig);
+              await cmd.run(message);
+            })
+        )
+    )
+    // .addCommand(
+    //   new CustomCliCommand()
+    //     .name("commitlint")
+    //     .description("commitlint")
+    //     .addOptions(getCommonOptions())
+    //     .option("-m,--message <string>", "信息")
+    //     .action(async (options) => {
+    //       const cliUserConfig = await resolveCliUserConfig(options);
+    //       const finalConfig = mergeConfig(cliUserConfig, {});
+    //       const { message } = options;
+    //       await commitLint({
+    //         finalUserConfig: finalConfig,
+    //         message,
+    //       });
+    //     })
+    // )
+    .addCommand(
+      new CustomCliCommand()
         .name("clean")
         .action(() => {
           // clean();
@@ -148,35 +192,6 @@ export const read = () => {
           const cliUserConfig = await resolveCliUserConfig(options);
           const finalConfig = mergeConfig(cliUserConfig, {});
           await release(finalConfig);
-        })
-    )
-    .addCommand(
-      new CustomCliCommand()
-        .name("commit")
-        .description("commit")
-        .addOptions(getCommonOptions())
-        .action(async (options) => {
-          const cliUserConfig = await resolveCliUserConfig(options);
-          const finalConfig = mergeConfig(cliUserConfig, {});
-          await commit({
-            finalUserConfig: finalConfig,
-          });
-        })
-    )
-    .addCommand(
-      new CustomCliCommand()
-        .name("commitlint")
-        .description("commitlint")
-        .addOptions(getCommonOptions())
-        .option("-m,--message <string>", "信息")
-        .action(async (options) => {
-          const cliUserConfig = await resolveCliUserConfig(options);
-          const finalConfig = mergeConfig(cliUserConfig, {});
-          const { message } = options;
-          await commitlint({
-            finalUserConfig: finalConfig,
-            message,
-          });
         })
     );
   program.parse();

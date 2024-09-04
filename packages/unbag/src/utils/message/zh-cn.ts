@@ -1,3 +1,4 @@
+import { LintOutcome } from "@commitlint/types";
 import { type Commit } from "conventional-commits-parser";
 export const message = {
   config: {
@@ -29,7 +30,7 @@ export const message = {
         endTime: string;
       }) => {
         const { name, interval, endTime } = params;
-        return `[${endTime}] 处理任务 ${name} 完成，耗时 ${interval} 秒 `;
+        return `[${endTime}] 处理任务 ${name} 完成, 耗时 ${interval} 秒 `;
       },
       taskFail: (params: {
         name: string;
@@ -37,7 +38,7 @@ export const message = {
         endTime: string;
       }) => {
         const { name, interval, endTime } = params;
-        return `[${endTime}] 处理任务 ${name} 失败，耗时 ${interval} 秒 `;
+        return `[${endTime}] 处理任务 ${name} 失败, 耗时 ${interval} 秒 `;
       },
     },
     plugin: {
@@ -63,8 +64,18 @@ export const message = {
     branch: {
       stageFiles: {
         empty: () => {
-          return `没有检测到暂存的文件，请暂存文件后再试`;
+          return `没有检测到暂存的文件, 请暂存文件后再试`;
         },
+      },
+    },
+    lint: {
+      error: (params: { message: string }) => {
+        const { message } = params;
+        return `校验信息失败, 当前输入信息: ${message} `;
+      },
+      success: (params: { message: string }) => {
+        const { message } = params;
+        return `校验信息通过, 当前输入信息: ${message} `;
       },
     },
   },
@@ -72,7 +83,7 @@ export const message = {
     bump: {
       end: (params: { version: string; oldVersion: string }) => {
         const { version, oldVersion } = params;
-        return `版本号生成结束，旧版本号: ${oldVersion}，下一个版本号: ${version}`;
+        return `版本号生成结束, 旧版本号: ${oldVersion}, 下一个版本号: ${version}`;
       },
       unValidVersionResult: () => {
         return `生成的版本号无效`;
@@ -115,7 +126,7 @@ export const message = {
   }: {
     branchStatusInfo: string;
   }) => {
-    return `检测到有未提交的更改：\n${branchStatusInfo},\n请提交以上更改，保持git工作区的干净`;
+    return `检测到有未提交的更改：\n${branchStatusInfo},\n请提交以上更改, 保持git工作区的干净`;
   },
   releaseBranchCleanCheckSuccess: () => {
     return `当前分支是干净的`;
@@ -127,7 +138,7 @@ export const message = {
     return `正在生成下一个版本号...`;
   },
   releaseBumpNotFoundVersionFile: () => {
-    return `没有找到项目的版本描述文件，请检查配置文件中的 release.bump.versionFilePath、release.bump.versionFilePathResolve，release.bump.versionFileRead`;
+    return `没有找到项目的版本描述文件, 请检查配置文件中的 release.bump.versionFilePath、release.bump.versionFilePathResolve, release.bump.versionFileRead`;
   },
   releaseBumpOldVersion: ({ oldVersion }: { oldVersion: string }) => {
     return `当前版本号 ${oldVersion}`;
@@ -160,7 +171,7 @@ export const message = {
     return `查找到 ${commits.length} 条提交记录`;
   },
   releaseBumpCommitsNoData: ({ oldVersion }: { oldVersion: string }) => {
-    return `未找到任何的提交记录，使用旧版本号 ${oldVersion} 作为下一个版本号`;
+    return `未找到任何的提交记录, 使用旧版本号 ${oldVersion} 作为下一个版本号`;
   },
   releaseBumpCommitsGenUnValidReleaseType: () => {
     return `自动生成 releaseType 失败`;
@@ -203,13 +214,13 @@ export const message = {
     return `正在自动收集更改文件...`;
   },
   releaseCommitMessageInfoUndefined: () => {
-    return `提交信息不能为空，请检查配置文件中的 release.commit.message,release.commit.messageFormat `;
+    return `提交信息不能为空, 请检查配置文件中的 release.commit.message,release.commit.messageFormat `;
   },
   releaseCommitMessageInfo: ({ message }: { message: string }) => {
     return `提交信息: ${message}`;
   },
   releaseCommitFilesEmpty: () => {
-    return `未检测到需要提交的文件，退出自动提交`;
+    return `未检测到需要提交的文件, 退出自动提交`;
   },
   releaseCommitFilesInfo: ({ files }: { files: string[] }) => {
     return `需要提交的文件:\n   ${files.join("\n   ")}`;
@@ -236,7 +247,7 @@ export const message = {
     if (!configFilePath) {
       return `配置中的 ${keyPath} 未定义`;
     } else {
-      return `配置中的 ${keyPath} 未定义，请检查 ${configFilePath}`;
+      return `配置中的 ${keyPath} 未定义, 请检查 ${configFilePath}`;
     }
   },
   releaseUndefinedChangelogFilePathConfig: () => {
@@ -246,6 +257,6 @@ export const message = {
     return `pkgFilePath 为 undefined`;
   },
   releaseCommitMessageUndefined: () => {
-    return `CommitMessage 为空，请检查 commitMessageFormat`;
+    return `CommitMessage 为空, 请检查 commitMessageFormat`;
   },
 };

@@ -7,7 +7,7 @@ import {
 import { useLog } from "@/utils/log";
 import { MaybePromise } from "@/utils/types";
 
-export abstract class Command {
+export abstract class Command<P = void, R = void> {
   #finalUserConfig: FinalUserConfig;
   constructor(config?: UserConfigOptional) {
     const finalUserConfig = mergeDefaultConfig(config);
@@ -17,15 +17,15 @@ export abstract class Command {
   get finalUserConfig(): FinalUserConfig {
     return this.#finalUserConfig;
   }
-  async run() {
+  async run(params: P) {
     const { finalUserConfig } = this;
 
     const log = useLog({ finalUserConfig });
     try {
-      await this.task();
+      await this.task(params);
     } catch (error) {
       log.catchError(error);
     }
   }
-  abstract task(): MaybePromise<void>;
+  abstract task(params: P): MaybePromise<R>;
 }

@@ -1,15 +1,34 @@
 import { FinalUserConfig } from "@/utils/config";
 import { loadCommitLintConfig } from "./config";
 import lint from "@commitlint/lint";
+import { Command } from "@/core/command";
+import { useLog } from "@/utils/log";
+import { useMessage } from "@/utils/message";
 
-export const commitlint = async (params: {
+export const commitLint = async (params: {
   finalUserConfig: FinalUserConfig;
   message: string;
 }) => {
   const { finalUserConfig, message } = params;
+  const log = useLog({ finalUserConfig });
+  const messageMap = useMessage({ locale: finalUserConfig.locale });
   const lintConfig = await loadCommitLintConfig({ finalUserConfig });
   const report = await lint(message, lintConfig.rules, lintConfig);
   if (!report.valid) {
-    throw new Error("校验失败");
+    report.errors.map((e) => {
+      log.error(`${e.message}`);
+    });
+    report.warnings.map((e) => {
+      log.warn(`${e.message}`);
+    });
+    log.errorAndThrow(messageMap.commit.lint.error({ message }));
   }
+  log.info(messageMap.commit.lint.success({ message }));
 };
+
+export class CommitLintCommand extends Command<string> {
+  async task(message: string) {
+    const { finalUserConfig } = this;
+    await commitLint({ finalUserConfig, message });
+  }
+}

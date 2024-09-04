@@ -15,7 +15,7 @@ export const resolveUserConfigFromCli = async (params: {
     locale?: Locale;
   };
   overrides?: UserConfigOptional;
-}): Promise<UserConfigOptional | undefined> => {
+}): Promise<UserConfigOptional> => {
   const { overrides, cliOptions } = params;
   const { config, root, locale } = cliOptions;
   const path = usePath();
@@ -34,5 +34,5 @@ export const resolveUserConfigFromCli = async (params: {
   mergedConfig = mergeConfig(mergedConfig, {
     ...overrides,
   });
-  return mergedConfig;
+  return mergedConfig || {};
 };

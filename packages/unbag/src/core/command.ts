@@ -9,7 +9,7 @@ import { MaybePromise } from "@/utils/types";
 
 export abstract class Command<P = void, R = void> {
   #finalUserConfig: FinalUserConfig;
-  constructor(config?: UserConfigOptional) {
+  constructor(config: UserConfigOptional) {
     const finalUserConfig = mergeDefaultConfig(config);
     const freezedConfig = deepFreezeConfig(finalUserConfig);
     this.#finalUserConfig = freezedConfig;

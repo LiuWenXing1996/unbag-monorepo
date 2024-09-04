@@ -16,7 +16,7 @@ import {
   deepFreezeConfig,
 } from "./config";
 import { release } from "../commands/release";
-import { commit } from "../commands/commit";
+import { commit, CommitCommand } from "../commands/commit";
 import { AbsolutePath } from "./path";
 import path from "node:path";
 import _ from "lodash";
@@ -94,11 +94,11 @@ export const read = () => {
         .description("提交文件")
         .addOptions(getCommonOptions())
         .action(async (options) => {
-          const cliUserConfig = await resolveCliUserConfig(options);
-          const finalConfig = mergeConfig(cliUserConfig, {});
-          await commit({
-            finalUserConfig: finalConfig,
+          const userConfig = await resolveUserConfigFromCli({
+            cliOptions: options,
           });
+          const cmd = new CommitCommand(userConfig);
+          await cmd.run();
         })
         .addCommand(
           new CustomCliCommand()
@@ -116,22 +116,6 @@ export const read = () => {
             })
         )
     )
-    // .addCommand(
-    //   new CustomCliCommand()
-    //     .name("commitlint")
-    //     .description("commitlint")
-    //     .addOptions(getCommonOptions())
-    //     .option("-m,--message <string>", "信息")
-    //     .action(async (options) => {
-    //       const cliUserConfig = await resolveCliUserConfig(options);
-    //       const finalConfig = mergeConfig(cliUserConfig, {});
-    //       const { message } = options;
-    //       await commitLint({
-    //         finalUserConfig: finalConfig,
-    //         message,
-    //       });
-    //     })
-    // )
     .addCommand(
       new CustomCliCommand()
         .name("clean")

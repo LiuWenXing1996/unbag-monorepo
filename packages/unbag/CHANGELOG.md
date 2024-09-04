@@ -2,6 +2,14 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## [0.7.0](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.6.25...unbag@0.7.0) (2024-09-04)
+
+### Features
+
+* **unbag:** 使用 command 类实现CommitCommand ([1aaaeaa](https://github.com/LiuWenXing1996/unbag-monorepo/commit/1aaaeaa7f1d34c9920a093470aa13791e2be3fe6))
+* **unbag:** 使用 command 类实现CommitLintCommand ([5dfa0fa](https://github.com/LiuWenXing1996/unbag-monorepo/commit/5dfa0fa23ddef71543be5f05ceb35d645c133e3e))
+* **unbag:** 使用通用的 command 类桥接 transform 方法 ([d6abaa8](https://github.com/LiuWenXing1996/unbag-monorepo/commit/d6abaa8dc0767d9d19c6f5ccdee400a449420c8b))
+
 ## [0.6.25](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.6.24...unbag@0.6.25) (2024-09-03)
 
 ## [0.6.24](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.6.24...unbag@0.6.24) (2024-09-03)

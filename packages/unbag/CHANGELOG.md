@@ -2,6 +2,12 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## [0.8.0](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.7.0...unbag@0.8.0) (2024-09-04)
+
+### Features
+
+* **unbag:** 修改 log 逻辑 ([96d529b](https://github.com/LiuWenXing1996/unbag-monorepo/commit/96d529b3e9ac5e3c1572d7517cc49f7c48ae4507))
+
 ## [0.7.0](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.6.25...unbag@0.7.0) (2024-09-04)
 
 ### Features

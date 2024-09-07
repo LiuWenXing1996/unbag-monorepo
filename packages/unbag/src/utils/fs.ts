@@ -2,6 +2,7 @@ import path from "./path";
 import fs from "node:fs/promises";
 import { MaybePromise } from "./types";
 import fsExtra from "fs-extra/esm";
+import { DeepPartial } from "ts-essentials";
 
 export const useFs = () => {
   const { readFile, readdir, stat } = fs;

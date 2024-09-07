@@ -37,19 +37,15 @@ export const LogConfigDefault: LogConfig = {
 };
 export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
   const { finalUserConfig } = params;
-  const _console = (p: {
-    type: LogTypeEnum;
-    message: any;
-    onlyDebug?: boolean;
-  }) => {
-    const { type, message, onlyDebug } = p;
+  const _console = (p: { type: LogTypeEnum; message: any }) => {
+    const { type, message } = p;
     const {
       log: { console, disabled, debug },
     } = finalUserConfig;
     if (disabled) {
       return;
     }
-    if (onlyDebug) {
+    if (type === LogTypeEnum.Debug) {
       if (!debug) {
         return;
       }

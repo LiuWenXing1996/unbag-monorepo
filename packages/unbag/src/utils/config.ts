@@ -4,7 +4,7 @@ import { useFs } from "./fs";
 import { AbsolutePath, usePath } from "../utils/path";
 import { bundleRequire } from "bundle-require";
 import { ReleaseConfig, releaseDefaultConfig } from "../commands/release";
-import { arraify, filterNullable, isObject, Locale, safeObj } from "./common";
+import { arraify, filterNullable, isObject, Locale } from "./common";
 import { useMessage } from "./message";
 import { DeepPartial } from "./types";
 import { LogConfig, LogConfigDefault } from "./log";

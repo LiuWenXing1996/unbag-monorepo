@@ -135,12 +135,10 @@ export const changelog = async ({ config }: { config: FinalUserConfig }) => {
     tagPrefix,
   });
   const newChangeset = await streamToString(conventionalChangelogStream);
-  log.debug({ newChangeset });
 
   const oldContent = await fileRead({
     config,
   });
-  log.debug({ oldContent });
 
   const newContent: ReleaseChangelogFileContent = {
     header,

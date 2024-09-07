@@ -1,3 +1,4 @@
+import { DeepPartial } from "ts-essentials";
 import { FinalUserConfig } from "./config";
 import { AbsolutePath, usePath } from "./path";
 export function isObject(value: unknown): value is Record<string, any> {
@@ -77,4 +78,14 @@ export const useRoot = (params: { finalUserConfig: FinalUserConfig }) => {
   return new AbsolutePath({
     content: path.resolve(finalUserConfig.root),
   });
+};
+
+export const unSafeFunctionWrapper = <
+  T extends (...args: any) => any,
+  R extends ReturnType<T>,
+  P extends Parameters<T>
+>(
+  func: T
+): ((...args: P) => DeepPartial<R> | undefined) => {
+  return func as (...args: P) => DeepPartial<R> | undefined;
 };

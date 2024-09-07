@@ -9,6 +9,7 @@ import { useFs } from "@/utils/fs";
 import { useLog } from "@/utils/log";
 import { Bumper } from "conventional-recommended-bump";
 import { resolvePresetPath } from "./utils";
+import { unSafeFunctionWrapper } from "@/utils/common";
 export interface VersionFileFileContent {
   version: string;
 }
@@ -214,12 +215,15 @@ export const genVersion = async ({
       bump: { versionFileRead, releaseAs, releaseType, releasePreTag },
     },
   } = config;
-  const versionFileContent = await versionFileRead({
+  // TODO:...
+  const versionFileContent = await unSafeFunctionWrapper(versionFileRead)({
     config,
   });
   if (!versionFileContent) {
-    log.error(message.releaseBumpNotFoundVersionFile());
     throw new Error(message.releaseBumpNotFoundVersionFile());
+  }
+  if (!versionFileContent.version) {
+    throw new Error(message.release.bump.unValidOldVersion());
   }
   const oldVersion = versionFileContent.version;
   log.info(

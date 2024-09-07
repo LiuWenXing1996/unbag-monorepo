@@ -126,11 +126,11 @@ export default defineUserConfig({
       fileWriteDisable: false,
     },
     commit: {
-      // disable: true,
+      disable: true,
     },
     tag: {
       prefix: "unbag@",
-      // disable: true,
+      disable: true,
     },
   },
 });

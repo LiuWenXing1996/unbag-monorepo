@@ -81,6 +81,9 @@ export const message = {
   },
   release: {
     bump: {
+      unValidOldVersion: () => {
+        return `无效的旧版号，请检查相关配置 release.bump.versionFilePath、release.bump.versionFilePathResolve, release.bump.versionFileRead`;
+      },
       end: (params: { version: string; oldVersion: string }) => {
         const { version, oldVersion } = params;
         return `版本号生成结束, 旧版本号: ${oldVersion}, 下一个版本号: ${version}`;

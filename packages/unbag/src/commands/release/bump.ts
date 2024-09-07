@@ -293,12 +293,6 @@ export const bump = async ({
   if (semver.compare(versionResult.oldVersion, versionResult.version) >= 0) {
     throw new Error(message.release.bump.unValidVersionResult());
   }
-
-  if (versionResult.version === versionResult.oldVersion) {
-    // TODO:添加 log
-    throw new Error("版本号一致，需要退出");
-  }
-
   const {
     release: {
       bump: { versionFileWriteDisable, versionFileWrite },

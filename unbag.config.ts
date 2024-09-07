@@ -1,6 +1,7 @@
 import { defineUserConfig } from "unbag";
 import { RuleConfigSeverity } from "@commitlint/types";
 import scopes from "@commitlint/config-pnpm-scopes";
+// TODO:husky 的桥接？
 // FIX?
 export default defineUserConfig({
   commit: {

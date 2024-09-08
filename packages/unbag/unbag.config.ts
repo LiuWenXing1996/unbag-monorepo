@@ -1,4 +1,5 @@
-import { defineUserConfig } from "./src";
+import { AbsolutePath, defineUserConfig } from "./src";
+import { checkScope } from "../../scripts/scopes";
 
 export default defineUserConfig({
   log: {
@@ -6,7 +7,7 @@ export default defineUserConfig({
   },
   transform: {
     sourcemap: true,
-    action: async ({ helper }) => {
+    action: async ({ helper, finalUserConfig }) => {
       const { esbuild, alias, babel, out, dts } = helper;
       const aliasUid = await alias({
         name: "alias",
@@ -66,7 +67,16 @@ export default defineUserConfig({
       });
       const dtsProcess = await dts({
         name: "dts",
-        options: {},
+        options: {
+          logFilePathRewrite: ({ filePath, tempDir, inputDir }) => {
+            const filePaths = new AbsolutePath({ content: filePath });
+            console.log({ inputDir: inputDir.content });
+            const ress = filePaths.toRelativePath({ rel: inputDir });
+            console.log({ ress: ress.content });
+            // return ress.content;
+            return filePath;
+          },
+        },
         parentUid: aliasUid,
       });
       const [esmDts, cjsDts] = await Promise.all([
@@ -115,7 +125,12 @@ export default defineUserConfig({
     },
   },
   release: {
-    scope: "unbag",
+    scope: {
+      name: "unbag",
+      check: async ({ name }) => {
+        return await checkScope(name);
+      },
+    },
     branch: {
       mainCheckDisable: true,
       cleanCheckDisable: true,
@@ -129,7 +144,6 @@ export default defineUserConfig({
       disable: true,
     },
     tag: {
-      prefix: "unbag@",
       disable: true,
     },
   },

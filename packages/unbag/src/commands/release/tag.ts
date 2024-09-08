@@ -1,48 +1,57 @@
-import { FinalUserConfig } from "../../utils/config";
-import { useLog } from "../../utils/log";
-import { useMessage } from "../../utils/message";
-import { MaybePromise } from "../../utils/types";
+import { FinalUserConfig } from "@/utils/config";
+import { useLog } from "@/utils/log";
+import { useMessage } from "@/utils/message";
+import { MaybePromise } from "@/utils/types";
 import { BumpResult } from "./bump";
 import { ReleaseChangelogFileContent } from "./changelog";
 import { $ } from "execa";
+import { useTagPrefix } from "./utils";
 export interface TagData {
   bumpRes: BumpResult;
   changelogRes: ReleaseChangelogFileContent;
 }
 export interface ReleaseTagConfig {
-  prefix: string;
+  genPrefix: (params: {
+    finalUserConfig: FinalUserConfig;
+  }) => MaybePromise<string>;
   force?: boolean;
   disable?: boolean;
   messageFormat: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
     bumpRes: BumpResult;
     changelogRes: ReleaseChangelogFileContent;
   }) => MaybePromise<string>;
 }
 export const ReleaseTagConfigDefault: ReleaseTagConfig = {
-  prefix: "v",
-  messageFormat: ({ config, changelogRes, bumpRes }) => {
-    const { release } = config;
+  genPrefix: ({ finalUserConfig }) => {
+    const {
+      release: { scope },
+    } = finalUserConfig;
+    if (scope?.name) {
+      return `${scope.name}v`;
+    }
+    return "v";
+  },
+  messageFormat: ({ finalUserConfig, changelogRes, bumpRes }) => {
+    const { release } = finalUserConfig;
     const { scope } = release;
     return `release${scope ? `(${scope})` : ``}: ${bumpRes?.version}`;
   },
 };
-export const tag = async ({
-  config,
-  changelogRes,
-  bumpRes,
-}: {
-  config: FinalUserConfig;
+export const tag = async (params: {
+  finalUserConfig: FinalUserConfig;
   bumpRes: BumpResult;
   changelogRes: ReleaseChangelogFileContent;
 }) => {
-  const { release } = config;
+  const { finalUserConfig, bumpRes, changelogRes } = params;
+  const { release } = finalUserConfig;
   const {
-    tag: { prefix, force, messageFormat, disable },
+    tag: { force, messageFormat, disable },
   } = release;
-  const log = useLog({ finalUserConfig: config });
+  const prefix = await useTagPrefix({ finalUserConfig });
+  const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: config.locale,
+    locale: finalUserConfig.locale,
   });
   log.info(message.releaseTagging());
   if (disable) {
@@ -51,7 +60,7 @@ export const tag = async ({
   }
   const tagName = `${prefix}${bumpRes.version}`;
   const tagMessage = await messageFormat({
-    config,
+    finalUserConfig,
     changelogRes,
     bumpRes,
   });

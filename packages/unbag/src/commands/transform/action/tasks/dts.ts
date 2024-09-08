@@ -7,9 +7,9 @@ import {
 import { FinalUserConfig, mergeConfig } from "@/utils/config";
 import { useRoot } from "@/utils/common";
 import _ from "lodash";
-import { RelativePath, usePath } from "@/utils/path";
+import { AbsolutePath, RelativePath, usePath } from "@/utils/path";
 import { useTransformTempDir } from "../../utils";
-import { DeepPartial } from "@/utils/types";
+import { DeepPartial, MaybePromise } from "@/utils/types";
 import { useLog } from "@/utils/log";
 
 export interface TransformActionTaskDtsOptions {
@@ -17,6 +17,12 @@ export interface TransformActionTaskDtsOptions {
   configFilePath: string;
   compilerOptions?: ts.CompilerOptions;
   noLogDiagnosticErrors?: boolean;
+  logFilePathRewrite?: (params: {
+    filePath: string;
+    inputDir: AbsolutePath;
+    tempDir: AbsolutePath;
+    finalUserConfig: FinalUserConfig;
+  }) => string;
 }
 
 export const TransformActionTaskDtsOptionsDefault: TransformActionTaskDtsOptions =
@@ -74,9 +80,10 @@ export const TransformActionTaskDts = (
     TransformActionTaskDtsOptionsDefault,
     options
   );
-  const { supportExtensions, noLogDiagnosticErrors } = finalOptions;
+  const { supportExtensions, noLogDiagnosticErrors, logFilePathRewrite } =
+    finalOptions;
   return defineTransformActionTask(async (params) => {
-    const { finalUserConfig, inputDir, filePaths } = params;
+    const { finalUserConfig, inputDir, filePaths, tempDir } = params;
     const matchedFiles = filePaths
       .filter((e) => {
         return supportExtensions[e.extname];
@@ -102,6 +109,7 @@ export const TransformActionTaskDts = (
       noEmit: false,
       outDir: outDir.content,
     };
+    // TODO:参照minify-ts 实现 source map 支持
     const program = ts.createProgram(
       matchedFiles.map((e) => e.content),
       finalCompilerOptions
@@ -133,11 +141,15 @@ export const TransformActionTaskDts = (
             diagnostic.messageText,
             "\n"
           );
-          log.error(
-            `${diagnostic.file.fileName} (${line + 1},${
-              character + 1
-            }): ${message}`
-          );
+          const fileName = logFilePathRewrite
+            ? logFilePathRewrite({
+                filePath: diagnostic.file.fileName,
+                inputDir,
+                tempDir,
+                finalUserConfig,
+              })
+            : diagnostic.file.fileName;
+          log.error(`${fileName} (${line + 1},${character + 1}): ${message}`);
         } else {
           log.error(
             ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")

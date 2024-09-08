@@ -15,19 +15,18 @@ export const ReleaseBranchConfigDefault: ReleaseBranchConfig = {
   mainCheckDisable: false,
   cleanCheckDisable: false,
 };
-export const branch = async ({
-  config,
-}: {
-  config: FinalUserConfig;
+export const branch = async (params: {
+  finalUserConfig: FinalUserConfig;
 }): Promise<ReleaseBranchResult> => {
+  const { finalUserConfig } = params;
   const {
     release: {
       branch: { mainCheckDisable, mainName, cleanCheckDisable },
     },
-  } = config;
-  const log = useLog({ finalUserConfig: config });
+  } = finalUserConfig;
+  const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: config.locale,
+    locale: finalUserConfig.locale,
   });
   const { currentBranchGet, currentBranchStatusGet } = useGit();
   const currentBranchName = await currentBranchGet();

@@ -4,7 +4,7 @@ import { useLog } from "@/utils/log";
 import { useMessage } from "../../utils/message";
 import { usePath } from "../../utils/path";
 import { MaybePromise } from "../../utils/types";
-import { resolvePresetPath } from "./utils";
+import { resolvePresetPath, useTagPrefix } from "./utils";
 import conventionalChangelog from "conventional-changelog";
 export interface ReleaseChangelogFileContent {
   header?: string;
@@ -14,14 +14,14 @@ export interface ReleaseChangelogFileContent {
 export interface ReleaseChangelogConfig {
   filePath: string;
   filePathResolve: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
   }) => MaybePromise<string>;
   fileRead: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
   }) => MaybePromise<ReleaseChangelogFileContent>;
   fileWriteDisable?: boolean;
   fileWrite: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
     changelogRes: ReleaseChangelogFileContent;
   }) => MaybePromise<void>;
   header?: string;
@@ -29,25 +29,25 @@ export interface ReleaseChangelogConfig {
 }
 export const ReleaseChangelogConfigDefault: ReleaseChangelogConfig = {
   filePath: "CHANGELOG.md",
-  filePathResolve: async ({ config }) => {
+  filePathResolve: async ({ finalUserConfig }) => {
     const {
       root,
       release: {
         changelog: { filePath },
       },
-    } = config;
+    } = finalUserConfig;
     const path = usePath();
     const absolutePath = path.resolve(root, filePath);
     return absolutePath;
   },
-  fileRead: async ({ config }) => {
+  fileRead: async ({ finalUserConfig }) => {
     const {
       release: {
         changelog: { filePathResolve },
       },
-    } = config;
+    } = finalUserConfig;
     const changelogFileAbsolutePath = await filePathResolve({
-      config,
+      finalUserConfig,
     });
     const fs = useFs();
     const fileExist = await fs.pathExists(changelogFileAbsolutePath);
@@ -56,14 +56,14 @@ export const ReleaseChangelogConfigDefault: ReleaseChangelogConfig = {
       : "";
     return changelogContentParser(content);
   },
-  fileWrite: async ({ config, changelogRes }) => {
+  fileWrite: async ({ finalUserConfig, changelogRes }) => {
     const {
       release: {
         changelog: { filePathResolve },
       },
-    } = config;
+    } = finalUserConfig;
     const changelogFileAbsolutePath = await filePathResolve({
-      config,
+      finalUserConfig,
     });
     const fs = useFs();
     const changelogContent = changelogContentStringify(changelogRes);
@@ -115,29 +115,38 @@ export const changelogContentStringify = (
     (footer || "")
   );
 };
-export const changelog = async ({ config }: { config: FinalUserConfig }) => {
-  const log = useLog({ finalUserConfig: config });
+export const changelog = async (params: {
+  finalUserConfig: FinalUserConfig;
+}) => {
+  const { finalUserConfig } = params;
+  const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: config.locale,
+    locale: finalUserConfig.locale,
   });
   log.info(message.releaseChangelogGenerating());
   const {
     release: {
-      tag: { prefix: tagPrefix },
       changelog: { fileRead, header, footer, fileWrite, fileWriteDisable },
     },
-  } = config;
+  } = finalUserConfig;
+  const tagPrefix = await useTagPrefix({ finalUserConfig });
 
   // TODO：此处需要过滤 scope
   log.debug({ tagPrefix });
-  const conventionalChangelogStream = conventionalChangelog({
-    preset: resolvePresetPath(),
-    tagPrefix,
-  });
+  const conventionalChangelogStream = conventionalChangelog(
+    {
+      preset: resolvePresetPath(),
+      tagPrefix,
+    },
+    undefined,
+    {
+      ignore: "uuu",
+    }
+  );
   const newChangeset = await streamToString(conventionalChangelogStream);
 
   const oldContent = await fileRead({
-    config,
+    finalUserConfig,
   });
 
   const newContent: ReleaseChangelogFileContent = {
@@ -148,7 +157,7 @@ export const changelog = async ({ config }: { config: FinalUserConfig }) => {
   if (!fileWriteDisable) {
     log.info(message.releaseChangelogFileWriting());
     await fileWrite({
-      config,
+      finalUserConfig,
       changelogRes: newContent,
     });
     log.info(message.releaseChangelogFileWriteSuccess());

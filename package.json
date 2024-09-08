@@ -22,6 +22,8 @@
   "devDependencies": {
     "@commitlint/config-pnpm-scopes": "^19.1.0",
     "@commitlint/types": "^19.0.3",
+    "@pnpm/find-workspace-dir": "^7.0.1",
+    "@pnpm/workspace.find-packages": "^4.0.9",
     "@types/wait-on": "^5.3.4",
     "husky": "^9.0.11",
     "unbag": "workspace:^",

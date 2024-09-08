@@ -10,27 +10,27 @@ export interface ReleaseCommitConfig {
   message?: string;
   addAll: boolean;
   messageFormat: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
     bumpRes: BumpResult;
     changelogRes: ReleaseChangelogFileContent;
     commitFiles: string[];
     addAll: boolean;
   }) => MaybePromise<string>;
   filesCollect: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
     bumpRes: BumpResult;
     changelogRes: ReleaseChangelogFileContent;
   }) => MaybePromise<string[]>;
 }
 export const ReleaseCommitConfigDefault: ReleaseCommitConfig = {
   addAll: false,
-  messageFormat: async ({ config, bumpRes }) => {
-    const { release } = config;
+  messageFormat: async ({ finalUserConfig, bumpRes }) => {
+    const { release } = finalUserConfig;
     const { scope } = release;
     return `release${scope ? `(${scope})` : ``}: ${bumpRes?.version}`;
   },
-  filesCollect: async ({ config, bumpRes, changelogRes }) => {
-    const { release } = config;
+  filesCollect: async ({ finalUserConfig, bumpRes, changelogRes }) => {
+    const { release } = finalUserConfig;
     const {
       bump: { versionFileWriteDisable, versionFilePathResolve },
       changelog: {
@@ -42,7 +42,7 @@ export const ReleaseCommitConfigDefault: ReleaseCommitConfig = {
     if (!versionFileWriteDisable) {
       if (bumpRes.oldVersion !== bumpRes.version) {
         const pkgFileAbsolutePath = await versionFilePathResolve({
-          config,
+          finalUserConfig,
         });
         files.push(pkgFileAbsolutePath);
       }
@@ -50,7 +50,7 @@ export const ReleaseCommitConfigDefault: ReleaseCommitConfig = {
     if (!changelogFileWriteDisable) {
       if (changelogRes.body) {
         const changelogFileAbsolutePath = await changelogFilePathResolve({
-          config,
+          finalUserConfig,
         });
         files.push(changelogFileAbsolutePath);
       }
@@ -58,19 +58,16 @@ export const ReleaseCommitConfigDefault: ReleaseCommitConfig = {
     return files;
   },
 };
-export const commit = async ({
-  config,
-  bumpRes,
-  changelogRes,
-}: {
-  config: FinalUserConfig;
+export const commit = async (params: {
+  finalUserConfig: FinalUserConfig;
   bumpRes: BumpResult;
   changelogRes: ReleaseChangelogFileContent;
 }) => {
-  const { release } = config;
-  const log = useLog({ finalUserConfig: config });
+  const { finalUserConfig, bumpRes, changelogRes } = params;
+  const { release } = finalUserConfig;
+  const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: config.locale,
+    locale: finalUserConfig.locale,
   });
   const {
     commit: {
@@ -92,7 +89,7 @@ export const commit = async ({
   } else {
     log.info(message.releaseCommitFileCollecting());
     addFiles = await filesCollect({
-      config,
+      finalUserConfig,
       bumpRes,
       changelogRes,
     });
@@ -109,7 +106,7 @@ export const commit = async ({
   const finalCommitMsg =
     commitMessage ||
     (await messageFormat({
-      config,
+      finalUserConfig,
       bumpRes,
       changelogRes,
       commitFiles: {

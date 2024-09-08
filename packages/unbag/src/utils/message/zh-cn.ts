@@ -80,9 +80,17 @@ export const message = {
     },
   },
   release: {
+    scope: {
+      undefinedCheck: () => {
+        return `release.scope.check 需要配置`;
+      },
+      unValidScopeName: () => {
+        return `无效的 scope 名称，请检查相关配置 release.scope.name release.scope.check`;
+      },
+    },
     bump: {
       unValidOldVersion: () => {
-        return `无效的旧版号，请检查相关配置 release.bump.versionFilePath、release.bump.versionFilePathResolve, release.bump.versionFileRead`;
+        return `无效的旧版号，请检查相关配置 release.bump.versionFilePath release.bump.versionFilePathResolve release.bump.versionFileRead`;
       },
       end: (params: { version: string; oldVersion: string }) => {
         const { version, oldVersion } = params;
@@ -90,6 +98,11 @@ export const message = {
       },
       unValidVersionResult: () => {
         return `生成的版本号无效`;
+      },
+    },
+    tag: {
+      undefinedGenPrefix: () => {
+        return `生成的 tag prefix 无效，请检查 release.tag.genPrefix `;
       },
     },
   },

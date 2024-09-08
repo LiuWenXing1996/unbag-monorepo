@@ -8,7 +8,7 @@ import { usePath } from "../../utils/path";
 import { useFs } from "@/utils/fs";
 import { useLog } from "@/utils/log";
 import { Bumper } from "conventional-recommended-bump";
-import { resolvePresetPath } from "./utils";
+import { resolvePresetPath, useTagPrefix } from "./utils";
 import { unSafeFunctionWrapper } from "@/utils/common";
 export interface VersionFileFileContent {
   version: string;
@@ -16,13 +16,13 @@ export interface VersionFileFileContent {
 export interface ReleaseBumpConfig {
   versionFilePath: string;
   versionFilePathResolve: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
   }) => MaybePromise<string>;
   versionFileRead: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
   }) => MaybePromise<VersionFileFileContent>;
   versionFileWrite: (params: {
-    config: FinalUserConfig;
+    finalUserConfig: FinalUserConfig;
     bumpRes: BumpResult;
   }) => MaybePromise<void>;
   versionFileWriteDisable?: boolean;
@@ -33,25 +33,25 @@ export interface ReleaseBumpConfig {
 }
 export const ReleaseBumpConfigDefault: ReleaseBumpConfig = {
   versionFilePath: "package.json",
-  versionFilePathResolve: async ({ config }) => {
+  versionFilePathResolve: async ({ finalUserConfig }) => {
     const {
       release: {
         bump: { versionFilePath },
       },
       root,
-    } = config;
+    } = finalUserConfig;
     const path = usePath();
     const absolutePath = path.resolve(root, versionFilePath);
     return absolutePath;
   },
-  versionFileRead: async ({ config }) => {
+  versionFileRead: async ({ finalUserConfig }) => {
     const {
       release: {
         bump: { versionFilePathResolve },
       },
-    } = config;
+    } = finalUserConfig;
     const pkgFileAbsolutePath = await versionFilePathResolve({
-      config,
+      finalUserConfig,
     });
     const fs = useFs();
     const content = await fs.readJson<VersionFileFileContent>(
@@ -59,14 +59,14 @@ export const ReleaseBumpConfigDefault: ReleaseBumpConfig = {
     );
     return content;
   },
-  versionFileWrite: async ({ config, bumpRes }) => {
+  versionFileWrite: async ({ finalUserConfig, bumpRes }) => {
     const {
       release: {
         bump: { versionFilePathResolve },
       },
-    } = config;
+    } = finalUserConfig;
     const pkgFileAbsolutePath = await versionFilePathResolve({
-      config,
+      finalUserConfig,
     });
     const version = bumpRes?.version;
     if (!version) {
@@ -105,24 +105,24 @@ export const isInPrerelease = (version: string) => {
   return Array.isArray(semver.prerelease(version));
 };
 export const genVersionByCommits = async (params: {
-  config: FinalUserConfig;
+  finalUserConfig: FinalUserConfig;
   data: {
     oldVersion: string;
   };
 }): Promise<BumpResult> => {
-  const { config, data } = params;
-  const log = useLog({ finalUserConfig: config });
+  const { finalUserConfig, data } = params;
+  const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: config.locale,
+    locale: finalUserConfig.locale,
   });
   log.info(message.releaseBumpingByCommits());
   const {
     release: {
       scope,
-      tag: { prefix: tagPrefix },
       bump: { releasePre, releasePreTag },
     },
-  } = config;
+  } = finalUserConfig;
+  const tagPrefix = await useTagPrefix({ finalUserConfig });
   const { oldVersion } = data;
   const bumper = new Bumper();
   const presetPath = resolvePresetPath();
@@ -136,8 +136,8 @@ export const genVersionByCommits = async (params: {
     scope,
     tagPrefix,
   });
-  if (scope) {
-    commits = commits.filter((e) => e.scope === scope);
+  if (scope?.name) {
+    commits = commits.filter((e) => e.scope === scope.name);
   }
   log.info(
     message.releaseBumpCommitsList({
@@ -200,24 +200,22 @@ export interface BumpResult {
   releaseType?: ReleaseType;
   commits?: Commit[];
 }
-export const genVersion = async ({
-  config,
-}: {
-  config: FinalUserConfig;
+export const genVersion = async (params: {
+  finalUserConfig: FinalUserConfig;
 }): Promise<BumpResult> => {
-  const log = useLog({ finalUserConfig: config });
+  const { finalUserConfig } = params;
+  const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: config.locale,
+    locale: finalUserConfig.locale,
   });
   log.info(message.releaseBumping());
   const {
     release: {
       bump: { versionFileRead, releaseAs, releaseType, releasePreTag },
     },
-  } = config;
-  // TODO:...
+  } = finalUserConfig;
   const versionFileContent = await unSafeFunctionWrapper(versionFileRead)({
-    config,
+    finalUserConfig,
   });
   if (!versionFileContent) {
     throw new Error(message.releaseBumpNotFoundVersionFile());
@@ -266,23 +264,22 @@ export const genVersion = async ({
     };
   }
   return await genVersionByCommits({
-    config,
+    finalUserConfig,
     data: {
       oldVersion,
     },
   });
 };
-export const bump = async ({
-  config,
-}: {
-  config: FinalUserConfig;
+export const bump = async (params: {
+  finalUserConfig: FinalUserConfig;
 }): Promise<BumpResult> => {
-  const log = useLog({ finalUserConfig: config });
+  const { finalUserConfig } = params;
+  const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: config.locale,
+    locale: finalUserConfig.locale,
   });
   const versionResult = await genVersion({
-    config,
+    finalUserConfig,
   });
   log.info(
     message.release.bump.end({
@@ -297,11 +294,11 @@ export const bump = async ({
     release: {
       bump: { versionFileWriteDisable, versionFileWrite },
     },
-  } = config;
+  } = finalUserConfig;
 
   if (!versionFileWriteDisable) {
     await versionFileWrite({
-      config,
+      finalUserConfig,
       bumpRes: versionResult,
     });
     log.info(

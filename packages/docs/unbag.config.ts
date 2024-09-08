@@ -3,7 +3,7 @@ import { checkScope } from "../../scripts/scopes";
 
 export default defineUserConfig({
   log: {
-    debug: false,
+    debug: true,
   },
   release: {
     // TODO：这个地方的名字似乎要和 package name 相对应
@@ -28,8 +28,6 @@ export default defineUserConfig({
       disable: true,
     },
     tag: {
-      // TODO:这个 prefix 是不是不能自定义比较好？
-      prefix: "docs@",
       disable: true,
     },
   },

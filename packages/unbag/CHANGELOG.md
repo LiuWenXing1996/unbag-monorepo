@@ -2,6 +2,12 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## [0.10.1](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.10.0...unbag@0.10.1) (2024-09-09)
+
+### Bug Fixes
+
+* 移除注释,顺便测试下 changelog ([4b5a6e9](https://github.com/LiuWenXing1996/unbag-monorepo/commit/4b5a6e98307fac678ea694fe12d631727f920c50))
+
 ## 0.10.0 (2024-09-09)
 
 ### Features

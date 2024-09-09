@@ -2,6 +2,8 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## [0.1.2](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag-docs@0.1.1...unbag-docs@0.1.2) (2024-09-09)
+
 ## [0.1.1](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag-docs@0.1.0...unbag-docs@0.1.1) (2024-09-09)
 
 ### Bug Fixes

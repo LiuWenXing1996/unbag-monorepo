@@ -27,7 +27,9 @@ export const ReleaseCommitConfigDefault: ReleaseCommitConfig = {
   messageFormat: async ({ finalUserConfig, bumpRes }) => {
     const { release } = finalUserConfig;
     const { scope } = release;
-    return `release${scope ? `(${scope})` : ``}: ${bumpRes?.version}`;
+    return `release${scope?.name ? `(${scope.name})` : ``}: ${
+      bumpRes?.version
+    }`;
   },
   filesCollect: async ({ finalUserConfig, bumpRes, changelogRes }) => {
     const { release } = finalUserConfig;
@@ -64,41 +66,39 @@ export const commit = async (params: {
   changelogRes: ReleaseChangelogFileContent;
 }) => {
   const { finalUserConfig, bumpRes, changelogRes } = params;
-  const { release } = finalUserConfig;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
     locale: finalUserConfig.locale,
   });
+  log.info(message.release.commit.processing());
   const {
-    commit: {
-      disable,
-      message: commitMessage,
-      messageFormat,
-      filesCollect,
-      addAll,
+    release: {
+      dry,
+      commit: {
+        disable,
+        message: commitMessage,
+        messageFormat,
+        filesCollect,
+        addAll,
+      },
     },
-  } = release;
-  if (disable) {
-    log.warn(message.releaseCommitDisable());
-    return;
-  }
-  log.info(message.releaseCommitting());
+  } = finalUserConfig;
   let addFiles: string[] = [];
   if (addAll) {
-    log.info(message.releaseCommitAll());
+    log.info(message.release.commit.willCommitAll());
   } else {
-    log.info(message.releaseCommitFileCollecting());
+    log.info(message.release.commit.fileCollecting());
     addFiles = await filesCollect({
       finalUserConfig,
       bumpRes,
       changelogRes,
     });
     if (addFiles.length <= 0) {
-      log.warn(message.releaseCommitFilesEmpty());
+      log.warn(message.release.commit.commitFilesEmpty());
       return;
     }
     log.info(
-      message.releaseCommitFilesInfo({
+      message.release.commit.commitFilesInfo({
         files: [...addFiles],
       })
     );
@@ -115,13 +115,22 @@ export const commit = async (params: {
       addAll,
     }));
   if (!finalCommitMsg) {
-    throw new Error(message.releaseCommitMessageUndefined());
+    throw new Error(message.release.commit.messageUndefined());
   }
   log.info(
-    message.releaseCommitMessageInfo({
+    message.release.commit.messageInfo({
       message: finalCommitMsg,
     })
   );
+  let _disable = disable;
+  if (dry) {
+    _disable = true;
+    log.warn(message.release.dry.commit.disable());
+  }
+  if (_disable) {
+    log.warn(message.release.commit.disable());
+    return;
+  }
   if (addAll) {
     await $`git add .`;
   } else {

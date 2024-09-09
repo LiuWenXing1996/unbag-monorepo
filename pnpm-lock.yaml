@@ -66,6 +66,12 @@ importers:
       '@commitlint/types':
         specifier: ^19.0.3
         version: 19.0.3
+      '@types/conventional-changelog-core':
+        specifier: ^4.2.8
+        version: 4.2.8
+      '@types/conventional-changelog-writer':
+        specifier: ^4.0.10
+        version: 4.0.10
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
@@ -145,12 +151,6 @@ importers:
       '@babel/plugin-transform-modules-commonjs':
         specifier: ^7.24.8
         version: 7.24.8(@babel/core@7.24.7)
-      '@pnpm/find-workspace-dir':
-        specifier: ^7.0.1
-        version: 7.0.1
-      '@pnpm/workspace.find-packages':
-        specifier: ^4.0.9
-        version: 4.0.9(@pnpm/logger@5.2.0)
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
@@ -2051,16 +2051,14 @@ packages:
       '@types/conventional-commits-parser': 5.0.0
       '@types/conventional-recommended-bump': 10.0.0
       '@types/git-raw-commits': 2.0.4
-      '@types/node': 18.19.17
+      '@types/node': 22.2.0
       '@types/normalize-package-data': 2.4.4
-    dev: true
 
   /@types/conventional-changelog-writer@4.0.10:
     resolution: {integrity: sha512-EK654IW1SBqTZSzN9+PlB6SKSYlDhsrCv1olfeEXvt/FHcmd7kvFWW0cFvMtnWalR/D7baYzY3FJ2TSt7UUySg==}
     dependencies:
       '@types/conventional-commits-parser': 5.0.0
-      '@types/node': 18.19.17
-    dev: true
+      '@types/node': 22.2.0
 
   /@types/conventional-changelog@3.1.5:
     resolution: {integrity: sha512-MTCB1VD8XriLLROFOkhUwMvj8kkqsHbPLGQo+U4fKBY2qfyty5qnkNP44L9qrN8B5SiVXono8uwG1vz62RVDig==}
@@ -2082,7 +2080,6 @@ packages:
     deprecated: This is a stub types definition. conventional-recommended-bump provides its own type definitions, so you do not need this installed.
     dependencies:
       conventional-recommended-bump: 10.0.0
-    dev: true
 
   /@types/debounce-promise@3.1.9:
     resolution: {integrity: sha512-awNxydYSU+E2vL7EiOAMtiSOfL5gUM5X4YSE2A92qpxDJQ/rXz6oMPYBFDcDywlUmvIDI6zsqgq17cGm5CITQw==}
@@ -2106,8 +2103,7 @@ packages:
   /@types/git-raw-commits@2.0.4:
     resolution: {integrity: sha512-PYmTK156j6TilbwtnO2JErH4TCC1izpgP3kRE3KUX35bjBOD2A+syCGeercqHXBcM6wL+DU0WbJB2Gz8fPR+8A==}
     dependencies:
-      '@types/node': 18.19.17
-    dev: true
+      '@types/node': 22.2.0
 
   /@types/jsonfile@6.1.4:
     resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
@@ -4205,7 +4201,7 @@ packages:
     dependencies:
       hosted-git-info: 7.0.2
       is-core-module: 2.13.1
-      semver: 7.6.1
+      semver: 7.6.2
       validate-npm-package-license: 3.0.4
     dev: false
 
@@ -4341,7 +4337,7 @@ packages:
     resolution: {integrity: sha512-rum1bPifK5SSar35Z6EKZuYPJx85pkNaFrxBK3mwdfSJ1/WKbYrjoW/zTPSjRRamfmVX1ACBIdFAO0VRErW/EA==}
     engines: {node: '>=18'}
     dependencies:
-      '@babel/code-frame': 7.24.2
+      '@babel/code-frame': 7.24.7
       index-to-position: 0.1.2
       type-fest: 4.18.2
     dev: false
@@ -4690,12 +4686,6 @@ packages:
   /semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
-
-  /semver@7.6.1:
-    resolution: {integrity: sha512-f/vbBsu+fOiYt+lmwZV0rVwJScl46HppnOA1ZvIuBWKOTlllpyJ3bfVax76/OrhCH38dyxoDIA8K7uB963IYgA==}
-    engines: {node: '>=10'}
-    hasBin: true
-    dev: false
 
   /semver@7.6.2:
     resolution: {integrity: sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==}

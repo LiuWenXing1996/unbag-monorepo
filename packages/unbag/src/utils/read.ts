@@ -121,9 +121,15 @@ export const read = () => {
         .name("release")
         .description("release")
         .addOptions(getCommonOptions())
+        .option("-d,--dry", "启用试运行模式")
         .action(async (options) => {
           const userConfig = await resolveUserConfigFromCli({
             cliOptions: options,
+            overrides: {
+              release: {
+                dry: options.dry,
+              },
+            },
           });
           const cmd = new ReleaseCommand(userConfig);
           await cmd.run();

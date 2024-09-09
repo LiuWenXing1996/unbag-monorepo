@@ -4,8 +4,11 @@ import { useLog } from "@/utils/log";
 import { useMessage } from "../../utils/message";
 import { usePath } from "../../utils/path";
 import { MaybePromise } from "../../utils/types";
-import { resolvePresetPath, useTagPrefix } from "./utils";
+import { useTagPrefix } from "./utils";
 import conventionalChangelog from "conventional-changelog";
+import { BumpResult } from "./bump";
+import type { Stream } from "node:stream";
+import type { ParserOptions, WriterOptions } from "conventional-changelog-core";
 export interface ReleaseChangelogFileContent {
   header?: string;
   body?: string;
@@ -24,6 +27,10 @@ export interface ReleaseChangelogConfig {
     finalUserConfig: FinalUserConfig;
     changelogRes: ReleaseChangelogFileContent;
   }) => MaybePromise<void>;
+  logAddChangesetDisable?: boolean;
+  scopeNoWriteDisable?: boolean;
+  genParserOpts?: () => MaybePromise<ParserOptions>;
+  genWriterOpts?: () => MaybePromise<WriterOptions>;
   header?: string;
   footer?: string;
 }
@@ -70,14 +77,14 @@ export const ReleaseChangelogConfigDefault: ReleaseChangelogConfig = {
     await fs.outputFile(changelogFileAbsolutePath, changelogContent);
   },
 };
-function streamToString(stream) {
+const streamToString = (stream: Stream): Promise<string> => {
   const chunks: any[] = [];
   return new Promise((resolve, reject) => {
     stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
     stream.on("error", (err) => reject(err));
     stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
   });
-}
+};
 const ChangelogHeaderDividerTag =
   "\n\n[comment]: # (!!!ChangelogHeaderDividerTag!!!)\n\n";
 const ChangelogFooterDividerTag =
@@ -117,44 +124,84 @@ export const changelogContentStringify = (
 };
 export const changelog = async (params: {
   finalUserConfig: FinalUserConfig;
+  bumpRes: BumpResult;
 }) => {
-  const { finalUserConfig } = params;
+  const { finalUserConfig, bumpRes } = params;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
     locale: finalUserConfig.locale,
   });
-  log.info(message.releaseChangelogGenerating());
+  log.info(message.release.changelog.generating());
   const {
     release: {
-      changelog: { fileRead, header, footer, fileWrite, fileWriteDisable },
+      dry,
+      scope,
+      preset,
+      changelog: {
+        fileRead,
+        header,
+        footer,
+        fileWrite,
+        fileWriteDisable,
+        logAddChangesetDisable,
+        scopeNoWriteDisable,
+        genParserOpts,
+        genWriterOpts,
+      },
     },
   } = finalUserConfig;
   const tagPrefix = await useTagPrefix({ finalUserConfig });
-
-  // TODO：此处需要过滤 scope
-  log.debug({ tagPrefix });
+  const parserOpts = await genParserOpts?.();
+  const writerOpts = await genWriterOpts?.();
   const conventionalChangelogStream = conventionalChangelog(
     {
-      preset: resolvePresetPath(),
+      //@ts-ignore
+      preset: {
+        name: preset.path,
+        ...preset.params,
+      },
       tagPrefix,
+      transform: (commit, cb) => {
+        if (scope?.name) {
+          if (commit.scope === scope.name) {
+            if (!scopeNoWriteDisable) {
+              commit.scope = undefined;
+            }
+            cb(null, commit);
+          } else {
+            //@ts-ignore
+            cb(null, undefined);
+          }
+        } else {
+          cb(null, commit);
+        }
+      },
+    },
+    {
+      version: bumpRes.version,
     },
     undefined,
-    {
-      ignore: "uuu",
-    }
+    parserOpts,
+    writerOpts
   );
   const newChangeset = await streamToString(conventionalChangelogStream);
-
   const oldContent = await fileRead({
     finalUserConfig,
   });
-
   const newContent: ReleaseChangelogFileContent = {
     header,
     footer,
     body: "" + newChangeset + "\n" + (oldContent?.body || ""),
   };
-  if (!fileWriteDisable) {
+  let _fileWriteDisable = fileWriteDisable;
+  if (dry) {
+    _fileWriteDisable = true;
+    log.warn(message.release.dry.changelog.fileWriteDisable());
+  }
+  if (!logAddChangesetDisable) {
+    log.warn(message.release.changelog.newChangeset({ newChangeset }));
+  }
+  if (!_fileWriteDisable) {
     log.info(message.releaseChangelogFileWriting());
     await fileWrite({
       finalUserConfig,

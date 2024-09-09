@@ -20,13 +20,20 @@ import { Command } from "@/core/command";
 import { MaybePromise } from "@/utils/types";
 import { unSafeFunctionWrapper } from "@/utils/common";
 import { useMessage } from "@/utils/message";
+import { useLog } from "@/utils/log";
+import { useDefaultReleasePresetPath } from "./utils";
 export interface ReleaseConfig {
+  dry?: boolean;
   scope?: {
     name: string;
     check?: (params: {
       name: string;
       finalUserConfig: FinalUserConfig;
     }) => MaybePromise<boolean>;
+  };
+  preset: {
+    path: string;
+    params: object;
   };
   branch: ReleaseBranchConfig;
   bump: ReleaseBumpConfig;
@@ -40,6 +47,10 @@ export const releaseDefaultConfig: ReleaseConfig = {
   changelog: ReleaseChangelogConfigDefault,
   commit: ReleaseCommitConfigDefault,
   tag: ReleaseTagConfigDefault,
+  preset: {
+    path: useDefaultReleasePresetPath(),
+    params: {},
+  },
 };
 
 // TODO 实现 scope?
@@ -48,10 +59,14 @@ export const releaseDefaultConfig: ReleaseConfig = {
 // TODO:继续实现 release 和其子命令
 export const release = async (params: { finalUserConfig: FinalUserConfig }) => {
   const { finalUserConfig } = params;
+  const log = useLog({ finalUserConfig });
   const message = useMessage({ locale: finalUserConfig.locale });
   const {
-    release: { scope },
+    release: { dry, scope },
   } = finalUserConfig;
+  if (dry) {
+    log.warn(message.release.dry.tip());
+  }
   if (scope) {
     const { check, name } = scope;
     if (!check) {
@@ -67,7 +82,7 @@ export const release = async (params: { finalUserConfig: FinalUserConfig }) => {
   }
   await branch({ finalUserConfig });
   const bumpRes = await bump({ finalUserConfig });
-  const changelogRes = await changelog({ finalUserConfig });
+  const changelogRes = await changelog({ finalUserConfig, bumpRes });
   await commit({
     finalUserConfig,
     bumpRes,

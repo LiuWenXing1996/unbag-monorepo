@@ -1,4 +1,3 @@
-import { LintOutcome } from "@commitlint/types";
 import { type Commit } from "conventional-commits-parser";
 export const message = {
   config: {
@@ -88,6 +87,36 @@ export const message = {
         return `无效的 scope 名称，请检查相关配置 release.scope.name release.scope.check`;
       },
     },
+    dry: {
+      tip: () => {
+        return `进入试运行模式，将会自动禁用一些操作`;
+      },
+      bump: {
+        versionFileWriteDisable: () => {
+          return `试运行模式，禁用版本描述文件写入`;
+        },
+      },
+      changelog: {
+        fileWriteDisable: () => {
+          return `试运行模式，禁用更新日志写入`;
+        },
+      },
+      commit: {
+        disable: () => {
+          return `试运行模式，禁用更改文件提交`;
+        },
+      },
+      tag: {
+        disable: () => {
+          return `试运行模式，禁用 git tag 添加`;
+        },
+      },
+    },
+    branch: {
+      currentBranchUndefined: () => {
+        return `现在没有处在任何分支,请切换到某分支下进行操作`;
+      },
+    },
     bump: {
       unValidOldVersion: () => {
         return `无效的旧版号，请检查相关配置 release.bump.versionFilePath release.bump.versionFilePathResolve release.bump.versionFileRead`;
@@ -100,9 +129,64 @@ export const message = {
         return `生成的版本号无效`;
       },
     },
+    changelog: {
+      generating: () => {
+        return `正在生成更新日志...`;
+      },
+      newChangeset: (params: { newChangeset: string }) => {
+        const { newChangeset } = params;
+        return `将会新增以下日志：
+${newChangeset}`;
+      },
+    },
+    commit: {
+      processing: () => {
+        return `准备自动提交更改文件...`;
+      },
+      willCommitAll: () => {
+        return `将会自动提交所有更改文件`;
+      },
+      fileCollecting: () => {
+        return `正在自动收集更改文件...`;
+      },
+      commitFilesEmpty: () => {
+        return `未检测到需要提交的文件, 退出自动提交`;
+      },
+      commitFilesInfo: ({ files }: { files: string[] }) => {
+        return `需要提交的文件:\n   ${files.join("\n   ")}`;
+      },
+      messageUndefined: () => {
+        return `CommitMessage 为空, 请检查 commitMessageFormat`;
+      },
+      messageInfo: (params: { message: string }) => {
+        const { message } = params;
+        return `提交信息: ${message}`;
+      },
+      disable: () => {
+        return `自动提交更改文件已被禁用`;
+      },
+    },
     tag: {
+      processing: () => {
+        return `准备添加 git tag ...`;
+      },
       undefinedGenPrefix: () => {
         return `生成的 tag prefix 无效，请检查 release.tag.genPrefix `;
+      },
+      prefix: (params: { prefix: string }) => {
+        const { prefix } = params;
+        return `tagPrefix: ${prefix}`;
+      },
+      name: (params: { name: string }) => {
+        const { name } = params;
+        return `tagName: ${name}`;
+      },
+      message: (params: { message: string }) => {
+        const { message } = params;
+        return `tagMessage: ${message}`;
+      },
+      force: () => {
+        return `已启用强制添加 git tag`;
       },
     },
   },
@@ -205,9 +289,6 @@ export const message = {
   releaseBumpVersionFileWriteSuccess: ({ version }: { version: string }) => {
     return `版本描述文件已被写入下一个版本号：${version}`;
   },
-  releaseChangelogGenerating: () => {
-    return `正在生成更新日志...`;
-  },
   releaseChangelogFileWriting: () => {
     return `正在写入更新日志...`;
   },
@@ -217,35 +298,13 @@ export const message = {
   releaseChangelogFileWriteDisable: () => {
     return `写入更新日志已被禁用`;
   },
-  releaseCommitting: () => {
-    return `准备自动提交更改文件...`;
-  },
-  releaseCommitDisable: () => {
-    return `自动提交更改文件已被禁用`;
-  },
-  releaseCommitAll: () => {
-    return `将会自动提交所有更改文件`;
-  },
-  releaseCommitFileCollecting: () => {
-    return `正在自动收集更改文件...`;
-  },
+
   releaseCommitMessageInfoUndefined: () => {
     return `提交信息不能为空, 请检查配置文件中的 release.commit.message,release.commit.messageFormat `;
   },
-  releaseCommitMessageInfo: ({ message }: { message: string }) => {
-    return `提交信息: ${message}`;
-  },
-  releaseCommitFilesEmpty: () => {
-    return `未检测到需要提交的文件, 退出自动提交`;
-  },
-  releaseCommitFilesInfo: ({ files }: { files: string[] }) => {
-    return `需要提交的文件:\n   ${files.join("\n   ")}`;
-  },
+
   releaseCommitSuccess: () => {
     return `自动提交成功`;
-  },
-  releaseTagging: () => {
-    return `准备添加 git tag ...`;
   },
   releaseTagDisable: () => {
     return `添加 git tag 已被禁用`;
@@ -271,8 +330,5 @@ export const message = {
   },
   releaseUndefinedPkgFilePathConfig: () => {
     return `pkgFilePath 为 undefined`;
-  },
-  releaseCommitMessageUndefined: () => {
-    return `CommitMessage 为空, 请检查 commitMessageFormat`;
   },
 };

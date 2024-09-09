@@ -45,6 +45,8 @@
     "@commitlint/lint": "^19.2.2",
     "@commitlint/load": "^19.2.0",
     "@commitlint/types": "^19.0.3",
+    "@types/conventional-changelog-core": "^4.2.8",
+    "@types/conventional-changelog-writer": "^4.0.10",
     "babel-plugin-module-resolver": "^5.0.2",
     "bundle-require": "^4.0.2",
     "chalk": "^5.3.0",

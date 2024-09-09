@@ -28,14 +28,16 @@ export const ReleaseTagConfigDefault: ReleaseTagConfig = {
       release: { scope },
     } = finalUserConfig;
     if (scope?.name) {
-      return `${scope.name}v`;
+      return `${scope.name}@`;
     }
     return "v";
   },
   messageFormat: ({ finalUserConfig, changelogRes, bumpRes }) => {
     const { release } = finalUserConfig;
     const { scope } = release;
-    return `release${scope ? `(${scope})` : ``}: ${bumpRes?.version}`;
+    return `release${scope?.name ? `(${scope.name})` : ``}: ${
+      bumpRes?.version
+    }`;
   },
 };
 export const tag = async (params: {
@@ -44,26 +46,39 @@ export const tag = async (params: {
   changelogRes: ReleaseChangelogFileContent;
 }) => {
   const { finalUserConfig, bumpRes, changelogRes } = params;
-  const { release } = finalUserConfig;
-  const {
-    tag: { force, messageFormat, disable },
-  } = release;
-  const prefix = await useTagPrefix({ finalUserConfig });
   const log = useLog({ finalUserConfig });
   const message = useMessage({
     locale: finalUserConfig.locale,
   });
-  log.info(message.releaseTagging());
-  if (disable) {
-    log.warn(message.releaseTagDisable());
-    return;
-  }
+  log.info(message.release.tag.processing());
+  const {
+    release: {
+      dry,
+      tag: { force, messageFormat, disable },
+    },
+  } = finalUserConfig;
+  const prefix = await useTagPrefix({ finalUserConfig });
+  log.info(message.release.tag.prefix({ prefix }));
   const tagName = `${prefix}${bumpRes.version}`;
+  log.info(message.release.tag.name({ name: tagName }));
   const tagMessage = await messageFormat({
     finalUserConfig,
     changelogRes,
     bumpRes,
   });
+  log.info(message.release.tag.message({ message: tagMessage }));
+  let _disable = disable;
+  if (dry) {
+    _disable = true;
+    log.warn(message.release.dry.tag.disable());
+  }
+  if (_disable) {
+    log.warn(message.releaseTagDisable());
+    return;
+  }
+  if (force) {
+    log.warn(message.release.tag.force());
+  }
   await $`git tag -a ${tagName} ${force ? ["-f"] : []} -m ${tagMessage}`;
   log.info(
     message.releaseTagAddSuccess({

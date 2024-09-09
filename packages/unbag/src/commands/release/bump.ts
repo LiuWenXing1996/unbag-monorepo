@@ -8,7 +8,7 @@ import { usePath } from "../../utils/path";
 import { useFs } from "@/utils/fs";
 import { useLog } from "@/utils/log";
 import { Bumper } from "conventional-recommended-bump";
-import { resolvePresetPath, useTagPrefix } from "./utils";
+import { useTagPrefix } from "./utils";
 import { unSafeFunctionWrapper } from "@/utils/common";
 export interface VersionFileFileContent {
   version: string;
@@ -119,20 +119,23 @@ export const genVersionByCommits = async (params: {
   const {
     release: {
       scope,
+      preset,
       bump: { releasePre, releasePreTag },
     },
   } = finalUserConfig;
   const tagPrefix = await useTagPrefix({ finalUserConfig });
   const { oldVersion } = data;
   const bumper = new Bumper();
-  const presetPath = resolvePresetPath();
-  bumper.loadPreset(presetPath);
+  bumper.loadPreset({
+    name: preset.path,
+    ...preset.params,
+  });
   bumper.tag({
     prefix: tagPrefix,
   });
   let commits = await getCommits(bumper);
   log.debug({
-    commits,
+    // commits,
     scope,
     tagPrefix,
   });
@@ -144,6 +147,9 @@ export const genVersionByCommits = async (params: {
       commits,
     })
   );
+  if (commits.length > 0) {
+    log.info(commits.map((e) => `    ${e.header}`).join("\n"));
+  }
   if (commits.length <= 0) {
     log.warn(
       message.releaseBumpCommitsNoData({
@@ -292,11 +298,19 @@ export const bump = async (params: {
   }
   const {
     release: {
+      dry,
       bump: { versionFileWriteDisable, versionFileWrite },
     },
   } = finalUserConfig;
 
-  if (!versionFileWriteDisable) {
+  let _versionFileWriteDisable = versionFileWriteDisable;
+
+  if (dry) {
+    _versionFileWriteDisable = true;
+    log.warn(message.release.dry.bump.versionFileWriteDisable());
+  }
+
+  if (!_versionFileWriteDisable) {
     await versionFileWrite({
       finalUserConfig,
       bumpRes: versionResult,

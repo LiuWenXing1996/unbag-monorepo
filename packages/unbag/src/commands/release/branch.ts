@@ -30,6 +30,7 @@ export const branch = async (params: {
   });
   const { currentBranchGet, currentBranchStatusGet } = useGit();
   const currentBranchName = await currentBranchGet();
+  // TODO:.....
   if (!currentBranchName) {
     throw new Error(message.releaseCurrentBranchUndefined());
   }

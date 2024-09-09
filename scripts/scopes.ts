@@ -13,7 +13,6 @@ export const getScopes = async () => {
 
 export const checkScope = async (name: string) => {
   const scopes = await getScopes();
-  console.log({scopes})
   if (!name) {
     return false;
   }

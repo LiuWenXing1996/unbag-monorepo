@@ -131,20 +131,9 @@ export default defineUserConfig({
         return await checkScope(name);
       },
     },
-    branch: {
-      mainCheckDisable: true,
-      cleanCheckDisable: true,
-    },
     changelog: {
       header: `我是更新日志的头部!!!`,
       footer: `我是更新日志的脚部!!!`,
-      fileWriteDisable: false,
-    },
-    commit: {
-      disable: true,
-    },
-    tag: {
-      disable: true,
     },
   },
 });

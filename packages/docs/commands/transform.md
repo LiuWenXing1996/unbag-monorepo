@@ -55,9 +55,3 @@ $ yarn unbag transform --watch
 - 默认值:`false`
 - 是否输出sourcemap
   
-### `plugins`
-
-- 类型:`Plugin[]`
-- 是否必填：是
-- 插件配置
-

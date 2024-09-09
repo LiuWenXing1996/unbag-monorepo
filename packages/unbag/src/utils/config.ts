@@ -38,7 +38,6 @@ export const useDefaultConfig = () => {
     parallel: ParallelDefaultConfig,
     release: releaseDefaultConfig,
     commit: CommitConfigDefault,
-    // TODO:实现顶层 catch
     catch: () => {},
   };
   return defaultConfig;

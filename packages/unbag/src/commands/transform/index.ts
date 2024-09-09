@@ -25,7 +25,6 @@ export interface TransformConfig {
   match: (params: {
     filePath: RelativePath;
     inputDir: AbsolutePath;
-    // TODO:这些 finalUserConfig 可不可以去掉？
     finalUserConfig: FinalUserConfig;
   }) => MaybePromise<boolean>;
   actions: Record<

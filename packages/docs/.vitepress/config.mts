@@ -1,12 +1,17 @@
 import { defineConfig } from "vitepress";
 
+const baseUrl = "unbag-monorepo";
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "unbag",
-  base: "/unbag/",
+  base: `/${baseUrl}/`,
   description: "一个专门用来开发npm工具的包",
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/unbag/logo.svg" }],
+    [
+      "link",
+      { rel: "icon", type: "image/svg+xml", href: `/${baseUrl}/logo.svg` },
+    ],
   ],
   themeConfig: {
     logo: "/logo.svg",
@@ -29,7 +34,10 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/LiuWenXing1996/unbag" },
+      {
+        icon: "github",
+        link: "https://github.com/LiuWenXing1996/unbag-monorepo",
+      },
     ],
   },
 });

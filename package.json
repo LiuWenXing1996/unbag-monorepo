@@ -6,16 +6,14 @@
   "scripts": {
     "build:unbag": "pnpm --filter 'unbag' build",
     "build": "pnpm build:unbag",
-    "docs:build": "pnpm --filter 'unbag-docs' build",
+    "build:docs": "pnpm --filter 'unbag-docs' build",
     "dev": "unbag parallel",
-    "ci:version": "changeset version",
-    "ci:publish": "pnpm build && changeset publish",
     "clear": "rimraf 'packages/*/{lib,node_modules}' && rimraf node_modules",
     "commit": "unbag commit",
     "test": "echo 'test'",
     "prepare": "husky",
-    "bump": "pnpm conventional-recommended-bump -p conventionalcommits",
-    "release": "pnpm commit-and-tag-version"
+    "release": "pnpm --filter 'unbag' release",
+    "ci:publish": "pnpm release && pnpm publish -r"
   },
   "license": "MIT",
   "author": "LiuWenXing1996 lwx_redstone@163.com",

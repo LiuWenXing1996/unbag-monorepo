@@ -1,8 +1,5 @@
 name: docs
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
 jobs:
   docs:
@@ -24,7 +21,7 @@ jobs:
       - name: install dependencies
         run: pnpm install
       - name: build docs
-        run: pnpm docs:build
+        run: pnpm build:docs
       - name: deploy to gitHub pages
         uses: crazy-max/ghaction-github-pages@v2
         with:

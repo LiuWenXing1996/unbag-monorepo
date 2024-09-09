@@ -3,10 +3,11 @@ import { checkScope } from "../../scripts/scopes";
 
 export default defineUserConfig({
   log: {
-    debug: true,
+    debug: false,
   },
   release: {
     // TODO：这个地方的名字似乎要和 package name 相对应
+    dry: false,
     scope: {
       name: "unbag-docs",
       check: async ({ name }) => {
@@ -14,21 +15,21 @@ export default defineUserConfig({
       },
     },
     branch: {
-      mainCheckDisable: true,
+      mainCheckDisable: false,
       cleanCheckDisable: true,
     },
     bump: {
-      versionFileWriteDisable: true,
+      versionFileWriteDisable: false,
     },
     changelog: {
       header: `我是更新日志的头部!!!`,
       footer: `我是更新日志的脚部!!!`,
     },
     commit: {
-      disable: true,
+      disable: false,
     },
     tag: {
-      disable: true,
+      disable: false,
     },
   },
 });

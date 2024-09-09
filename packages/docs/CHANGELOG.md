@@ -2,6 +2,12 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## [0.1.3](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag-docs@0.1.2...unbag-docs@0.1.3) (2024-09-09)
+
+### Documentation
+
+* 测试 changelog 1111 ([0221899](https://github.com/LiuWenXing1996/unbag-monorepo/commit/022189909dc736a1d18077d4fbd02b800855d920))
+
 ## [0.1.2](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag-docs@0.1.1...unbag-docs@0.1.2) (2024-09-09)
 
 ## [0.1.1](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag-docs@0.1.0...unbag-docs@0.1.1) (2024-09-09)

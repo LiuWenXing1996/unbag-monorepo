@@ -26,4 +26,4 @@ jobs:
       - name: install dependencies
         run: pnpm install --frozen-lockfile
       - name: test-git
-        run: git commit -m "fsdfdsfds"
+        run: pnpm unbag -v

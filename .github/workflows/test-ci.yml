@@ -25,5 +25,7 @@ jobs:
         run: pnpm config set store-dir $PNPM_CACHE_FOLDER
       - name: install dependencies
         run: pnpm install --frozen-lockfile
+      - name: init unbag
+        run: pnpm build:unbag
       - name: test-git
         run: pnpm unbag -v

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-
 async function start() {
-  const { read } = require("../dist/cjs/index.cjs");
+  const { read } = await import("../dist/esm/utils/read.mjs");
   return read();
 }
 start();

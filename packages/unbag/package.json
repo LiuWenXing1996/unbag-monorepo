@@ -4,6 +4,7 @@
   "description": "一个专门用来开发npm工具的包",
   "type": "module",
   "files": [
+    "bin",
     "dist"
   ],
   "license": "MIT",
@@ -14,7 +15,7 @@
     "npm tool"
   ],
   "bin": {
-    "unbag": "./dist/esm/cli.mjs"
+    "unbag": "./bin/bin.mjs"
   },
   "scripts": {
     "build": "tsx ./src/run.ts transform",

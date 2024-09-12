@@ -41,8 +41,7 @@ export const gitCz = async (params: { finalUserConfig: FinalUserConfig }) => {
   const stageFiles = await git.stageFilesGet();
   log.debug({ stageFiles, gitRootPath });
   if (stageFiles.length <= 0) {
-    log.error(message.commit.branch.stageFiles.empty());
-    return;
+    throw new Error(message.commit.branch.stageFiles.empty());
   }
   czCommit(
     inquirer,

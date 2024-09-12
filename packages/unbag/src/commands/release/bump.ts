@@ -180,7 +180,6 @@ export const genVersionByCommits = async (params: {
     }
   }
   if (!isReleaseType(releaseType)) {
-    log.error(message.releaseBumpCommitsGenUnValidReleaseType());
     throw new Error(message.releaseBumpCommitsGenUnValidReleaseType());
   }
   log.info(

@@ -11,9 +11,10 @@
     "clear": "rimraf 'packages/*/{lib,node_modules}' && rimraf node_modules",
     "commit": "unbag commit",
     "test": "echo 'test'",
-    "prepare": "husky",
     "release": "pnpm --filter 'unbag' release",
-    "ci:publish": "pnpm release && pnpm publish -r"
+    "ci:publish": "pnpm release && pnpm publish -r",
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky && pnpm build:unbag"
   },
   "license": "MIT",
   "author": "LiuWenXing1996 lwx_redstone@163.com",

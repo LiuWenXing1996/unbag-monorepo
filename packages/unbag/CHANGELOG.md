@@ -2,6 +2,13 @@
 
 [comment]: # (!!!ChangelogHeaderDividerTag!!!)
 
+## [0.11.1](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.11.0...unbag@0.11.1) (2024-09-12)
+
+### Bug Fixes
+
+* 修复命令出现错误时没有自动退出的 bug ([3db8986](https://github.com/LiuWenXing1996/unbag-monorepo/commit/3db8986dc4ccf90357ac173ccab5f615695ab4d4))
+* 修改 bin 入口 ([580f8b4](https://github.com/LiuWenXing1996/unbag-monorepo/commit/580f8b4c83f2ce22130c7bc89172166573f08ae7))
+
 ## [0.11.0](https://github.com/LiuWenXing1996/unbag-monorepo/compare/unbag@0.10.1...unbag@0.11.0) (2024-09-12)
 
 ### Features

@@ -22,6 +22,7 @@ import { unSafeFunctionWrapper } from "@/utils/common";
 import { useMessage } from "@/utils/message";
 import { useLog } from "@/utils/log";
 import { useDefaultReleasePresetPath } from "./utils";
+import { push, ReleasePushConfig, ReleasePushConfigDefault } from "./push";
 export interface ReleaseConfig {
   dry?: boolean;
   scope?: {
@@ -40,17 +41,19 @@ export interface ReleaseConfig {
   changelog: ReleaseChangelogConfig;
   commit: ReleaseCommitConfig;
   tag: ReleaseTagConfig;
+  push: ReleasePushConfig;
 }
 export const releaseDefaultConfig: ReleaseConfig = {
+  preset: {
+    path: useDefaultReleasePresetPath(),
+    params: {},
+  },
   branch: ReleaseBranchConfigDefault,
   bump: ReleaseBumpConfigDefault,
   changelog: ReleaseChangelogConfigDefault,
   commit: ReleaseCommitConfigDefault,
   tag: ReleaseTagConfigDefault,
-  preset: {
-    path: useDefaultReleasePresetPath(),
-    params: {},
-  },
+  push: ReleasePushConfigDefault,
 };
 
 // TODO 实现 scope?
@@ -92,6 +95,9 @@ export const release = async (params: { finalUserConfig: FinalUserConfig }) => {
     finalUserConfig,
     bumpRes,
     changelogRes,
+  });
+  await push({
+    finalUserConfig,
   });
 };
 

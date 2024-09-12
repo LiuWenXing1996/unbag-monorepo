@@ -20,7 +20,8 @@
     "build": "tsx ./src/run.ts transform",
     "builds": "tsx ./src/run.ts transform-new",
     "dev": "tsx ./src/run.ts transform -w",
-    "release": "pnpm build && tsx ./src/run.ts release"
+    "release": "pnpm build && tsx ./src/run.ts release",
+    "release-dry": "pnpm build && tsx ./src/run.ts release -d"
   },
   "exports": {
     ".": {

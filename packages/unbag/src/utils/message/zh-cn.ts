@@ -111,6 +111,11 @@ export const message = {
           return `试运行模式，禁用 git tag 添加`;
         },
       },
+      push: {
+        disable: () => {
+          return `试运行模式，禁用 git push `;
+        },
+      },
     },
     branch: {
       currentBranchUndefined: () => {
@@ -188,6 +193,23 @@ ${newChangeset}`;
       force: () => {
         return `已启用强制添加 git tag`;
       },
+    },
+    push: {
+      processing: () => {
+        return `准备执行 git push ...`;
+      },
+      disable: () => {
+        return `git push 已被禁用`;
+      },
+      force: () => {
+        return `已启用强制 git push`;
+      },
+      fail:()=>{
+        return `git push 失败`;
+      },
+      success:()=>{
+        return `git push 完成`;
+      }
     },
   },
   releaseCurrentBranchUndefined: () => {

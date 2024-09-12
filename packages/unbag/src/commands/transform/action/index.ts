@@ -160,13 +160,13 @@ export const useTransformActionHelper = (params: {
   };
   const dts = async (params: {
     name: string;
-    options: DeepPartial<TransformActionTaskDtsOptions>;
+    options?: DeepPartial<TransformActionTaskDtsOptions>;
     parentUid?: TransformActionProcessUid;
   }) => {
     const { name, options, parentUid } = params;
     return await custom({
       name,
-      task: TransformActionTaskDts(options),
+      task: TransformActionTaskDts(options || {}),
       parentUid,
     });
   };

@@ -3,4 +3,4 @@ echo `process`
 # echo "test sh"
 # message="feat: test feat"
 # echo $message
-# pnpm unbag commitlint --message "$message"
+# pnpm unbag commit-lint --message "$message"

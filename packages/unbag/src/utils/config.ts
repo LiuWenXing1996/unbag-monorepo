@@ -23,6 +23,7 @@ export type UserConfig = {
   parallel: ParallelConfig;
   release: ReleaseConfig;
   commit: CommitConfig;
+  // TODO:支持 custom 命令？
 };
 export type FinalUserConfig = DeepReadonly<UserConfig>;
 export type UserConfigOptional = DeepPartial<

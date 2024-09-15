@@ -30,3 +30,5 @@ export abstract class Command<P = void, R = void> {
   }
   abstract task(params: P): MaybePromise<R>;
 }
+
+

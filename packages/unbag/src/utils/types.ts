@@ -7,6 +7,7 @@ export type DeepReadonly<T> = T extends (...args: any) => any
   : T extends { __TAG__: true }
   ? T
   : { readonly [P in keyof T]: DeepReadonly<T[P]> } & { __TAG__: true };
+  
 
 // export type DeepReadonly<T> = T extends (infer R)[]
 //   ? DeepReadonlyArray<R>

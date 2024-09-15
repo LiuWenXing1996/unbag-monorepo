@@ -89,3 +89,9 @@ export const unSafeFunctionWrapper = <
 ): ((...args: P) => DeepPartial<R> | undefined) => {
   return func as (...args: P) => DeepPartial<R> | undefined;
 };
+
+export const unSafeObjectWrapper = <T extends object>(
+  obj: T
+): DeepPartial<T> => {
+  return obj as DeepPartial<T>;
+};

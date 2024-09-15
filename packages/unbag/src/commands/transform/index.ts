@@ -1,4 +1,4 @@
-import { FinalUserConfig, UserConfigOptional } from "@/utils/config";
+import { FinalUserConfig } from "@/utils/config";
 import { watch as fsWatch } from "chokidar";
 import debounce from "debounce-promise";
 import { useLog } from "@/utils/log";
@@ -6,14 +6,8 @@ import { useMessage } from "@/utils/message";
 import { AbsolutePath, RelativePath } from "@/utils/path";
 import { MaybePromise } from "@/utils/types";
 import { useFs } from "@/utils/fs";
-import {
-  useTransformEntry,
-  useTransformTaskTempDir,
-  useTransformTempDir,
-} from "./utils";
-import dayjs from "dayjs";
+import { useTransformEntry, useTransformTempDir } from "./utils";
 import { TransformActionHelper, useTransformActionHelper } from "./action";
-import { Command } from "@/core/command";
 
 export interface TransformConfig {
   entry: string;
@@ -153,10 +147,3 @@ export const transform = async (params: {
     return await innerTransform({ finalUserConfig });
   }
 };
-
-export class TransformCommand extends Command{
-  async task() {
-    const { finalUserConfig } = this;
-    await transform({ finalUserConfig });
-  }
-}

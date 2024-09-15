@@ -1,5 +1,6 @@
-import { Locale } from "@/utils/common";
+import { arraify, filterNullable, Locale } from "@/utils/common";
 import {
+  FinalUserConfig,
   mergeConfig,
   resolveUserConfig,
   useDefaultConfig,
@@ -7,6 +8,8 @@ import {
   UserConfigOptional,
 } from "@/utils/config";
 import { AbsolutePath, usePath } from "@/utils/path";
+import deepFreezeStrict from "deep-freeze-strict";
+import _ from "lodash";
 
 export const resolveUserConfigFromCli = async (params: {
   cliOptions: {
@@ -35,4 +38,22 @@ export const resolveUserConfigFromCli = async (params: {
     ...overrides,
   });
   return mergedConfig || {};
+};
+
+export const mergeUserConfig = (params: {
+  defaultValue: UserConfig;
+  list: (UserConfigOptional | undefined)[];
+}): UserConfig => {
+  const { defaultValue, list } = params;
+  const customize = (objValue: any, srcValue: any) => {
+    if (_.isArray(objValue) || _.isArray(srcValue)) {
+      return filterNullable([...arraify(objValue), ...arraify(srcValue)]);
+    }
+  };
+  const result = _.mergeWith({}, defaultValue, ...list, customize);
+  return result;
+};
+
+export const freezeUserConfig = (userConfig: UserConfig): FinalUserConfig => {
+  return deepFreezeStrict(userConfig);
 };

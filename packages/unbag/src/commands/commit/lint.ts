@@ -32,3 +32,5 @@ export class CommitLintCommand extends Command<string> {
     await commitLint({ finalUserConfig, message });
   }
 }
+
+

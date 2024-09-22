@@ -18,6 +18,7 @@ import {
 } from "./cli";
 import { releaseCommand } from "@/commands/release";
 import { CommitCommand } from "@/commands/commit";
+import { ParallelCliCommand } from "@/commands/parallel";
 
 export const cliRun = async () => {
   const defaultUserConfigBase = useDefaultUserConfigBase();
@@ -74,6 +75,12 @@ export const cliRun = async () => {
     command: CommitCommand,
     userConfigBase: mergedUserConfigBase,
     commandConfig: userConfigFromCli?.commit,
+  });
+  await addCliCommand({
+    program,
+    command: ParallelCliCommand,
+    userConfigBase: mergedUserConfigBase,
+    commandConfig: userConfigFromCli?.parallel,
   });
 
   program.command(

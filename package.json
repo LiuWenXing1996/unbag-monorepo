@@ -14,7 +14,7 @@
     "release": "pnpm --filter 'unbag' release",
     "ci:publish": "pnpm release && pnpm publish -r",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "husky && pnpm build:unbag"
+    "postinstall": "husky && pnpm build:unbag && unbag custom init"
   },
   "license": "MIT",
   "author": "LiuWenXing1996 lwx_redstone@163.com",
@@ -24,6 +24,7 @@
     "@pnpm/find-workspace-dir": "^7.0.1",
     "@pnpm/workspace.find-packages": "^4.0.9",
     "@types/wait-on": "^5.3.4",
+    "execa": "^9.2.0",
     "husky": "^9.0.11",
     "unbag": "workspace:^",
     "wait-on": "^7.2.0"

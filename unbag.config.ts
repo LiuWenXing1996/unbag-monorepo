@@ -1,6 +1,7 @@
-import { defineUserConfig } from "unbag";
+import { defineCliCommand, defineUserConfig } from "unbag";
 import { RuleConfigSeverity } from "@commitlint/types";
 import { getScopes } from "./scripts/scopes";
+import { $ } from "execa";
 
 const scopes = await getScopes();
 export default defineUserConfig({
@@ -25,4 +26,22 @@ export default defineUserConfig({
       },
     ],
   },
+  custom: [
+    defineCliCommand({
+      useDefaultConfig: () => {
+        return {};
+      },
+      defineSubCommands: ({ defineSubCommand }) => {
+        return [
+          defineSubCommand({
+            name: "init",
+            action: async () => {
+              console.log("initsssss");
+              // await $`pnpm `;
+            },
+          }),
+        ];
+      },
+    }),
+  ],
 });

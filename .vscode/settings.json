@@ -4,6 +4,7 @@
         "bundleless",
         "commitlint",
         "extnames",
+        "inited",
         "memfs",
         "pcss",
         "styl",

@@ -1,4 +1,3 @@
-import { FinalUserConfig } from "@/utils/config";
 import { AbsolutePath, RelativePath, usePath } from "@/utils/path";
 import { useTransformEntry, useTransformFiles } from "../utils";
 import {
@@ -24,6 +23,8 @@ import {
   TransformActionTaskDts,
   TransformActionTaskDtsOptions,
 } from "./tasks/dts";
+import { FinalUserConfig } from "@/core/user-config";
+import { TransformConfig } from "..";
 
 export type TransformActionTaskOutFile =
   | {
@@ -56,14 +57,14 @@ export type TransformActionTask = (params: {
   inputDir: AbsolutePath;
   tempDir: AbsolutePath;
   filePaths: RelativePath[];
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => Promise<TransformActionTaskResult>;
 export const defineTransformActionTask = (task: TransformActionTask) => task;
 
 export type TransformActionHelper = ReturnType<typeof useTransformActionHelper>;
 
 export const useTransformActionHelper = (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => {
   const { finalUserConfig } = params;
   const entryDir = useTransformEntry({ finalUserConfig });

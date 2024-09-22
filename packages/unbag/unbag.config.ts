@@ -1,9 +1,11 @@
-import { AbsolutePath, defineUserConfig } from "./src";
+import { AbsolutePath, defineUserConfig, defineCliCommand } from "./src";
 import { checkScope } from "../../scripts/scopes";
 
 export default defineUserConfig({
-  log: {
-    debug: true,
+  base: {
+    log: {
+      debug: true,
+    },
   },
   transform: {
     sourcemap: true,
@@ -71,9 +73,9 @@ export default defineUserConfig({
           logFilePathRewrite: ({ filePath, tempDir, inputDir }) => {
             const filePaths = new AbsolutePath({ content: filePath });
             console.log({ inputDir: inputDir.content });
-            const ress = filePaths.toRelativePath({ rel: inputDir });
-            console.log({ ress: ress.content });
-            // return ress.content;
+            const res = filePaths.toRelativePath({ rel: inputDir });
+            console.log({ res: res.content });
+            // return res.content;
             return filePath;
           },
         },
@@ -136,4 +138,34 @@ export default defineUserConfig({
       footer: `我是更新日志的脚部!!!`,
     },
   },
+  custom: [
+    defineCliCommand({
+      useDefaultConfig: () => {
+        return {
+          a: "",
+        };
+      },
+      defineSubCommands: ({ defineSubCommand }) => {
+        return [
+          defineSubCommand({
+            name: "aaa",
+            description: "自定义命令测试",
+            options: {
+              a: {
+                type: "string",
+              },
+            },
+            configParse: ({ args }) => {
+              return {
+                a: args.a,
+              };
+            },
+            action: ({ finalUserConfig, args }) => {
+              console.log({ args });
+            },
+          }),
+        ];
+      },
+    }),
+  ],
 });

@@ -1,4 +1,5 @@
-import { FinalUserConfig } from "../../utils/config";
+import { FinalUserConfig } from "@/core/user-config";
+import { ReleaseConfig } from ".";
 import { useLog } from "../../utils/log";
 import { useMessage } from "../../utils/message";
 import { MaybePromise } from "../../utils/types";
@@ -10,14 +11,14 @@ export interface ReleaseCommitConfig {
   message?: string;
   addAll: boolean;
   messageFormat: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
     bumpRes: BumpResult;
     changelogRes: ReleaseChangelogFileContent;
     commitFiles: string[];
     addAll: boolean;
   }) => MaybePromise<string>;
   filesCollect: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
     bumpRes: BumpResult;
     changelogRes: ReleaseChangelogFileContent;
   }) => MaybePromise<string[]>;
@@ -25,14 +26,14 @@ export interface ReleaseCommitConfig {
 export const ReleaseCommitConfigDefault: ReleaseCommitConfig = {
   addAll: false,
   messageFormat: async ({ finalUserConfig, bumpRes }) => {
-    const { release } = finalUserConfig;
+    const { commandConfig: release } = finalUserConfig;
     const { scope } = release;
     return `release${scope?.name ? `(${scope.name})` : ``}: ${
       bumpRes?.version
     }`;
   },
   filesCollect: async ({ finalUserConfig, bumpRes, changelogRes }) => {
-    const { release } = finalUserConfig;
+    const { commandConfig: release } = finalUserConfig;
     const {
       bump: { versionFileWriteDisable, versionFilePathResolve },
       changelog: {
@@ -61,18 +62,18 @@ export const ReleaseCommitConfigDefault: ReleaseCommitConfig = {
   },
 };
 export const commit = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
   bumpRes: BumpResult;
   changelogRes: ReleaseChangelogFileContent;
 }) => {
   const { finalUserConfig, bumpRes, changelogRes } = params;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: finalUserConfig.locale,
+    locale: finalUserConfig.base.locale,
   });
   log.info(message.release.commit.processing());
   const {
-    release: {
+    commandConfig: {
       dry,
       commit: {
         disable,

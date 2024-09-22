@@ -72,6 +72,9 @@ importers:
       '@types/conventional-changelog-writer':
         specifier: ^4.0.10
         version: 4.0.10
+      '@types/yargs':
+        specifier: ^17.0.33
+        version: 17.0.33
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
@@ -147,6 +150,9 @@ importers:
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
+      yargs:
+        specifier: ^17.7.2
+        version: 17.7.2
     devDependencies:
       '@babel/plugin-transform-modules-commonjs':
         specifier: ^7.24.8
@@ -2164,6 +2170,16 @@ packages:
 
   /@types/web-bluetooth@0.0.20:
     resolution: {integrity: sha512-g9gZnnXVq7gM7v3tJCWV/qw7w+KeOlSHAhgF9RytFyifW6AF61hdT2ucrYhPq9hLs5JIryeupHV3qGk95dH9ow==}
+    dev: false
+
+  /@types/yargs-parser@21.0.3:
+    resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
+    dev: false
+
+  /@types/yargs@17.0.33:
+    resolution: {integrity: sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA==}
+    dependencies:
+      '@types/yargs-parser': 21.0.3
     dev: false
 
   /@vitejs/plugin-vue@5.0.4(vite@5.2.11)(vue@3.4.26):

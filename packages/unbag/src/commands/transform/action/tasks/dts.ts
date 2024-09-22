@@ -4,13 +4,13 @@ import {
   TransformActionTaskOutFileType,
   TransformActionTaskResult,
 } from "..";
-import { FinalUserConfig, mergeConfig } from "@/utils/config";
 import { useRoot } from "@/utils/common";
 import _ from "lodash";
 import { AbsolutePath, RelativePath, usePath } from "@/utils/path";
 import { useTransformTempDir } from "../../utils";
-import { DeepPartial, MaybePromise } from "@/utils/types";
+import { DeepPartial } from "@/utils/types";
 import { useLog } from "@/utils/log";
+import { FinalUserConfig, mergeConfig } from "@/core/user-config";
 
 export interface TransformActionTaskDtsOptions {
   supportExtensions: Record<string, boolean>;
@@ -76,10 +76,10 @@ export const useCompilerOptions = (params: {
 export const TransformActionTaskDts = (
   options: DeepPartial<TransformActionTaskDtsOptions>
 ) => {
-  const finalOptions = mergeConfig(
-    TransformActionTaskDtsOptionsDefault,
-    options
-  );
+  const finalOptions = mergeConfig({
+    defaultValue: TransformActionTaskDtsOptionsDefault,
+    overrides: [options],
+  });
   const { supportExtensions, noLogDiagnosticErrors, logFilePathRewrite } =
     finalOptions;
   return defineTransformActionTask(async (params) => {

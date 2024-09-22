@@ -2,15 +2,16 @@ import { DeepPartial, MaybePromise } from "@/utils/types";
 import path, { AbsolutePath, RelativePath } from "@/utils/path";
 import { transformFileAsync } from "@babel/core";
 import { createRequire } from "node:module";
-import { FinalUserConfig, mergeConfig } from "@/utils/config";
 import { useRoot } from "@/utils/common";
 import { defineTransformActionTask, TransformActionTaskOutFileType } from "..";
+import { FinalUserConfig, mergeConfig } from "@/core/user-config";
+import { TransformConfig } from "../..";
 const require = createRequire(import.meta.url);
 export type TransformActionTaskAliasFileResolver = (params: {
   inputDir: AbsolutePath;
   filePath: RelativePath;
   finalOptions: TransformActionTaskAliasOptions;
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => MaybePromise<string>;
 export type TransformActionTaskAliasOptions = {
   paths: Record<string, string>;
@@ -19,13 +20,13 @@ export type TransformActionTaskAliasOptions = {
     inputDir: AbsolutePath;
     filePath: RelativePath;
     finalOptions: TransformActionTaskAliasOptions;
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<TransformConfig>;
   }) => MaybePromise<string>;
   fileResolvers: Record<string, TransformActionTaskAliasFileResolver>;
   getFileResolver: (params: {
     inputDir: AbsolutePath;
     filePath: RelativePath;
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<TransformConfig>;
     finalOptions: TransformActionTaskAliasOptions;
   }) => MaybePromise<TransformActionTaskAliasFileResolver> | undefined;
 };
@@ -124,10 +125,10 @@ export const DefaultTransformActionTaskAliasOptions: TransformActionTaskAliasOpt
 export const TransformActionTaskAlias = (
   options?: DeepPartial<TransformActionTaskAliasOptions>
 ) => {
-  const finalOptions = mergeConfig(
-    DefaultTransformActionTaskAliasOptions,
-    options || {}
-  );
+  const finalOptions = mergeConfig({
+    defaultValue: DefaultTransformActionTaskAliasOptions,
+    overrides: [options || {}],
+  });
   return defineTransformActionTask(async (params) => {
     const { finalUserConfig, inputDir, filePaths } = params;
     return await Promise.all(

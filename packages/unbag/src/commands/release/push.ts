@@ -1,8 +1,9 @@
 // TODO:实现 git push
 import { $ } from "execa";
-import { FinalUserConfig } from "@/utils/config";
 import { useLog } from "@/utils/log";
 import { useMessage } from "@/utils/message";
+import { ReleaseConfig } from ".";
+import { FinalUserConfig } from "@/core/user-config";
 
 export interface ReleasePushConfig {
   disable?: boolean;
@@ -11,12 +12,14 @@ export interface ReleasePushConfig {
 
 export const ReleasePushConfigDefault: ReleasePushConfig = {};
 
-export const push = async (params: { finalUserConfig: FinalUserConfig }) => {
+export const push = async (params: {
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
+}) => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({ locale: finalUserConfig.locale });
+  const message = useMessage({ locale: finalUserConfig.base.locale });
   const {
-    release: {
+    commandConfig: {
       dry,
       push: { disable, force },
     },

@@ -1,30 +1,26 @@
-import { Command, Option } from "commander";
-import { transform } from "../commands/transform";
-import { parallel } from "../commands/parallel";
-import {
-  CheckWaitFileResult,
-  WaitCmdName,
-  checkWaitFile,
-} from "../commands/parallel/wait";
-import { release } from "../commands/release";
-import { commit } from "../commands/commit";
-import _ from "lodash";
-import { commitLint } from "@/commands/commit/lint";
+// import { Command, Option } from "commander";
+// import { transform } from "../commands/transform";
+// import { parallel } from "../commands/parallel";
+// import {
+//   CheckWaitFileResult,
+//   WaitCmdName,
+//   checkWaitFile,
+// } from "../commands/parallel/wait";
+// import { release } from "../commands/release";
+// import { commit } from "../commands/commit";
+// import _ from "lodash";
+// import { commitLint } from "@/commands/commit/lint";
 // import { createCliCommand } from "@/core/cli-command";
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-// import { useDefaultConfig } from "./config";
-import { AbsolutePath, usePath } from "./path";
-import { Locale } from "./common";
-import { cliRun } from "@/core/cli-run";
-export class CustomCliCommand extends Command {
-  addOptions(options: Option[]) {
-    for (const option of options) {
-      this.addOption(option);
-    }
-    return this;
-  }
-}
+// import yargs from "yargs";
+// import { hideBin } from "yargs/helpers";
+// export class CustomCliCommand extends Command {
+//   addOptions(options: Option[]) {
+//     for (const option of options) {
+//       this.addOption(option);
+//     }
+//     return this;
+//   }
+// }
 // export const read = () => {
 //   const program = new CustomCliCommand();
 //   program.name("unbag").description("unbag CLI").version("0.8.0");
@@ -212,80 +208,29 @@ export class CustomCliCommand extends Command {
 //   program.parse();
 // };
 
-// export const yargsRead1 = async () => {
-//   const defaultUserConfig = useDefaultConfig();
-//   const path = usePath();
-//   const localeDetected = yargs(hideBin(process.argv)).locale();
-//   console.log({ localeDetected });
-//   const localeParser = await yargs(hideBin(process.argv))
-//     .option("l", {
-//       alias: "locale",
-//       type: "string",
+// export const yargsRead = () => {
+//   yargs(hideBin(process.argv)).option("ss", {
+//     alias: "sssss",
+//   });
+//   yargs(hideBin(process.argv))
+//     .command(
+//       "get",
+//       "make a get HTTP request",
+//       function (yargs) {
+//         return yargs.option("u", {
+//           alias: "url",
+//           string: true,
+//           demandOption: true,
+//           describe: "the URL to make an HTTP request to",
+//         });
+//       },
+//       async function (argv) {
+//         console.log(argv.url);
+//       }
+//     )
+//     .option("ss", {
+//       alias: "sssss",
 //     })
-//     // .help(false)
-//     // .version(false)
-//     .parse("--locale 123");
-//   const localeFromCli = localeParser.l;
-//   console.log({ localeFromCli });
-//   const locale = (localeFromCli ||
-//     localeDetected ||
-//     defaultUserConfig.locale) as Locale;
-
-//   const rootParser = await yargs(hideBin(process.argv))
-//     .option("r", {
-//       alias: "root",
-//       type: "string",
-//     })
+//     .wrap(null)
 //     .parse();
-//   const root = rootParser.r || defaultUserConfig.root;
-
-//   const configFilePathParser = await yargs(hideBin(process.argv))
-//     .option("c", {
-//       alias: "config",
-//       type: "string",
-//     })
-//     .parse();
-//   const configFilePath = configFilePathParser.c;
-
-//   const absoluteRoot = new AbsolutePath({
-//     content: path.resolve(root),
-//   });
-//   const userConfigFromCli = await resolveUserConfigFromCli({
-//     root: absoluteRoot,
-//     filePath: configFilePath,
-//     locale,
-//   });
-
-//   const finalUserConfig = mergeUserConfig({
-//     defaultValue: defaultUserConfig,
-//     list: [userConfigFromCli],
-//   });
-
-//   console.log({ finalUserConfig });
-
-//   // yargs(hideBin(process.argv))
-//   //   .command(
-//   //     "get",
-//   //     "make a get HTTP request",
-//   //     function (yargs) {
-//   //       return yargs.option("u", {
-//   //         alias: "url",
-//   //         string: true,
-//   //         demandOption: true,
-//   //         describe: "the URL to make an HTTP request to",
-//   //       });
-//   //     },
-//   //     async function (argv) {
-//   //       console.log(argv.url);
-//   //     }
-//   //   )
-//   //   .option("ss", {
-//   //     alias: "sssss",
-//   //   })
-//   //   .wrap(null)
-//   //   .parse();
 // };
-
-export const read = async () => {
-  await cliRun();
-};

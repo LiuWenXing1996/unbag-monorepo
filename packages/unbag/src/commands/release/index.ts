@@ -1,4 +1,3 @@
-import { FinalUserConfig } from "../../utils/config";
 import { ReleaseBumpConfig, ReleaseBumpConfigDefault, bump } from "./bump";
 import {
   ReleaseChangelogConfig,
@@ -16,20 +15,21 @@ import {
   ReleaseBranchConfigDefault,
   branch,
 } from "./branch";
-import { Command } from "@/core/command";
 import { MaybePromise } from "@/utils/types";
 import { unSafeFunctionWrapper } from "@/utils/common";
 import { useMessage } from "@/utils/message";
 import { useLog } from "@/utils/log";
 import { useDefaultReleasePresetPath } from "./utils";
 import { push, ReleasePushConfig, ReleasePushConfigDefault } from "./push";
+import { FinalUserConfig } from "@/core/user-config";
+import { defineCliCommand } from "@/core/cli";
 export interface ReleaseConfig {
   dry?: boolean;
   scope?: {
     name: string;
     check?: (params: {
       name: string;
-      finalUserConfig: FinalUserConfig;
+      finalUserConfig: FinalUserConfig<ReleaseConfig>;
     }) => MaybePromise<boolean>;
   };
   preset: {
@@ -60,12 +60,14 @@ export const releaseDefaultConfig: ReleaseConfig = {
 // 还有commit？
 // 甚至 test?
 // TODO:继续实现 release 和其子命令
-export const release = async (params: { finalUserConfig: FinalUserConfig }) => {
+export const release = async (params: {
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
+}) => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({ locale: finalUserConfig.locale });
+  const message = useMessage({ locale: finalUserConfig.base.locale });
   const {
-    release: { dry, scope },
+    commandConfig: { dry, scope },
   } = finalUserConfig;
   if (dry) {
     log.warn(message.release.dry.tip());
@@ -101,9 +103,39 @@ export const release = async (params: { finalUserConfig: FinalUserConfig }) => {
   });
 };
 
-export class ReleaseCommand extends Command {
-  async task() {
-    const { finalUserConfig } = this;
-    await release({ finalUserConfig });
-  }
-}
+export const releaseCommand = defineCliCommand<ReleaseConfig>({
+  useDefaultConfig: () => {
+    return releaseDefaultConfig;
+  },
+  defineSubCommands: ({ defineSubCommand }) => {
+    return [
+      defineSubCommand({
+        name: "release",
+        description:
+          "执行一系列的发布操作，包含生成版本号、生成发布日志、提交发布文件、添加 git 标签等动作",
+        options: {
+          dry: {
+            alias: "d",
+            description: "启用试运行模式",
+            type: "boolean",
+          },
+        },
+        configParse: ({ args }) => {
+          return {
+            dry: args.dry,
+          };
+        },
+        action: async ({ finalUserConfig }) => {
+          await release({ finalUserConfig });
+        },
+      }),
+    ];
+  },
+});
+
+// export class ReleaseCommand extends Command {
+//   async task() {
+//     const { finalUserConfig } = this;
+//     await release({ finalUserConfig });
+//   }
+// }

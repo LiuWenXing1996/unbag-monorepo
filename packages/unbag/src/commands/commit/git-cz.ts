@@ -1,12 +1,12 @@
-import { type FinalUserConfig } from "@/utils/config";
 import { useGit } from "@/utils/git";
 import { useMessage } from "@/utils/message";
 import { createRequire } from "node:module";
 import { usePath } from "@/utils/path";
-import { loadCommitLintConfig } from "./config";
+import { CommitConfig, loadCommitLintConfig } from "./config";
 // import { commit as czCommit } from "commitizen/dist/commitizen";
 import inquirer from "inquirer";
 import { useLog } from "@/utils/log";
+import { FinalUserConfig } from "@/core/user-config";
 const require = createRequire(import.meta.url);
 
 const useCommitizenCommit = async (params: {
@@ -22,7 +22,9 @@ const useCommitizenCommit = async (params: {
   return process.commit;
 };
 
-export const gitCz = async (params: { finalUserConfig: FinalUserConfig }) => {
+export const gitCz = async (params: {
+  finalUserConfig: FinalUserConfig<CommitConfig>;
+}) => {
   const { finalUserConfig } = params;
   const czCommit = await useCommitizenCommit({ finalUserConfig });
   const path = usePath();
@@ -35,7 +37,7 @@ export const gitCz = async (params: { finalUserConfig: FinalUserConfig }) => {
     process(lintConfig.rules, lintConfig.prompt, inquirerIns).then(commit);
   };
   log.debug({ lintConfig });
-  const message = useMessage({ locale: finalUserConfig.locale });
+  const message = useMessage({ locale: finalUserConfig.base.locale });
   const git = useGit();
   const gitRootPath = await git.gitRootPathGet();
   const stageFiles = await git.stageFilesGet();
@@ -50,7 +52,7 @@ export const gitCz = async (params: { finalUserConfig: FinalUserConfig }) => {
     {
       disableAppendPaths: true,
       emitData: true,
-      quiet: finalUserConfig.log.disabled,
+      quiet: finalUserConfig.base.log.disabled,
     },
     function (error) {
       if (error) {

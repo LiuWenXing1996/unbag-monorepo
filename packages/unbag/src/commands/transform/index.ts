@@ -1,13 +1,14 @@
-import { FinalUserConfig } from "@/utils/config";
 import { watch as fsWatch } from "chokidar";
 import debounce from "debounce-promise";
 import { useLog } from "@/utils/log";
 import { useMessage } from "@/utils/message";
 import { AbsolutePath, RelativePath } from "@/utils/path";
-import { MaybePromise } from "@/utils/types";
+import { DeepReadonly, MaybePromise } from "@/utils/types";
 import { useFs } from "@/utils/fs";
 import { useTransformEntry, useTransformTempDir } from "./utils";
 import { TransformActionHelper, useTransformActionHelper } from "./action";
+import { defineCliCommand } from "@/core/cli";
+import { FinalUserConfig } from "@/core/user-config";
 
 export interface TransformConfig {
   entry: string;
@@ -19,18 +20,18 @@ export interface TransformConfig {
   match: (params: {
     filePath: RelativePath;
     inputDir: AbsolutePath;
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<TransformConfig>;
   }) => MaybePromise<boolean>;
   actions: Record<
     string,
     (params: {
       helper: TransformActionHelper;
-      finalUserConfig: FinalUserConfig;
+      finalUserConfig: FinalUserConfig<TransformConfig>;
     }) => Promise<void>
   >;
   action: (params: {
     helper: TransformActionHelper;
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<TransformConfig>;
   }) => Promise<void>;
 }
 
@@ -38,7 +39,7 @@ export type TransformTask = (params: {
   inputDir: AbsolutePath;
   tempDir: AbsolutePath;
   filePaths: RelativePath[];
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => Promise<TransformTaskResult>;
 
 export type TransformProcess = (params: {
@@ -82,13 +83,13 @@ export const TransformConfigDefault: TransformConfig = {
   actions: {},
   action: async ({ finalUserConfig }) => {
     const message = useMessage({
-      locale: finalUserConfig.locale,
+      locale: finalUserConfig.base.locale,
     });
     throw new Error(message.transform.action.empty());
   },
   match: async ({ filePath, finalUserConfig }) => {
     const {
-      transform: { ignores },
+      commandConfig: { ignores },
     } = finalUserConfig;
     const ignoresExtnames = Object.entries(ignores)
       .filter(([, ignore]) => ignore)
@@ -102,13 +103,15 @@ export const TransformConfigDefault: TransformConfig = {
     return true;
   },
 };
-const innerTransform = async (params: { finalUserConfig: FinalUserConfig }) => {
+const innerTransform = async (params: {
+  finalUserConfig: FinalUserConfig<TransformConfig>;
+}) => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
   const fs = useFs();
-  const message = useMessage({ locale: finalUserConfig.locale });
+  const message = useMessage({ locale: finalUserConfig.base.locale });
   log.info(message.transform.starting());
-  const { transform } = finalUserConfig;
+  const { commandConfig: transform } = finalUserConfig;
   const { action } = transform;
   const transformTempDir = useTransformTempDir({ finalUserConfig });
   const actionHelper = useTransformActionHelper({ finalUserConfig });
@@ -116,11 +119,13 @@ const innerTransform = async (params: { finalUserConfig: FinalUserConfig }) => {
   await action({ helper: actionHelper, finalUserConfig });
   log.info(message.transform.end());
 };
-export const watch = async (params: { finalUserConfig: FinalUserConfig }) => {
+export const watch = async (params: {
+  finalUserConfig: FinalUserConfig<TransformConfig>;
+}) => {
   const { finalUserConfig } = params;
   const entryDir = useTransformEntry({ finalUserConfig });
   const log = useLog({ finalUserConfig });
-  const message = useMessage({ locale: finalUserConfig.locale });
+  const message = useMessage({ locale: finalUserConfig.base.locale });
   const watcher = fsWatch(entryDir.content);
   const debouncedTransform = debounce(async () => {
     await innerTransform({ finalUserConfig });
@@ -138,12 +143,40 @@ export const watch = async (params: { finalUserConfig: FinalUserConfig }) => {
   log.info(message.transform.watch.enabled());
 };
 export const transform = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => {
   const { finalUserConfig } = params;
-  if (finalUserConfig.transform.watch) {
+  if (finalUserConfig.commandConfig.watch) {
     await watch({ finalUserConfig });
   } else {
     return await innerTransform({ finalUserConfig });
   }
 };
+
+export const transformCommand = defineCliCommand({
+  useDefaultConfig: () => {
+    return TransformConfigDefault;
+  },
+  defineSubCommands: ({ defineSubCommand }) => {
+    return [
+      defineSubCommand({
+        name: "transform",
+        description: "转换文件",
+        options: {
+          watch: {
+            alias: "w",
+            boolean: true,
+          },
+        },
+        configParse: ({ args }) => {
+          return {
+            watch: args.watch,
+          };
+        },
+        action: async ({ finalUserConfig }) => {
+          await transform({ finalUserConfig });
+        },
+      }),
+    ];
+  },
+});

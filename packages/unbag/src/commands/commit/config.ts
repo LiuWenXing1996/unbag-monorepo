@@ -1,9 +1,9 @@
-import { FinalUserConfig } from "@/utils/config";
 import load from "@commitlint/load";
 import { RuleConfigSeverity, type UserConfig } from "@commitlint/types";
 import { useRoot } from "@/utils/common";
 import { useFs } from "@/utils/fs";
 import { createRequire } from "node:module";
+import { FinalUserConfig } from "@/core/user-config";
 const require = createRequire(import.meta.url);
 const commitlintConfigConventionalPath = require.resolve(
   "@commitlint/config-conventional"
@@ -50,12 +50,12 @@ export const CommitConfigDefault: CommitConfig = {
   },
 };
 export const loadCommitLintConfig = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<CommitConfig>;
 }) => {
   const { finalUserConfig } = params;
   const {
-    tempDir,
-    commit: { lint },
+    commandConfig: { lint },
+    base: { tempDir },
   } = finalUserConfig;
   const fs = useFs();
   const rootPath = useRoot({ finalUserConfig });

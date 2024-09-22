@@ -1,7 +1,8 @@
-import { type FinalUserConfig } from "../../utils/config";
 import { useGit } from "@/utils/git";
 import { useLog } from "@/utils/log";
 import { useMessage } from "../../utils/message";
+import { FinalUserConfig } from "@/core/user-config";
+import { ReleaseConfig } from ".";
 export interface ReleaseBranchConfig {
   mainName: string;
   mainCheckDisable: boolean;
@@ -16,17 +17,17 @@ export const ReleaseBranchConfigDefault: ReleaseBranchConfig = {
   cleanCheckDisable: false,
 };
 export const branch = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
 }): Promise<ReleaseBranchResult> => {
   const { finalUserConfig } = params;
   const {
-    release: {
+    commandConfig: {
       branch: { mainCheckDisable, mainName, cleanCheckDisable },
     },
   } = finalUserConfig;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: finalUserConfig.locale,
+    locale: finalUserConfig.base.locale,
   });
   const { currentBranchGet, currentBranchStatusGet } = useGit();
   const currentBranchName = await currentBranchGet();

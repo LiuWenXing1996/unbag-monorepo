@@ -1,7 +1,8 @@
+import { FinalUserConfig } from "@/core/user-config";
 import { unSafeFunctionWrapper } from "@/utils/common";
-import { FinalUserConfig } from "@/utils/config";
 import { useMessage } from "@/utils/message";
 import { createRequire } from "node:module";
+import { ReleaseConfig } from ".";
 // export const resolvePresetPath = (
 //   preset: string = "conventional-changelog-conventionalcommits"
 // ) => {
@@ -10,12 +11,12 @@ import { createRequire } from "node:module";
 // };
 
 export const useTagPrefix = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
 }) => {
   const { finalUserConfig } = params;
-  const message = useMessage({ locale: finalUserConfig.locale });
+  const message = useMessage({ locale: finalUserConfig.base.locale });
   const {
-    release: {
+    commandConfig: {
       tag: { genPrefix },
     },
   } = finalUserConfig;
@@ -33,4 +34,3 @@ export const useDefaultReleasePresetPath = () => {
   );
   return presetPath;
 };
-

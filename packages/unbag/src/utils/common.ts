@@ -1,6 +1,6 @@
 import { DeepPartial } from "ts-essentials";
-import { FinalUserConfig } from "./config";
 import { AbsolutePath, usePath } from "./path";
+import { FinalUserConfig } from "@/core/user-config";
 export function isObject(value: unknown): value is Record<string, any> {
   return Object.prototype.toString.call(value) === "[object Object]";
 }
@@ -76,7 +76,7 @@ export const useRoot = (params: { finalUserConfig: FinalUserConfig }) => {
   const { finalUserConfig } = params;
   const path = usePath();
   return new AbsolutePath({
-    content: path.resolve(finalUserConfig.root),
+    content: path.resolve(finalUserConfig.base.root),
   });
 };
 

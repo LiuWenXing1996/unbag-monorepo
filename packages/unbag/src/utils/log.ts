@@ -1,5 +1,4 @@
-import dayjs from "dayjs";
-import { FinalUserConfig } from "./config";
+import { FinalUserConfig } from "@/core/user-config";
 import chalk from "chalk";
 export enum LogTypeEnum {
   Info = "Info",
@@ -40,7 +39,9 @@ export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
   const _console = (p: { type: LogTypeEnum; message: any }) => {
     const { type, message } = p;
     const {
-      log: { console, disabled, debug },
+      base: {
+        log: { console, disabled, debug },
+      },
     } = finalUserConfig;
     if (disabled) {
       return;
@@ -63,7 +64,9 @@ export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
   };
   const catchThrowError = (e: any) => {
     const {
-      log: { catchThrowError: cte },
+      base: {
+        log: { catchThrowError: cte },
+      },
     } = finalUserConfig;
     const message = resolveMessageFromError(e);
     error(message || "unknown error");

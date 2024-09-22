@@ -2,7 +2,6 @@ import semver, { type ReleaseType } from "semver";
 import { useMessage } from "../../utils/message";
 import type { Commit } from "conventional-commits-parser";
 import type { BumperRecommendation } from "conventional-recommended-bump";
-import { FinalUserConfig } from "../../utils/config";
 import { MaybePromise } from "../../utils/types";
 import { usePath } from "../../utils/path";
 import { useFs } from "@/utils/fs";
@@ -10,19 +9,21 @@ import { useLog } from "@/utils/log";
 import { Bumper } from "conventional-recommended-bump";
 import { useTagPrefix } from "./utils";
 import { unSafeFunctionWrapper } from "@/utils/common";
+import { FinalUserConfig } from "@/core/user-config";
+import { ReleaseConfig } from ".";
 export interface VersionFileFileContent {
   version: string;
 }
 export interface ReleaseBumpConfig {
   versionFilePath: string;
   versionFilePathResolve: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
   }) => MaybePromise<string>;
   versionFileRead: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
   }) => MaybePromise<VersionFileFileContent>;
   versionFileWrite: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
     bumpRes: BumpResult;
   }) => MaybePromise<void>;
   versionFileWriteDisable?: boolean;
@@ -35,10 +36,10 @@ export const ReleaseBumpConfigDefault: ReleaseBumpConfig = {
   versionFilePath: "package.json",
   versionFilePathResolve: async ({ finalUserConfig }) => {
     const {
-      release: {
+      commandConfig: {
         bump: { versionFilePath },
       },
-      root,
+      base: { root },
     } = finalUserConfig;
     const path = usePath();
     const absolutePath = path.resolve(root, versionFilePath);
@@ -46,7 +47,7 @@ export const ReleaseBumpConfigDefault: ReleaseBumpConfig = {
   },
   versionFileRead: async ({ finalUserConfig }) => {
     const {
-      release: {
+      commandConfig: {
         bump: { versionFilePathResolve },
       },
     } = finalUserConfig;
@@ -61,7 +62,7 @@ export const ReleaseBumpConfigDefault: ReleaseBumpConfig = {
   },
   versionFileWrite: async ({ finalUserConfig, bumpRes }) => {
     const {
-      release: {
+      commandConfig: {
         bump: { versionFilePathResolve },
       },
     } = finalUserConfig;
@@ -105,7 +106,7 @@ export const isInPrerelease = (version: string) => {
   return Array.isArray(semver.prerelease(version));
 };
 export const genVersionByCommits = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
   data: {
     oldVersion: string;
   };
@@ -113,11 +114,11 @@ export const genVersionByCommits = async (params: {
   const { finalUserConfig, data } = params;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: finalUserConfig.locale,
+    locale: finalUserConfig.base.locale,
   });
   log.info(message.releaseBumpingByCommits());
   const {
-    release: {
+    commandConfig: {
       scope,
       preset,
       bump: { releasePre, releasePreTag },
@@ -206,16 +207,16 @@ export interface BumpResult {
   commits?: Commit[];
 }
 export const genVersion = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
 }): Promise<BumpResult> => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: finalUserConfig.locale,
+    locale: finalUserConfig.base.locale,
   });
   log.info(message.releaseBumping());
   const {
-    release: {
+    commandConfig: {
       bump: { versionFileRead, releaseAs, releaseType, releasePreTag },
     },
   } = finalUserConfig;
@@ -276,12 +277,12 @@ export const genVersion = async (params: {
   });
 };
 export const bump = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
 }): Promise<BumpResult> => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: finalUserConfig.locale,
+    locale: finalUserConfig.base.locale,
   });
   const versionResult = await genVersion({
     finalUserConfig,
@@ -296,7 +297,7 @@ export const bump = async (params: {
     throw new Error(message.release.bump.unValidVersionResult());
   }
   const {
-    release: {
+    commandConfig: {
       dry,
       bump: { versionFileWriteDisable, versionFileWrite },
     },

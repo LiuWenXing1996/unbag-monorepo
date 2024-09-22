@@ -1,4 +1,3 @@
-import { FinalUserConfig } from "../../utils/config";
 import { useFs } from "../../utils/fs";
 import { useLog } from "@/utils/log";
 import { useMessage } from "../../utils/message";
@@ -9,6 +8,8 @@ import conventionalChangelog from "conventional-changelog";
 import { BumpResult } from "./bump";
 import type { Stream } from "node:stream";
 import type { ParserOptions, WriterOptions } from "conventional-changelog-core";
+import { ReleaseConfig } from ".";
+import { FinalUserConfig } from "@/core/user-config";
 export interface ReleaseChangelogFileContent {
   header?: string;
   body?: string;
@@ -17,14 +18,14 @@ export interface ReleaseChangelogFileContent {
 export interface ReleaseChangelogConfig {
   filePath: string;
   filePathResolve: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
   }) => MaybePromise<string>;
   fileRead: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
   }) => MaybePromise<ReleaseChangelogFileContent>;
   fileWriteDisable?: boolean;
   fileWrite: (params: {
-    finalUserConfig: FinalUserConfig;
+    finalUserConfig: FinalUserConfig<ReleaseConfig>;
     changelogRes: ReleaseChangelogFileContent;
   }) => MaybePromise<void>;
   logAddChangesetDisable?: boolean;
@@ -38,8 +39,8 @@ export const ReleaseChangelogConfigDefault: ReleaseChangelogConfig = {
   filePath: "CHANGELOG.md",
   filePathResolve: async ({ finalUserConfig }) => {
     const {
-      root,
-      release: {
+      base: { root },
+      commandConfig: {
         changelog: { filePath },
       },
     } = finalUserConfig;
@@ -49,7 +50,7 @@ export const ReleaseChangelogConfigDefault: ReleaseChangelogConfig = {
   },
   fileRead: async ({ finalUserConfig }) => {
     const {
-      release: {
+      commandConfig: {
         changelog: { filePathResolve },
       },
     } = finalUserConfig;
@@ -65,7 +66,7 @@ export const ReleaseChangelogConfigDefault: ReleaseChangelogConfig = {
   },
   fileWrite: async ({ finalUserConfig, changelogRes }) => {
     const {
-      release: {
+      commandConfig: {
         changelog: { filePathResolve },
       },
     } = finalUserConfig;
@@ -123,17 +124,17 @@ export const changelogContentStringify = (
   );
 };
 export const changelog = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<ReleaseConfig>;
   bumpRes: BumpResult;
 }) => {
   const { finalUserConfig, bumpRes } = params;
   const log = useLog({ finalUserConfig });
   const message = useMessage({
-    locale: finalUserConfig.locale,
+    locale: finalUserConfig.base.locale,
   });
   log.info(message.release.changelog.generating());
   const {
-    release: {
+    commandConfig: {
       dry,
       scope,
       preset,

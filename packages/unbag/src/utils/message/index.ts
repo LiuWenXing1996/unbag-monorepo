@@ -1,5 +1,5 @@
+import { useDefaultUserConfigBase } from "@/core/user-config";
 import { Locale } from "../common";
-import { useDefaultConfig } from "../config";
 import { message as zh_cn_message } from "./zh-cn";
 export type Message = typeof zh_cn_message;
 const messageMap: Record<Locale, Message> = {
@@ -18,11 +18,12 @@ const p = <T extends object>(o: T, d: T): T => {
   });
   return a;
 };
+
 // TODO:改为finalUserConfig
 export const useMessage = (params: { locale: Locale }) => {
   const { locale } = params;
-  const defaultConfig = useDefaultConfig();
-  const targetMessage = messageMap[locale];
+  const defaultConfig = useDefaultUserConfigBase();
+  const targetMessage = messageMap[locale] || {};
   const defaultMessage = messageMap[defaultConfig.locale];
   return p(targetMessage, defaultMessage);
 };

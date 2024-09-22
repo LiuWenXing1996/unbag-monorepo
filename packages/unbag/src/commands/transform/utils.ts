@@ -1,15 +1,17 @@
-import { FinalUserConfig } from "@/utils/config";
 import { filterNullable, useRoot } from "@/utils/common";
 import { v4 as uuidv4 } from "uuid";
-import { TransformTask } from ".";
+import { TransformConfig, TransformTask } from ".";
 import { AbsolutePath } from "@/utils/path";
 import { useFs } from "@/utils/fs";
+import { FinalUserConfig } from "@/core/user-config";
 
 export const useTransformTempDir = (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => {
   const { finalUserConfig } = params;
-  const { tempDir } = finalUserConfig;
+  const {
+    base: { tempDir },
+  } = finalUserConfig;
   const rootPath = useRoot({ finalUserConfig });
   const transformTempDir = rootPath
     .resolve({
@@ -22,7 +24,7 @@ export const useTransformTempDir = (params: {
 };
 
 export const useTransformTaskTempDir = (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => {
   const { finalUserConfig } = params;
   const transformTempDir = useTransformTempDir({ finalUserConfig });
@@ -33,10 +35,10 @@ export const useTransformTaskTempDir = (params: {
 };
 
 export const useTransformEntry = (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => {
   const { finalUserConfig } = params;
-  const { transform } = finalUserConfig;
+  const { commandConfig: transform } = finalUserConfig;
   const { entry } = transform;
   const rootPath = useRoot({ finalUserConfig });
   return rootPath.resolve({
@@ -45,7 +47,7 @@ export const useTransformEntry = (params: {
 };
 
 export const useTransformFiles = async (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
   inputDir: AbsolutePath;
 }) => {
   const { finalUserConfig, inputDir } = params;
@@ -64,7 +66,7 @@ export const useTransformFiles = async (params: {
   const inputFilePathsFiltered = filterNullable(
     await Promise.all(
       inputFilePaths.map(async (filePath) => {
-        const matched = await finalUserConfig.transform.match({
+        const matched = await finalUserConfig.commandConfig.match({
           filePath,
           inputDir,
           finalUserConfig,

@@ -1,4 +1,3 @@
-import { FinalUserConfig } from "@/utils/config";
 import { useLog } from "@/utils/log";
 import { useMessage } from "@/utils/message";
 import { AbsolutePath } from "@/utils/path";
@@ -6,6 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useTransformTempDir } from "../utils";
 import dayjs from "dayjs";
 import { useFs } from "@/utils/fs";
+import { FinalUserConfig } from "@/core/user-config";
+import { TransformConfig } from "..";
 
 export type TransformProcessTask = (params: {
   tempDir: AbsolutePath;
@@ -22,11 +23,11 @@ export class TransformActionProcessUid {
 }
 
 export const useTransformActionProcessMap = (params: {
-  finalUserConfig: FinalUserConfig;
+  finalUserConfig: FinalUserConfig<TransformConfig>;
 }) => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({ locale: finalUserConfig.locale });
+  const message = useMessage({ locale: finalUserConfig.base.locale });
   const transformTempDir = useTransformTempDir({ finalUserConfig });
   const processMap = new Map<
     TransformActionProcessUid,

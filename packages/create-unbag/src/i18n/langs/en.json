@@ -1,0 +1,7 @@
+{
+    "common": {
+        "input": {
+            "required": "You must provide a value"
+        }
+    }
+}

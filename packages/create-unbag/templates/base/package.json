@@ -1,0 +1,16 @@
+{
+  "name": "template-base",
+  "version": "0.0.1",
+  "description": "template-base",
+  "type": "module",
+  "scripts": {
+    "build": "unbag transform",
+    "dev": "unbag transform -w"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "unbag": "^0.1.0"
+  }
+}

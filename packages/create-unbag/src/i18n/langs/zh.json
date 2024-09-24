@@ -1,0 +1,36 @@
+{
+    "inquirerPrompts": {
+        "(Use arrow keys)": "(使用箭头键选择)",
+        "You must provide a value": "请输入一个值"
+    },
+    "project": {
+        "projectParentDir": {
+            "select": "请选择项目生成路径",
+            "values": {
+                "useCurrentDir": "使用此路径",
+                "findParentDir": "访问上层路径",
+                "findChildDir": "访问子路径"
+            },
+            "selectChildDir": "请选择一个子路径"
+        },
+        "name": {
+            "input": "请输入项目名称"
+        },
+        "description": {
+            "input": "请输入项目描述"
+        },
+        "targetDir": {
+            "forceOverwrite": {
+                "confirm": "{{fileName}} 文件夹已存在,是否强制覆盖"
+            }
+        },
+        "template": {
+            "select": "请选择项目模板",
+            "values": {
+                "base": "基础模板"
+            }
+        },
+        "exit": "创建流程已退出",
+        "success": "创建 {{- pathName}} 成功"
+    }
+}

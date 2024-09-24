@@ -24,6 +24,7 @@ import {
   FinalUserConfig,
 } from "./user-config";
 import { DeepPartial, DeepReadonly } from "ts-essentials";
+import { wrapAsyncFuncWithLog } from "@/utils/log";
 
 export const createProgram = () => {
   return yargs(hideBin(process.argv)).help(false).version(false);
@@ -94,6 +95,7 @@ export const addCliSubCommand = async <
     name,
     ...filterNullable(arraify(aliases || [])),
   ];
+
   program.command(
     cmdNameWithAliases,
     description || "",
@@ -117,7 +119,13 @@ export const addCliSubCommand = async <
         base: userConfigBaseMerged,
         commandConfig: userConfigCommandMerged,
       });
-      await action({ args, finalUserConfig });
+      const actionWithLog = wrapAsyncFuncWithLog({
+        finalUserConfig: finalUserConfig,
+        func: async () => {
+          await action({ args, finalUserConfig });
+        },
+      });
+      await actionWithLog();
     }
   );
   return program;

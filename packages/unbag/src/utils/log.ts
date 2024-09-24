@@ -1,5 +1,6 @@
 import { FinalUserConfig } from "@/core/user-config";
 import chalk from "chalk";
+import { MaybePromise } from "./types";
 export enum LogTypeEnum {
   Info = "Info",
   Warn = "Warn",
@@ -80,4 +81,23 @@ export const useLog = (params: { finalUserConfig: FinalUserConfig }) => {
     debug,
     catchThrowError,
   };
+};
+
+export const wrapAsyncFuncWithLog = <
+  T extends (...rest: unknown[]) => Promise<unknown>
+>(params: {
+  finalUserConfig: FinalUserConfig;
+  func: T;
+}): T => {
+  const { finalUserConfig, func } = params;
+  const newFunc = async (...rest: any[]) => {
+    const log = useLog({ finalUserConfig });
+    try {
+      return await func(...rest);
+    } catch (error) {
+      log.catchThrowError(error);
+      process.exit(1);
+    }
+  };
+  return newFunc as T;
 };

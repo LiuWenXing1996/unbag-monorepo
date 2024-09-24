@@ -2,7 +2,6 @@ import path from "./path";
 import fs from "node:fs/promises";
 import { MaybePromise } from "./types";
 import fsExtra from "fs-extra/esm";
-import { DeepPartial } from "ts-essentials";
 
 export const useFs = () => {
   const { readFile, readdir, stat } = fs;
@@ -54,7 +53,9 @@ export const useFs = () => {
 
   const listFiles = async (dir?: string) => {
     const files: string[] = [];
-    dir = dir || "/";
+    if (!dir) {
+      return [];
+    }
     const getFiles = async (currentDir: string) => {
       const fileList = (await readdir(currentDir)) as string[];
       for (const file of fileList) {
@@ -68,6 +69,20 @@ export const useFs = () => {
     };
     await getFiles(dir);
     return files;
+  };
+  const listChildDir = async (dir?: string) => {
+    const dirs: string[] = [];
+    if (!dir) {
+      return [];
+    }
+    const fileList = (await readdir(dir)) as string[];
+    for (const file of fileList) {
+      const name = path.join(dir, file);
+      if ((await stat(name)).isDirectory()) {
+        dirs.push(name);
+      }
+    }
+    return dirs;
   };
   const isFile = async (path: string) => {
     try {
@@ -96,6 +111,7 @@ export const useFs = () => {
     modifyJson,
     tryReadJson,
     listFiles,
+    listChildDir,
     isFile,
     isDirectory,
   };

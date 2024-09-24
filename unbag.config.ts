@@ -1,7 +1,7 @@
 import { defineCliCommand, defineUserConfig } from "unbag";
 import { RuleConfigSeverity } from "@commitlint/types";
 import { getScopes } from "./scripts/scopes";
-import { $ } from "execa";
+import { $, execa } from "execa";
 
 const scopes = await getScopes();
 export default defineUserConfig({
@@ -24,6 +24,10 @@ export default defineUserConfig({
         name: "unbag-docs",
         npmScript: "pnpm --filter 'unbag-docs' dev",
       },
+      {
+        name: "create-unbag",
+        npmScript: "pnpm --filter 'create-unbag' dev",
+      },
     ],
   },
   custom: [
@@ -36,8 +40,9 @@ export default defineUserConfig({
           defineSubCommand({
             name: "init",
             action: async () => {
-              console.log("initsssss");
-              // await $`pnpm `;
+              await execa({
+                stdout: ["pipe", "inherit"],
+              })`pnpm --filter create-unbag build`;
             },
           }),
         ];

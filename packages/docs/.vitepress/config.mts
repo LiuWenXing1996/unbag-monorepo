@@ -24,11 +24,17 @@ export default defineConfig({
     ],
     sidebar: [
       { text: "开始", link: "/guide/" },
+      { text: "配置", link: "/guide/config" },
       {
         text: "命令",
         items: [
           { text: "transform", link: "/commands/transform" },
           { text: "parallel", link: "/commands/parallel" },
+          {
+            text: "commit",
+            link: "/commands/commit",
+            items: [{ text: "lint", link: "/commands/commit/lint" }],
+          },
         ],
       },
     ],

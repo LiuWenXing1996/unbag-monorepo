@@ -3,7 +3,6 @@
     "target": "esnext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "allowJs": true,
     "emitDeclarationOnly": true,
     "declaration": true,
     "skipLibCheck": true,

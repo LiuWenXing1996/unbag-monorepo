@@ -18,26 +18,27 @@
     "unbag": "./bin/bin.mjs"
   },
   "scripts": {
-    "build": "tsx ./src/run.ts transform",
-    "builds": "tsx ./src/run.ts transform-new",
-    "dev": "tsx ./src/run.ts transform -w",
+    "build": "vite build",
+    "builds": "tsx ./src/run.ts transform",
+    "dev": "vite build -w",
     "run-test": "tsx ./src/run.ts",
     "release": "pnpm build && tsx ./src/run.ts release",
-    "release-dry": "pnpm build && tsx ./src/run.ts release -d"
+    "release-dry": "pnpm build && tsx ./src/run.ts release -d",
+    "test": "vitest"
   },
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/types/esm/index.d.mts",
+        "types": "./dist/types/index.d.ts",
         "default": "./dist/esm/index.mjs"
       },
       "require": {
-        "types": "./dist/types/cjs/index.d.cts",
+        "types": "./dist/types/index.d.ts",
         "default": "./dist/cjs/index.cjs"
       }
     }
   },
-  "types": "./dist/types/default/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
   "dependencies": {
@@ -91,6 +92,8 @@
     "babel-plugin-add-import-extension": "^1.6.0",
     "tsx": "^4.7.1",
     "vite": "^5.4.8",
-    "vite-plugin-node-polyfills": "^0.22.0"
+    "vite-plugin-dts": "^4.2.2",
+    "vite-plugin-node-polyfills": "^0.22.0",
+    "vitest": "^2.1.1"
   }
 }

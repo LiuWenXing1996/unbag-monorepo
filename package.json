@@ -4,17 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:unbag": "pnpm --filter 'unbag' build",
-    "build": "pnpm build:unbag",
-    "build:docs": "pnpm --filter 'unbag-docs' build",
+    "init-repo": "pnpm --filter 'unbag' build && unbag custom init",
     "dev": "unbag parallel",
+    "build:docs": "pnpm --filter 'unbag-docs' build",
     "clear": "rimraf 'packages/*/{lib,node_modules}' && rimraf node_modules",
     "commit": "unbag commit",
     "test": "echo 'test'",
     "release": "pnpm --filter 'unbag' release",
     "ci:publish": "pnpm release && pnpm publish -r",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "husky && pnpm build:unbag && unbag custom init"
+    "postinstall": "husky"
   },
   "license": "MIT",
   "author": "LiuWenXing1996 lwx_redstone@163.com",

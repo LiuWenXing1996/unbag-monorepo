@@ -1,12 +1,12 @@
 import { DeepPartial, MaybePromise } from "@/utils/types";
 import path, { AbsolutePath, RelativePath } from "@/utils/path";
 import { transformFileAsync } from "@babel/core";
-import { createRequire } from "node:module";
 import { useRoot } from "@/utils/common";
 import { defineTransformActionTask, TransformActionTaskOutFileType } from "..";
 import { FinalUserConfig, mergeConfig } from "@/core/user-config";
 import { TransformConfig } from "../..";
-const require = createRequire(import.meta.url);
+import { useCreateRequire } from "@/utils/node";
+const require = useCreateRequire()(import.meta.url);
 export type TransformActionTaskAliasFileResolver = (params: {
   inputDir: AbsolutePath;
   filePath: RelativePath;

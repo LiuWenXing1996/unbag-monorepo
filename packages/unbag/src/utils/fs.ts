@@ -1,7 +1,9 @@
 import path from "./path";
-import fs from "node:fs/promises";
+import fss from "node:fs";
 import { MaybePromise } from "./types";
 import fsExtra from "fs-extra/esm";
+
+const fs = fss.promises;
 
 export const useFs = () => {
   const { readFile, readdir, stat } = fs;

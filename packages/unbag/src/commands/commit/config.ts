@@ -2,9 +2,9 @@ import load from "@commitlint/load";
 import { RuleConfigSeverity, type UserConfig } from "@commitlint/types";
 import { useRoot } from "@/utils/common";
 import { useFs } from "@/utils/fs";
-import { createRequire } from "node:module";
 import { FinalUserConfig } from "@/core/user-config";
-const require = createRequire(import.meta.url);
+import { useCreateRequire } from "@/utils/node";
+const require = useCreateRequire()(import.meta.url);
 const commitlintConfigConventionalPath = require.resolve(
   "@commitlint/config-conventional"
 );

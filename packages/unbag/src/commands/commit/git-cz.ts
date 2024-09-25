@@ -1,13 +1,13 @@
 import { useGit } from "@/utils/git";
 import { useMessage } from "@/utils/message";
-import { createRequire } from "node:module";
 import { usePath } from "@/utils/path";
 import { CommitConfig, loadCommitLintConfig } from "./config";
 // import { commit as czCommit } from "commitizen/dist/commitizen";
 import inquirer from "inquirer";
 import { useLog } from "@/utils/log";
 import { FinalUserConfig } from "@/core/user-config";
-const require = createRequire(import.meta.url);
+import { useCreateRequire } from "@/utils/node";
+const require = useCreateRequire()(import.meta.url);
 
 const useCommitizenCommit = async (params: {
   finalUserConfig: FinalUserConfig;

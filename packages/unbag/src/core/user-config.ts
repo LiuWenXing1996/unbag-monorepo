@@ -8,6 +8,7 @@ import deepFreezeStrict from "deep-freeze-strict";
 import _ from "lodash";
 import { DeepPartial, DeepReadonly } from "ts-essentials";
 import { CliCommand } from "./cli";
+import { ViteConfig } from "@/commands/vite";
 
 export type UserConfigBase = {
   root: string;
@@ -20,6 +21,7 @@ export type UserConfigBase = {
 export type UserConfig = {
   base?: DeepPartial<UserConfigBase>;
   transform?: DeepPartial<TransformConfig>;
+  vite?: DeepPartial<ViteConfig>;
   parallel?: DeepPartial<ParallelConfig>;
   release?: DeepPartial<ReleaseConfig>;
   commit?: DeepPartial<CommitConfig>;

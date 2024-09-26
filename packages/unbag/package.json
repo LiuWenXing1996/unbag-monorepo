@@ -18,9 +18,9 @@
     "unbag": "./bin/bin.mjs"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "tsx ./src/run.ts vite-build",
     "builds": "tsx ./src/run.ts transform",
-    "dev": "vite build -w",
+    "dev": "tsx ./src/run.ts vite-build -w",
     "run-test": "tsx ./src/run.ts",
     "release": "pnpm build && tsx ./src/run.ts release",
     "release-dry": "pnpm build && tsx ./src/run.ts release -d",
@@ -49,6 +49,7 @@
     "@commitlint/lint": "^19.2.2",
     "@commitlint/load": "^19.2.0",
     "@commitlint/types": "^19.0.3",
+    "@pnpm/types": "^12.2.0",
     "@types/conventional-changelog-core": "^4.2.8",
     "@types/conventional-changelog-writer": "^4.0.10",
     "@types/yargs": "^17.0.33",

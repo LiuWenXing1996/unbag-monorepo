@@ -1,5 +1,19 @@
-import { AbsolutePath, defineUserConfig, defineCliCommand } from "./src";
+import {
+  AbsolutePath,
+  defineUserConfig,
+  defineCliCommand,
+  useViteLibConfig,
+} from "./src";
 import { checkScope } from "../../scripts/scopes";
+
+import pkgJson from "./package.json";
+import { fileURLToPath } from "node:url";
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
+const viteConfig = useViteLibConfig({
+  base: new AbsolutePath({ content: __dirname }),
+  pkgJson,
+});
 
 export default defineUserConfig({
   base: {
@@ -7,6 +21,7 @@ export default defineUserConfig({
       debug: true,
     },
   },
+  vite: viteConfig,
   transform: {
     sourcemap: true,
     action: async ({ helper, finalUserConfig }) => {

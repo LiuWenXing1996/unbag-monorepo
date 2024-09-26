@@ -19,6 +19,7 @@ import {
 import { releaseCommand } from "@/commands/release";
 import { CommitCommand } from "@/commands/commit";
 import { ParallelCliCommand } from "@/commands/parallel";
+import { ViteCliCommand } from "@/commands/vite";
 
 export const cliRun = async () => {
   const defaultUserConfigBase = useDefaultUserConfigBase();
@@ -63,6 +64,12 @@ export const cliRun = async () => {
     command: transformCommand,
     userConfigBase: mergedUserConfigBase,
     commandConfig: userConfigFromCli?.transform,
+  });
+  await addCliCommand({
+    program,
+    command: ViteCliCommand,
+    userConfigBase: mergedUserConfigBase,
+    commandConfig: userConfigFromCli?.vite,
   });
   await addCliCommand({
     program,

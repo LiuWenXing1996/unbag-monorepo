@@ -2,7 +2,7 @@ import i18next from "i18next";
 import { initI18n } from "./i18n";
 import { usePrompts } from "./utils/prompts";
 import { useFs, usePath } from "unbag";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "node:url";
 
 export const read = async () => {
   await initI18n();

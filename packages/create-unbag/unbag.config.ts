@@ -1,6 +1,15 @@
-import { defineUserConfig } from "unbag";
+import { defineUserConfig, useViteLibConfig, AbsolutePath } from "unbag";
+import pkgJson from "./package.json";
+import { fileURLToPath } from "node:url";
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
+const viteConfig = useViteLibConfig({
+  base: new AbsolutePath({ content: __dirname }),
+  pkgJson,
+});
 
 export default defineUserConfig({
+  vite: viteConfig,
   transform: {
     action: async ({ helper }) => {
       console.log("create-unbag :transform");

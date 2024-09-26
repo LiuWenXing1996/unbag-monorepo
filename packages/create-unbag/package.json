@@ -8,8 +8,9 @@
     "create-unbag": "./bin/bin.mjs"
   },
   "scripts": {
-    "build": "unbag transform",
-    "dev": "unbag transform -w"
+    "build": "unbag vite-build",
+    "dev": "unbag vite-build -w",
+    "test": "unbag vitest -w"
   },
   "files": [
     "dist",

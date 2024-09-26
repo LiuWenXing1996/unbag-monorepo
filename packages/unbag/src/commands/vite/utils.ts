@@ -1,6 +1,5 @@
 import { AbsolutePath, usePath } from "@/utils/path";
 import type { ViteConfig } from "./index";
-import { BaseManifest } from "@pnpm/types";
 import dts from "vite-plugin-dts";
 
 export const useViteLibConfig = (params: {
@@ -59,4 +58,14 @@ export const useViteLibConfig = (params: {
       },
     },
   };
+};
+
+export const useVite = async (): Promise<typeof import("vite")> => {
+  const vite = await import("vite");
+  return vite;
+};
+
+export const useVitest = async (): Promise<typeof import("vitest")> => {
+  const vitest = await import("vitest");
+  return vitest;
 };

@@ -22,11 +22,16 @@ export const ViteCliCommand = defineCliCommand<ViteConfig>({
             alias: "w",
             boolean: true,
           },
+          minify: {
+            alias: "m",
+            boolean: true,
+          },
         },
         configParse: ({ args }) => {
           return {
             build: {
               watch: args.watch ? {} : undefined,
+              minify: args.minify,
             },
           };
         },
@@ -61,7 +66,6 @@ export const ViteCliCommand = defineCliCommand<ViteConfig>({
             {
               ...commandConfig.test,
               config: false,
-              //   watch: false,
             },
             commandConfig
           );

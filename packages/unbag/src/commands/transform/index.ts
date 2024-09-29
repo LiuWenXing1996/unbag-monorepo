@@ -153,13 +153,13 @@ export const transform = async (params: {
   }
 };
 
-export const transformCommand = defineCliCommand({
+export const TransformCommand = defineCliCommand({
   useDefaultConfig: () => {
     return TransformConfigDefault;
   },
-  defineSubCommands: ({ defineSubCommand }) => {
+  defineActions: ({ defineAction }) => {
     return [
-      defineSubCommand({
+      defineAction({
         name: "transform",
         description: "转换文件",
         options: {
@@ -173,7 +173,7 @@ export const transformCommand = defineCliCommand({
             watch: args.watch,
           };
         },
-        action: async ({ finalUserConfig }) => {
+        run: async ({ finalUserConfig }) => {
           await transform({ finalUserConfig });
         },
       }),

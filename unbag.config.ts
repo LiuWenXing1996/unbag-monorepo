@@ -1,4 +1,4 @@
-import { defineCliCommand, defineUserConfig } from "unbag";
+import { defineCliCommand, defineUserConfig, useCliCommand } from "unbag";
 import { RuleConfigSeverity } from "@commitlint/types";
 import { getScopes } from "./scripts/scopes";
 import { $, execa } from "execa";
@@ -31,22 +31,27 @@ export default defineUserConfig({
     ],
   },
   custom: [
-    defineCliCommand({
-      useDefaultConfig: () => {
-        return {};
-      },
-      defineSubCommands: ({ defineSubCommand }) => {
-        return [
-          defineSubCommand({
-            name: "init",
-            action: async () => {
-              await execa({
-                stdout: ["pipe", "inherit"],
-              })`pnpm --filter create-unbag build`;
-            },
-          }),
-        ];
-      },
-    }),
+    useCliCommand(
+      defineCliCommand({
+        useDefaultConfig: () => {
+          return {
+            a: "",
+          };
+        },
+        defineActions: ({ defineAction }) => {
+          return [
+            defineAction({
+              name: "init",
+              run: async ({ finalUserConfig }) => {
+                finalUserConfig.commandConfig.a;
+                await execa({
+                  stdout: ["pipe", "inherit"],
+                })`pnpm --filter create-unbag build`;
+              },
+            }),
+          ];
+        },
+      })
+    ),
   ],
 });

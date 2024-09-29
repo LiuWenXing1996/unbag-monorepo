@@ -3,6 +3,7 @@ import {
   defineUserConfig,
   defineCliCommand,
   useViteLibConfig,
+  useCliCommand,
 } from "./src";
 import { checkScope } from "../../scripts/scopes";
 
@@ -154,33 +155,35 @@ export default defineUserConfig({
     },
   },
   custom: [
-    defineCliCommand({
-      useDefaultConfig: () => {
-        return {
-          a: "",
-        };
-      },
-      defineSubCommands: ({ defineSubCommand }) => {
-        return [
-          defineSubCommand({
-            name: "aaa",
-            description: "自定义命令测试",
-            options: {
-              a: {
-                type: "string",
+    useCliCommand(
+      defineCliCommand({
+        useDefaultConfig: () => {
+          return {
+            a: "",
+          };
+        },
+        defineActions: ({ defineAction }) => {
+          return [
+            defineAction({
+              name: "aaa",
+              description: "自定义命令测试",
+              options: {
+                a: {
+                  type: "string",
+                },
               },
-            },
-            configParse: ({ args }) => {
-              return {
-                a: args.a,
-              };
-            },
-            action: ({ finalUserConfig, args }) => {
-              console.log({ args });
-            },
-          }),
-        ];
-      },
-    }),
+              configParse: ({ args }) => {
+                return {
+                  a: args.a,
+                };
+              },
+              run: ({ finalUserConfig, args }) => {
+                console.log({ args });
+              },
+            }),
+          ];
+        },
+      })
+    ),
   ],
 });

@@ -103,13 +103,13 @@ export const release = async (params: {
   });
 };
 
-export const releaseCommand = defineCliCommand<ReleaseConfig>({
+export const ReleaseCommand = defineCliCommand<ReleaseConfig>({
   useDefaultConfig: () => {
     return releaseDefaultConfig;
   },
-  defineSubCommands: ({ defineSubCommand }) => {
+  defineActions: ({ defineAction }) => {
     return [
-      defineSubCommand({
+      defineAction({
         name: "release",
         description:
           "执行一系列的发布操作，包含生成版本号、生成发布日志、提交发布文件、添加 git 标签等动作",
@@ -125,7 +125,7 @@ export const releaseCommand = defineCliCommand<ReleaseConfig>({
             dry: args.dry,
           };
         },
-        action: async ({ finalUserConfig }) => {
+        run: async ({ finalUserConfig }) => {
           await release({ finalUserConfig });
         },
       }),

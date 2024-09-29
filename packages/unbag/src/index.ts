@@ -2,7 +2,7 @@ export { read } from "./utils/read";
 export { defineUserConfig } from "./core/user-config";
 export { AbsolutePath, RelativePath } from "./utils/path";
 export { DEFAULT_COMMIT_TYPES } from "conventional-changelog-conventionalcommits";
-export { defineCliCommand } from "./core/cli";
+export { defineCliCommand, useCliCommand } from "./core/cli";
 export { useFs } from "@/utils/fs";
 export { usePath } from "@/utils/path";
 export { useViteLibConfig, useVite, useVitest } from "@/commands/vite/utils";

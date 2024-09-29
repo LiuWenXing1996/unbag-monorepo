@@ -29,20 +29,20 @@ import { wrapAsyncFuncWithLog } from "@/utils/log";
 export const createProgram = () => {
   return yargs(hideBin(process.argv)).help(false).version(false);
 };
-
+export type CliCommandOptions = { [key: string]: Options };
 export interface CliCommand<C> {
   useDefaultConfig: () => MaybePromise<C>;
-  defineSubCommands: (params: {
-    defineSubCommand: <O extends { [key: string]: Options }>(
-      subCommand: CliSubCommand<C, O>
-    ) => CliSubCommand<C, O>;
-  }) => CliSubCommand<C, { [key: string]: Options }>[];
+  defineActions: (params: {
+    defineAction: <O extends { [key: string]: Options }>(
+      action: CliCommandAction<C, O>
+    ) => CliCommandAction<C, O>;
+  }) => CliCommandAction<C, { [key: string]: Options }>[];
 }
 
-export interface CliSubCommand<
+export interface CliCommandAction<
   C,
   O extends { [key: string]: Options },
-  D = DeepPartial<C>
+  D extends DeepPartial<C> = DeepPartial<C>
 > {
   name: string;
   description?: string;
@@ -54,7 +54,7 @@ export interface CliSubCommand<
   userConfigBaseParse?: (params: {
     args: InferredOptionTypes<O>;
   }) => MaybePromise<UserConfigBase | undefined | void>;
-  action: (params: {
+  run: (params: {
     args: InferredOptionTypes<O>;
     finalUserConfig: FinalUserConfig<C>;
   }) => MaybePromise<void>;
@@ -66,12 +66,38 @@ export const defineCliCommand = <C>(
   return cliCommand;
 };
 
-export const addCliSubCommand = async <
+export class CliCommandFactory<C, D extends DeepPartial<C> = DeepPartial<C>> {
+  #config?: D;
+  get config() {
+    return this.#config;
+  }
+  #cliCommand: CliCommand<C>;
+  get cliCommand() {
+    return this.#cliCommand;
+  }
+  constructor(params: { cliCommand: CliCommand<C>; config?: D }) {
+    const { cliCommand, config } = params;
+    this.#config = config;
+    this.#cliCommand = cliCommand;
+  }
+}
+
+export const useCliCommand = <C, O extends CliCommandOptions>(
+  cliCommand: CliCommand<C>,
+  config?: DeepPartial<C>
+) => {
+  return new CliCommandFactory<C>({
+    cliCommand,
+    config,
+  });
+};
+
+export const addCliCommandAction = async <
   C,
   O extends { [key: string]: Options }
 >(params: {
   program: Argv;
-  command: CliSubCommand<C, O>;
+  command: CliCommandAction<C, O>;
   userConfigBase: UserConfigBase;
   commandConfig: C;
 }): Promise<Argv> => {
@@ -80,16 +106,16 @@ export const addCliSubCommand = async <
     name,
     aliases,
     description,
-    action,
+    run: action,
     configParse: userConfigCommandParse,
     userConfigBaseParse,
   } = unSafeObjectWrapper(command);
   const { options } = command;
   if (!name) {
-    throw new Error("undefined name for addCliSubCommand");
+    throw new Error("undefined name for addCliCommandAction");
   }
   if (!action) {
-    throw new Error("undefined action for addCliSubCommand");
+    throw new Error("undefined action for addCliCommandAction");
   }
   const cmdNameWithAliases: string[] = [
     name,
@@ -133,22 +159,23 @@ export const addCliSubCommand = async <
 
 export const addCliCommand = async <C>(params: {
   program: Argv;
-  command: CliCommand<C>;
+  cliCommandFactory: CliCommandFactory<C>;
   userConfigBase: UserConfigBase;
-  commandConfig: DeepPartial<C>;
 }): Promise<Argv> => {
-  const { program, command, userConfigBase, commandConfig } = params;
-  const { useDefaultConfig, defineSubCommands } = command;
+  const { program, cliCommandFactory, userConfigBase } = params;
+  const command = cliCommandFactory.cliCommand;
+  const commandConfig = cliCommandFactory.config;
+  const { useDefaultConfig, defineActions } = command;
   const defaultCommandConfig = await useDefaultConfig();
-  const userCommandConfig = mergeConfig<C, DeepPartial<C>>({
+  const userCommandConfig = mergeConfig<C, DeepPartial<C> | undefined>({
     defaultValue: defaultCommandConfig,
     overrides: [commandConfig],
   });
-  const commands = defineSubCommands({
-    defineSubCommand: (c) => c,
+  const commands = defineActions({
+    defineAction: (c) => c,
   });
   for (const command of commands) {
-    await addCliSubCommand({
+    await addCliCommandAction({
       program,
       command,
       userConfigBase,

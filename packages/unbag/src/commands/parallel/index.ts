@@ -136,16 +136,16 @@ export const ParallelCliCommand = defineCliCommand<ParallelConfig>({
   useDefaultConfig: () => {
     return ParallelDefaultConfig;
   },
-  defineSubCommands: ({ defineSubCommand }) => {
+  defineActions: ({ defineAction }) => {
     return [
-      defineSubCommand({
+      defineAction({
         name: "parallel",
         description: "运行多个npm script",
-        action: async ({ finalUserConfig }) => {
+        run: async ({ finalUserConfig }) => {
           await parallel(finalUserConfig);
         },
       }),
-      defineSubCommand({
+      defineAction({
         name: WaitCmdName,
         description: "parallel命令利用此命令来达到wait功能",
         options: {
@@ -180,7 +180,7 @@ export const ParallelCliCommand = defineCliCommand<ParallelConfig>({
             type: "string",
           },
         },
-        action: async ({ finalUserConfig, args }) => {
+        run: async ({ finalUserConfig, args }) => {
           const { name = "", absoluteFilePath = "" } = args;
           let checkResult: CheckWaitFileResult | undefined = undefined;
           if (absoluteFilePath && name) {

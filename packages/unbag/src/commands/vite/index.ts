@@ -12,9 +12,9 @@ export const ViteCliCommand = defineCliCommand<ViteConfig>({
   useDefaultConfig: () => {
     return {};
   },
-  defineSubCommands: ({ defineSubCommand }) => {
+  defineActions: ({ defineAction }) => {
     return [
-      defineSubCommand({
+      defineAction({
         name: "vite-build",
         description: "执行 vite build 操作",
         options: {
@@ -35,7 +35,7 @@ export const ViteCliCommand = defineCliCommand<ViteConfig>({
             },
           };
         },
-        action: async ({ finalUserConfig }) => {
+        run: async ({ finalUserConfig }) => {
           const commandConfig = finalUserConfig.commandConfig as ViteConfig;
           await vite.build({
             ...commandConfig,
@@ -43,7 +43,7 @@ export const ViteCliCommand = defineCliCommand<ViteConfig>({
           });
         },
       }),
-      defineSubCommand({
+      defineAction({
         name: "vitest",
         description: "执行 vitest 操作",
         options: {
@@ -59,7 +59,7 @@ export const ViteCliCommand = defineCliCommand<ViteConfig>({
             },
           };
         },
-        action: async ({ finalUserConfig }) => {
+        run: async ({ finalUserConfig }) => {
           const commandConfig = finalUserConfig.commandConfig as ViteConfig;
           const vitest = await createVitest(
             "test",

@@ -15,16 +15,16 @@ export const CommitCommand = defineCliCommand<CommitConfig>({
   useDefaultConfig: () => {
     return CommitConfigDefault;
   },
-  defineSubCommands: ({ defineSubCommand }) => {
+  defineActions: ({ defineAction }) => {
     return [
-      defineSubCommand({
+      defineAction({
         name: "commit",
         description: "提交文件",
-        action: async ({ finalUserConfig }) => {
+        run: async ({ finalUserConfig }) => {
           await commit({ finalUserConfig });
         },
       }),
-      defineSubCommand({
+      defineAction({
         name: "commit-lint",
         description: "提交文件",
         options: {
@@ -33,17 +33,10 @@ export const CommitCommand = defineCliCommand<CommitConfig>({
             type: "string",
           },
         },
-        action: async ({ finalUserConfig, args }) => {
+        run: async ({ finalUserConfig, args }) => {
           await commitLint({ finalUserConfig, message: args.message || "" });
         },
       }),
     ];
   },
 });
-
-// export class CommitCommand extends Command {
-//   async task() {
-//     const { finalUserConfig } = this;
-//     await commit({ finalUserConfig });
-//   }
-// }

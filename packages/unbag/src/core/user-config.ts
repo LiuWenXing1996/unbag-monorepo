@@ -7,7 +7,7 @@ import { LogConfig, LogConfigDefault } from "@/utils/log";
 import deepFreezeStrict from "deep-freeze-strict";
 import _ from "lodash";
 import { DeepPartial, DeepReadonly } from "ts-essentials";
-import { CliCommand } from "./cli";
+import { CliCommand, CliCommandFactory } from "./cli";
 import { ViteConfig } from "@/commands/vite";
 
 export type UserConfigBase = {
@@ -25,7 +25,7 @@ export type UserConfig = {
   parallel?: DeepPartial<ParallelConfig>;
   release?: DeepPartial<ReleaseConfig>;
   commit?: DeepPartial<CommitConfig>;
-  custom?: CliCommand<unknown>[];
+  custom?: CliCommandFactory<unknown>[];
 };
 
 export type FinalUserConfig<C = unknown> = DeepReadonly<{

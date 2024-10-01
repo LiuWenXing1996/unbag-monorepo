@@ -1,0 +1,44 @@
+{
+  "name": "unbag-command-create",
+  "version": "0.0.1",
+  "description": "unbag command create",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build -w",
+    "test": "vitest",
+    "test:watch": "vitest -w"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "author": "LiuWenXing1996 lwx_redstone@163.com",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    }
+  },
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "dependencies": {
+    "@inquirer/core": "^9.2.1",
+    "@inquirer/prompts": "^5.5.0",
+    "chalk": "^5.3.0",
+    "commander": "^10.0.0",
+    "i18next": "^23.15.1",
+    "i18next-cli-language-detector": "^1.1.8"
+  },
+  "peerDependencies": {
+    "unbag": "workspace:^"
+  }
+}

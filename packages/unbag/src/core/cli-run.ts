@@ -1,7 +1,6 @@
 import { Locale } from "@/utils/common";
 import { AbsolutePath, usePath } from "@/utils/path";
 import { mergeConfig, useDefaultUserConfigBase } from "./user-config";
-import { TransformCommand } from "@/commands/transform";
 import {
   addCliCommand,
   addCliOption,
@@ -14,13 +13,8 @@ import {
   parseRootFromCli,
   parseUserConfigFilePathFromCli,
   RootCliOption,
-  useCliCommand,
   UserConfigFilePathCliOption,
 } from "./cli";
-import { ReleaseCommand } from "@/commands/release";
-import { CommitCommand } from "@/commands/commit";
-import { ParallelCliCommand } from "@/commands/parallel";
-import { ViteCliCommand } from "@/commands/vite";
 
 export const cliRun = async () => {
   const defaultUserConfigBase = useDefaultUserConfigBase();
@@ -60,56 +54,13 @@ export const cliRun = async () => {
   addCliOption({ program, option: RootCliOption });
   addCliOption({ program, option: UserConfigFilePathCliOption });
 
-  await addCliCommand({
-    program,
-    userConfigBase: mergedUserConfigBase,
-    cliCommandFactory: useCliCommand(
-      TransformCommand,
-      userConfigFromCli?.transform
-    ),
-  });
-  await addCliCommand({
-    program,
-    userConfigBase: mergedUserConfigBase,
-    cliCommandFactory: useCliCommand(ViteCliCommand, userConfigFromCli?.vite),
-  });
-  await addCliCommand({
-    program,
-    userConfigBase: mergedUserConfigBase,
-    cliCommandFactory: useCliCommand(
-      ReleaseCommand,
-      userConfigFromCli?.release
-    ),
-  });
-  await addCliCommand({
-    program,
-    userConfigBase: mergedUserConfigBase,
-    cliCommandFactory: useCliCommand(CommitCommand, userConfigFromCli?.commit),
-  });
-  await addCliCommand({
-    program,
-    userConfigBase: mergedUserConfigBase,
-    cliCommandFactory: useCliCommand(
-      ParallelCliCommand,
-      userConfigFromCli?.parallel
-    ),
-  });
-
-  program.command(
-    "custom",
-    "执行自定命令",
-    async (yargs) => {
-      for (const cliCommandFactory of userConfigFromCli?.custom || []) {
-        await addCliCommand({
-          program: yargs,
-          cliCommandFactory,
-          userConfigBase: mergedUserConfigBase,
-        });
-      }
-      return yargs;
-    },
-    () => void 0
-  );
+  for (const cliCommandFactory of userConfigFromCli?.commands || []) {
+    await addCliCommand({
+      program: program,
+      cliCommandFactory,
+      userConfigBase: mergedUserConfigBase,
+    });
+  }
 
   await program.help().version().parse();
 };

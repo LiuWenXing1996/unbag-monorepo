@@ -1,10 +1,7 @@
 import { defineUserConfig, DEFAULT_COMMIT_TYPES } from "unbag";
-import { checkScope } from "../../scripts/scopes";
+import { checkScope } from "unbag-build-tools";
 
 export default defineUserConfig({
-  log: {
-    debug: false,
-  },
   release: {
     // TODO：这个地方的名字似乎要和 package name 相对应
     scope: {

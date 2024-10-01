@@ -18,13 +18,12 @@
     "unbag": "./bin/bin.mjs"
   },
   "scripts": {
-    "entry": "tsx ./src/run.ts",
-    "build": "pnpm entry vite-build",
-    "builds": "pnpm entry transform",
-    "dev": "pnpm entry vite-build -w",
+    "build": "vite build",
+    "dev": "vite build -w",
     "release": "pnpm build && pnpm entry release",
     "release-dry": "pnpm build && pnpm entry release -d",
-    "test": "pnpm entry vitest"
+    "test": "vitest",
+    "test-watch": "vitest -w"
   },
   "exports": {
     ".": {

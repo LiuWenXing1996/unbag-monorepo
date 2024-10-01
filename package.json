@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "init-repo": "pnpm --filter 'unbag' build && unbag custom init",
+    "build:build-tools": "pnpm --filter 'unbag-build-tools' build",
+    "build:unbag-shared": "pnpm --filter 'unbag-shared' build",
+    "build:unbag": "pnpm --filter 'unbag' build",
+    "init-repo": "pnpm build:build-tools && unbag custom init",
     "dev": "unbag parallel",
     "build:docs": "pnpm --filter 'unbag-docs' build",
     "clear": "rimraf 'packages/*/{lib,node_modules}' && rimraf node_modules",
@@ -27,6 +30,13 @@
     "execa": "^9.2.0",
     "husky": "^9.0.11",
     "unbag": "workspace:^",
+    "unbag-build-tools": "workspace:^",
+    "unbag-command-commit": "workspace:^",
+    "unbag-command-create": "workspace:^",
+    "unbag-command-parallel": "workspace:^",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "^4.2.2",
+    "vitest": "^2.1.1",
     "wait-on": "^7.2.0"
   },
   "version": "1.1.0"

@@ -1,0 +1,48 @@
+{
+  "name": "unbag-shared",
+  "version": "0.0.1",
+  "description": "unbag 中一些通用的方法、变量等",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "author": "LiuWenXing1996 lwx_redstone@163.com",
+  "keywords": [
+    "unbag command"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build -w",
+    "release": "unbag release",
+    "release-dry": "unbag release -d",
+    "test": "vitest",
+    "test-watch": " vitest -w"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    }
+  },
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "devDependencies": {
+    "unbag": "workspace:^"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "detect-indent": "^7.0.1",
+    "detect-newline": "^4.0.1",
+    "execa": "^9.2.0",
+    "fs-extra": "^11.2.0",
+    "ts-essentials": "^10.0.2"
+  }
+}

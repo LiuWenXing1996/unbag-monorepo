@@ -1,31 +1,21 @@
-import { CommitConfig } from "@/commands/commit/config";
-import { ParallelConfig } from "@/commands/parallel";
-import { ReleaseConfig } from "@/commands/release";
-import { TransformConfig } from "@/commands/transform";
 import { arraify, filterNullable, Locale } from "@/utils/common";
 import { LogConfig, LogConfigDefault } from "@/utils/log";
 import deepFreezeStrict from "deep-freeze-strict";
 import _ from "lodash";
 import { DeepPartial, DeepReadonly } from "ts-essentials";
-import { CliCommand, CliCommandFactory } from "./cli";
-import { ViteConfig } from "@/commands/vite";
+import { CliCommandFactory } from "./cli";
 
-export type UserConfigBase = {
+export interface UserConfigBase {
   root: string;
   locale: Locale;
   tempDir: string;
   log: LogConfig;
   catch: (error: any) => void;
-};
+}
 
 export type UserConfig = {
   base?: DeepPartial<UserConfigBase>;
-  transform?: DeepPartial<TransformConfig>;
-  vite?: DeepPartial<ViteConfig>;
-  parallel?: DeepPartial<ParallelConfig>;
-  release?: DeepPartial<ReleaseConfig>;
-  commit?: DeepPartial<CommitConfig>;
-  custom?: CliCommandFactory<unknown>[];
+  commands?: CliCommandFactory<unknown>[];
 };
 
 export type FinalUserConfig<C = unknown> = DeepReadonly<{

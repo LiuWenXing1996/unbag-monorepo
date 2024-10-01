@@ -1,0 +1,41 @@
+{
+  "name": "unbag-build-tools",
+  "version": "0.0.1",
+  "description": "unbag 的构建工具",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build -w",
+    "test": "vitest",
+    "test-watch": "vitest -w"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    }
+  },
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "dependencies": {
+    "@pnpm/find-workspace-dir": "^7.0.1",
+    "@pnpm/types": "^12.2.0",
+    "@pnpm/workspace.find-packages": "^4.0.9",
+    "vite-plugin-dts": "^4.2.2"
+  },
+  "peerDependencies": {
+    "vite": "^5.4.8",
+    "vitest": "^2.1.1"
+  }
+}

@@ -42,8 +42,24 @@ export const unSafeFunctionWrapper = <
   return func as (...args: P) => DeepPartial<R> | undefined;
 };
 
+export const unSafeFunctionShallowWrapper = <
+  T extends (...args: any) => any,
+  R extends ReturnType<T>,
+  P extends Parameters<T>
+>(
+  func: T
+): ((...args: P) => Partial<R> | undefined) => {
+  return func as (...args: P) => Partial<R> | undefined;
+};
+
 export const unSafeObjectWrapper = <T extends object>(
   obj: T
 ): DeepPartial<T> => {
   return obj as DeepPartial<T>;
+};
+
+export const unSafeObjectShallowWrapper = <T extends object>(
+  obj: T
+): Partial<T> => {
+  return obj as Partial<T>;
 };

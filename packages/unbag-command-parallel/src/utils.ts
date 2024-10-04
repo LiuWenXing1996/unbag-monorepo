@@ -7,7 +7,7 @@ export type MaybePromise<T> = T | Promise<T>;
 
 export const modifyJson = async <T, V = T>(
   path: string,
-  modify: (input?: T) => MaybePromise<V | undefined>
+  modify: (input: T) => MaybePromise<V | undefined>
 ) => {
   let oldContent: string | undefined = undefined;
   let oldJson: T | undefined = undefined;
@@ -15,7 +15,7 @@ export const modifyJson = async <T, V = T>(
     oldContent = (await fs.readFile(path, "utf-8")) as string;
     oldJson = JSON.parse(oldContent || "");
   } catch (error) {}
-  const newJson = (await modify(oldJson)) || "";
+  const newJson = (await modify(oldJson as T)) || "";
   const detectIndent = await import("detect-indent");
   const detectNewline = await import("detect-newline");
   const DEFAULT_INDENT = 2;

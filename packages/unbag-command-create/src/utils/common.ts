@@ -1,6 +1,7 @@
 import { AbsolutePath } from "unbag";
-import { useFs, usePath } from "unbag";
 import { fileURLToPath } from "node:url";
+import path from "node:path";
+import fs from "node:fs/promises";
 
 export interface CreateCommandConfig {
   useInline: boolean;
@@ -14,8 +15,29 @@ export interface CreateTemplateConfig {
   keywords?: string[];
 }
 
+export const listChildDir = async (dir?: string) => {
+  const dirs: string[] = [];
+  if (!dir) {
+    return [];
+  }
+  const fileList = (await fs.readdir(dir)) as string[];
+  for (const file of fileList) {
+    const name = path.join(dir, file);
+    if ((await fs.stat(name)).isDirectory()) {
+      dirs.push(name);
+    }
+  }
+  return dirs;
+};
+
+export const readJson = async <T>(path: string): Promise<T> => {
+  let jsonObj: T | undefined = undefined;
+  const content = (await fs.readFile(path, "utf-8")) as string;
+  jsonObj = JSON.parse(content || "") as T;
+  return jsonObj;
+};
+
 export const useInlineTemplates = async (): Promise<CreateTemplateConfig[]> => {
-  const path = usePath();
   const templatesDir = new AbsolutePath({
     content: path.resolve(
       fileURLToPath(import.meta.url),
@@ -25,48 +47,38 @@ export const useInlineTemplates = async (): Promise<CreateTemplateConfig[]> => {
   });
   const templates = await resolveTemplates({
     templatesDir,
-    presetList: [
-      {
-        name: "base",
-        description: "基础模板",
-        keywords: ["base-template"],
-      },
-    ],
   });
 
   return templates;
 };
 
+export interface PkgJson {
+  name?: string;
+  description?: string;
+  keywords?: string[];
+}
+
 export const resolveTemplates = async (params: {
   templatesDir: AbsolutePath;
-  presetList: Omit<CreateTemplateConfig, "path">[];
-  disabledCheckTemplate?: boolean;
 }): Promise<CreateTemplateConfig[]> => {
-  const { templatesDir, presetList, disabledCheckTemplate } = params;
-  const fs = useFs();
+  const { templatesDir } = params;
+  const templateDirList = await listChildDir(templatesDir.content);
 
-  const templates: CreateTemplateConfig[] = presetList.map((l) => {
-    return {
-      path: templatesDir.resolve({ next: l.name }),
-      ...l,
-    };
-  });
-
-  if (!disabledCheckTemplate) {
-    await Promise.all([
-      ...templates.map(async (template) => {
-        const pathValue = template.path.content;
-        const pathIsExists = await fs.pathExists(pathValue);
-        if (!pathIsExists) {
-          throw new Error(`${pathValue} must exist`);
-        }
-        const isDirectory = await fs.isDirectory(pathValue);
-        if (!isDirectory) {
-          throw new Error(`${pathValue} must be directory`);
-        }
-      }),
-    ]);
-  }
+  const templates: CreateTemplateConfig[] = await Promise.all([
+    ...templateDirList.map(async (templateDir) => {
+      const pkgJsonPath = path.resolve(templateDir, "package.json");
+      const pkgJson = await readJson<PkgJson>(pkgJsonPath);
+      if (!pkgJson.name) {
+        throw new Error(`${pkgJsonPath} undefined name`);
+      }
+      return {
+        name: pkgJson.name,
+        path: new AbsolutePath({ content: templateDir }),
+        description: pkgJson.description,
+        keywords: pkgJson.keywords,
+      };
+    }),
+  ]);
 
   return templates;
 };

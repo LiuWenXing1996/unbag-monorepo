@@ -1,12 +1,10 @@
-import { useLog } from "@/utils/log";
-import { useMessage } from "@/utils/message";
-import { MaybePromise } from "@/utils/types";
 import { BumpResult } from "./bump";
 import { ReleaseChangelogFileContent } from "./changelog";
 import { $ } from "execa";
 import { useTagPrefix } from "./utils";
-import { FinalUserConfig } from "@/core/user-config";
 import { ReleaseConfig } from ".";
+import { FinalUserConfig, useLog, useMessage } from "unbag";
+import { MaybePromise } from "./types";
 export interface TagData {
   bumpRes: BumpResult;
   changelogRes: ReleaseChangelogFileContent;

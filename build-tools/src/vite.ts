@@ -1,7 +1,8 @@
 /// <reference types="vitest/config" />
 import dts from "vite-plugin-dts";
 import path from "node:path";
-import type { UserConfig } from "vite";
+import babel from "vite-plugin-babel";
+import { type UserConfig } from "vite";
 
 export const useViteLibConfig = (params: {
   base: string;
@@ -10,8 +11,10 @@ export const useViteLibConfig = (params: {
     devDependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;
   };
+  minify?: boolean;
 }): UserConfig => {
   const { pkgJson, base } = params;
+  const minify = params.minify === undefined ? false : params.minify;
   const baseValue = base;
   const externals = [
     ...Object.keys(pkgJson.dependencies || []),
@@ -30,13 +33,33 @@ export const useViteLibConfig = (params: {
         outDir: path.resolve(baseValue, "./dist/types"),
         rollupTypes: false,
       }),
+      babel({
+        babelConfig: {
+          presets: ["@babel/preset-typescript"],
+          plugins: [
+            [
+              "babel-plugin-polyfill-corejs3",
+              {
+                method: "usage-pure",
+                version: "3.81",
+              },
+            ],
+          ],
+          targets: {
+            node: "18",
+          },
+        },
+        filter: /\.[jt]sx?$/,
+      }),
     ],
     test: {
       watch: false,
       dir: path.resolve(baseValue, "./src"),
     },
     build: {
-      sourcemap: true,
+      sourcemap: false,
+      minify: minify,
+      // target: "es2015",
       lib: {
         entry: path.resolve(baseValue, "./src/index.ts"),
         name: "unbag",

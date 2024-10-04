@@ -1,4 +1,4 @@
-import { useViteLibConfig } from "unbag-build-tools";
+import { useViteLibConfig } from "build-tools";
 import { mergeConfig } from "vite";
 import pkgJson from "./package.json";
 import { fileURLToPath } from "node:url";

@@ -1,8 +1,8 @@
-import { useGit } from "@/utils/git";
-import { useLog } from "@/utils/log";
-import { useMessage } from "../../utils/message";
-import { FinalUserConfig } from "@/core/user-config";
+import { FinalUserConfig } from "unbag";
 import { ReleaseConfig } from ".";
+import { useLog } from "unbag";
+import { useMessage } from "unbag";
+import { useGit } from "./utils";
 export interface ReleaseBranchConfig {
   mainName: string;
   mainCheckDisable: boolean;

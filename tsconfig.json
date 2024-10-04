@@ -4,9 +4,10 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "allowJs": true,
+    "strictNullChecks": true,
     "noEmit": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
   ]
 }

@@ -1,9 +1,7 @@
 // TODO:实现 git push
 import { $ } from "execa";
-import { useLog } from "@/utils/log";
-import { useMessage } from "@/utils/message";
 import { ReleaseConfig } from ".";
-import { FinalUserConfig } from "@/core/user-config";
+import { FinalUserConfig, useLog, useMessage } from "unbag";
 
 export interface ReleasePushConfig {
   disable?: boolean;

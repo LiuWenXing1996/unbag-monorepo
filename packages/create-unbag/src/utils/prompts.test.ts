@@ -1,5 +1,4 @@
-import { useVitest } from "unbag";
-const { expect, test } = await useVitest();
+import { expect, test } from "vitest";
 
 test("array", () => {
   expect([]).toEqual([]);

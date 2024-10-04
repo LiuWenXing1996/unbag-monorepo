@@ -15,10 +15,16 @@ import {
   ReleaseBranchConfigDefault,
   branch,
 } from "./branch";
-import { unSafeFunctionWrapper } from "@/utils/common";
-import { MaybePromise, useDefaultReleasePresetPath } from "./utils";
+import { useDefaultReleasePresetPath } from "./utils";
 import { push, ReleasePushConfig, ReleasePushConfigDefault } from "./push";
-import { defineCliCommand, FinalUserConfig, useLog, useMessage } from "unbag";
+import {
+  defineCommand,
+  FinalUserConfig,
+  unSafeFunctionWrapper,
+  useLog,
+  useMessage,
+} from "unbag";
+import { MaybePromise } from "./types";
 export interface ReleaseConfig {
   dry?: boolean;
   scope?: {
@@ -99,39 +105,26 @@ export const release = async (params: {
   });
 };
 
-export const ReleaseCommand = defineCliCommand<ReleaseConfig>({
-  useDefaultConfig: () => {
+export const ReleaseCommand = defineCommand({
+  defaultConfig: () => {
     return releaseDefaultConfig;
   },
-  defineActions: ({ defineAction }) => {
-    return [
-      defineAction({
-        name: "release",
-        description:
-          "执行一系列的发布操作，包含生成版本号、生成发布日志、提交发布文件、添加 git 标签等动作",
-        options: {
-          dry: {
-            alias: "d",
-            description: "启用试运行模式",
-            type: "boolean",
-          },
-        },
-        configParse: ({ args }) => {
-          return {
-            dry: args.dry,
-          };
-        },
-        run: async ({ finalUserConfig }) => {
-          await release({ finalUserConfig });
-        },
-      }),
-    ];
+  name: "release",
+  description:
+    "执行一系列的发布操作，包含生成版本号、生成发布日志、提交发布文件、添加 git 标签等动作",
+  options: {
+    dry: {
+      alias: "d",
+      description: "启用试运行模式",
+      type: "boolean",
+    },
+  },
+  configParse: ({ args }) => {
+    return {
+      dry: args.dry,
+    };
+  },
+  run: async ({ finalUserConfig }) => {
+    await release({ finalUserConfig });
   },
 });
-
-// export class ReleaseCommand extends Command {
-//   async task() {
-//     const { finalUserConfig } = this;
-//     await release({ finalUserConfig });
-//   }
-// }

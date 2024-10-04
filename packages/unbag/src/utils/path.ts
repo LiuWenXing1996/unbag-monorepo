@@ -1,7 +1,9 @@
 import * as nodePath from "node:path";
-export type NodePathApi = typeof nodePath;
-export const createPathUtils = (path: NodePathApi) => {
-  const { extname, resolve } = path;
+export type PathUtils = typeof nodePath & CustomPathUtils;
+export type CustomPathUtils = ReturnType<typeof useCustomPathUtils>;
+
+export const useCustomPathUtils = () => {
+  const { extname, resolve } = nodePath;
   const trimExtname = (path: string, extnames?: string[]) => {
     let willTrim = true;
     const _extname = extname(path);
@@ -26,16 +28,17 @@ export const createPathUtils = (path: NodePathApi) => {
     trimExtname,
     replaceExtname,
     rootName,
-    ...path,
   };
 };
-const pathUtils = createPathUtils(nodePath);
-export const usePath = () => {
-  const pathUtils = createPathUtils(nodePath);
-  return pathUtils;
+
+export const usePath = (): PathUtils => {
+  const customPathUtils = useCustomPathUtils();
+
+  return {
+    ...nodePath,
+    ...customPathUtils,
+  };
 };
-export default pathUtils;
-export type IPathUtils = typeof pathUtils;
 export class BasePath {
   #content: string;
   constructor(params: { content: string }) {

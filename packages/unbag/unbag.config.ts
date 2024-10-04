@@ -1,4 +1,4 @@
-import { defineUserConfig, useCliCommand } from "./src";
+import { defineUserConfig } from "./src";
 
 export default defineUserConfig({
   base: {

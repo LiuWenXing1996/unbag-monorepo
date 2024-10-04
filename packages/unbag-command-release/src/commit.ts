@@ -1,11 +1,9 @@
-import { FinalUserConfig } from "@/core/user-config";
+import { FinalUserConfig, useLog, useMessage } from "unbag";
 import { ReleaseConfig } from ".";
-import { useLog } from "../../utils/log";
-import { useMessage } from "../../utils/message";
-import { MaybePromise } from "../../utils/types";
 import { BumpResult } from "./bump";
 import { ReleaseChangelogFileContent } from "./changelog";
 import { $ } from "execa";
+import { MaybePromise } from "./types";
 export interface ReleaseCommitConfig {
   disable?: boolean;
   message?: string;

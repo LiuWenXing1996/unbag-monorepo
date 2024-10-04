@@ -22,9 +22,11 @@ import {
   UserConfigBase,
   UserConfig,
   FinalUserConfig,
+  UserConfigFunc,
 } from "./user-config";
 import { DeepPartial, DeepReadonly } from "ts-essentials";
 import { wrapAsyncFuncWithLog } from "@/utils/log";
+import _ from "lodash";
 
 export const createProgram = () => {
   return yargs(hideBin(process.argv)).help(false).version(false);
@@ -126,7 +128,7 @@ export const addCliCommandAction = async <
     cmdNameWithAliases,
     description || "",
     options || {},
-    async (args: any) => {
+    async (args: any, ...rest) => {
       delete args._;
       delete args.$0;
       const userConfigBaseFromArgs = await userConfigBaseParse?.({ args });
@@ -323,12 +325,32 @@ export const lookupUserConfigFilePath = async (params: {
 
 export async function loadUserConfigFromFile(params: {
   filePath: AbsolutePath;
-}): Promise<UserConfig | undefined> {
+}): Promise<UserConfig | UserConfigFunc | undefined> {
   const { filePath } = params;
   const { mod } = await bundleRequire({
     filepath: filePath.content,
     format: "esm",
   });
-  const config = mod.default || mod;
-  return config;
+
+  let result = mod.default || mod;
+  return result;
 }
+
+defineCliCommand({
+  useDefaultConfig: () => {
+    return {};
+  },
+  defineActions: ({ defineAction }) => {
+    return [
+      defineAction({
+        name: "s",
+        configParse: () => {
+          return {
+            a: "",
+          };
+        },
+        run: () => {},
+      }),
+    ];
+  },
+});

@@ -1,14 +1,14 @@
 import { usePath } from "./path";
 import fs from "node:fs/promises";
 import fsExtra from "fs-extra/esm";
-import { MaybePromise } from "@/types";
+import { MaybePromise } from "./types";
 export type FsUtils = typeof fs & typeof fsExtra & CustomFsUtils;
 export type CustomFsUtils = ReturnType<typeof useCustomFsUtils>;
 
 export const useCustomFsUtils = () => {
   const path = usePath();
   const { readFile, readdir, stat } = fs;
-  const { emptyDir, ensureDir, copy, outputFile, pathExists } = fsExtra;
+  const { outputFile, pathExists } = fsExtra;
 
   const readJson = async <T>(path: string): Promise<T> => {
     let jsonObj: T | undefined = undefined;
@@ -103,12 +103,15 @@ export const useCustomFsUtils = () => {
       return false;
     }
   };
+  const delPath = async (path: string) => {
+    const isExist = await pathExists(path);
+    if (!isExist) {
+      return;
+    }
+    await fs.rm(path, { recursive: true, force: true });
+  };
   return {
-    outputFile,
-    emptyDir,
-    ensureDir,
-    copy,
-    pathExists,
+    delPath,
     readJson,
     modifyJson,
     tryReadJson,

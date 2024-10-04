@@ -3,7 +3,8 @@ import { LogConfig, LogConfigDefault } from "@/utils/log";
 import deepFreezeStrict from "deep-freeze-strict";
 import _ from "lodash";
 import { DeepPartial, DeepReadonly } from "ts-essentials";
-import { CliCommandFactory } from "./cli";
+import { CommandFactory } from "@/command";
+import { MaybePromise } from "@/utils/types";
 
 export interface UserConfigBase {
   root: string;
@@ -15,15 +16,21 @@ export interface UserConfigBase {
 
 export type UserConfig = {
   base?: DeepPartial<UserConfigBase>;
-  commands?: CliCommandFactory<unknown>[];
+  commands?: (CommandFactory | undefined)[];
 };
+
+export type UserConfigFunc = (params: {
+  mode?: string;
+}) => MaybePromise<UserConfig>;
 
 export type FinalUserConfig<C = unknown> = DeepReadonly<{
   base: UserConfigBase;
   commandConfig: C;
 }>;
 
-export const defineUserConfig = (config: UserConfig): UserConfig => config;
+export const defineUserConfig = (
+  config: UserConfig | UserConfigFunc
+): UserConfig | UserConfigFunc => config;
 
 export const useDefaultUserConfigBase = (): UserConfigBase => {
   const defaultConfig: UserConfigBase = {
@@ -50,7 +57,7 @@ export const mergeConfig = <
 }) => {
   const { defaultValue, overrides, customize } = params;
   const customizeDefault = (objValue: any, srcValue: any) => {
-    if (_.isArray(objValue) || _.isArray(srcValue)) {
+    if (_.isArray(objValue) && _.isArray(srcValue)) {
       return filterNullable([...arraify(objValue), ...arraify(srcValue)]);
     }
   };

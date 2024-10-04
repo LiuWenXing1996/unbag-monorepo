@@ -1,92 +1,161 @@
 import { v4 as uuidv4 } from "uuid";
 import {
-  CheckWaitFileResult,
-  WaitCmdName,
   WaitConfig,
   WaitDefaultConfig,
-  checkWaitFile,
   genWaitCommand,
-  genWaitResAbsoluteFilePath,
-  writeWaitResFile,
+  mergeWaitFile,
+  wait,
+  waitCmdName,
+  writeWaitFile,
 } from "./wait";
 import concurrently from "concurrently";
-import path from "node:path";
-import { defineCliCommand, FinalUserConfig } from "unbag";
+import {
+  AbsolutePath,
+  Command,
+  CommandHelper,
+  defineCommand,
+  FinalUserConfig,
+  unSafeObjectShallowWrapper,
+} from "unbag";
 import { MaybePromise } from "./utils";
 import { DeepPartial } from "ts-essentials";
+import _ from "lodash";
+import fsExtra from "fs-extra/esm";
+
+export type ParallelConfigScripts =
+  | ParallelScript[]
+  | (() => MaybePromise<ParallelScript[]>);
 export interface ParallelConfig {
   wait: WaitConfig;
-  commands: ParallelCommand[];
-  groupName?: string;
-  groups: Record<string, ParallelCommand[]>;
+  beforeRun?: () => MaybePromise<boolean>;
+  beforeCheck?: () => MaybePromise<boolean>;
+  scripts: ParallelConfigScripts;
+  groups: {
+    [name: string]: ParallelConfigScripts;
+  };
 }
 export const ParallelDefaultConfig: ParallelConfig = {
   wait: WaitDefaultConfig,
-  commands: [],
+  scripts: [],
   groups: {},
 };
-export interface ParallelCommand {
+export interface ParallelScript {
   name: string;
   wait?: DeepPartial<WaitConfig> & {
     func: () => MaybePromise<boolean>;
   };
-  npmScript: string;
-}
-export interface Command {
   command: string;
-  name: string;
 }
-export const parallel = async (config: FinalUserConfig<ParallelConfig>) => {
-  const needWaitCmdMap = new Map<string, ParallelCommand | undefined>();
-  const {
-    commandConfig: parallel,
-    base: { root, tempDir },
-  } = config;
-  const { commands, groupName, groups } = parallel;
-  const parallelTempDir = path.resolve(root, tempDir, "parallel");
-  const parallelWaitTempDir = path.resolve(parallelTempDir, "wait");
-  const finalCommands = (groupName ? groups[groupName] : commands) || [];
-  const commandList: Command[] = finalCommands.map((e) => {
-    let command = `${e.npmScript}`;
-    if (e.wait?.func) {
-      const waitTag = `${e.name}_wait_${uuidv4()}`;
-      const waitCmd = genWaitCommand({
-        tag: waitTag,
-        name: e.name,
-      });
-      command = `${waitCmd} && ${command}`;
-      needWaitCmdMap.set(waitTag, e);
-    }
-    return {
-      name: e.name,
-      command,
-    };
-  });
-  const waitFuncObj = Object.fromEntries(needWaitCmdMap.entries());
 
-  // prepare wait tag files
-  await Promise.all(
-    Object.keys(waitFuncObj).map(async (tag) => {
-      const cmd = waitFuncObj[tag];
-      if (!cmd?.wait?.func) {
-        return;
+const runWaitFunc = async (func: () => MaybePromise<boolean>) => {
+  console.log("runWaitFunc");
+  return await func();
+};
+
+export const getParallelScripts = async (params: {
+  config: ParallelConfig;
+  groupName?: string;
+}): Promise<ParallelScript[]> => {
+  const { config, groupName } = params;
+  const groups = unSafeObjectShallowWrapper(config.groups);
+  if (groupName) {
+    const scriptsInGroup = groups[groupName];
+    if (!scriptsInGroup) {
+      throw new Error("exit on beforeRunRes");
+    }
+    if (_.isFunction(scriptsInGroup)) {
+      return await scriptsInGroup();
+    } else {
+      return scriptsInGroup;
+    }
+  }
+  if (config.scripts) {
+    console.log({ s: config.scripts, sss: _.isFunction(() => {}) });
+
+    if (_.isFunction(config.scripts)) {
+      return await config.scripts();
+    } else {
+      return config.scripts;
+    }
+  }
+  return [];
+};
+
+export const parallel = async (params: {
+  config: FinalUserConfig<ParallelConfig>;
+  commandHelper: CommandHelper;
+  groupName?: string;
+}) => {
+  const { config, commandHelper, groupName } = params;
+  const { commandConfig: parallel } = config;
+  const { beforeRun, beforeCheck } = parallel;
+  const tempDir = commandHelper.tempDir;
+  fsExtra.emptyDir(tempDir.content);
+  const finalScripts = await getParallelScripts({
+    config: config.commandConfig as ParallelConfig,
+    groupName,
+  });
+
+  const waitFuncList: {
+    path: AbsolutePath;
+    func: () => MaybePromise<boolean>;
+  }[] = [];
+
+  const commandList: {
+    command: string;
+    name: string;
+  }[] = await Promise.all([
+    ...finalScripts.map(async (script) => {
+      let command = `${script.command}`;
+      if (script.wait?.func) {
+        console.log({ tempDir: tempDir.content });
+        const waitFilePath = tempDir.resolve({
+          next: `${script.name}_wait_${uuidv4()}`,
+        });
+        await writeWaitFile({
+          filePath: waitFilePath,
+          content: {
+            name: script.name,
+            finish: false,
+            interval:
+              script.wait.interval ||
+              parallel.wait.interval ||
+              WaitDefaultConfig.interval,
+            timeout:
+              script.wait.interval ||
+              parallel.wait.timeout ||
+              WaitDefaultConfig.timeout,
+            checkTime: [],
+            result: false,
+            message: "",
+          },
+        });
+        waitFuncList.push({
+          func: script.wait?.func,
+          path: waitFilePath,
+        });
+
+        const waitCmd = genWaitCommand({
+          waitResAbsoluteFilePath: waitFilePath,
+          commandHelper,
+        });
+        command = `${waitCmd} && ${command}`;
       }
-      const waitResAbsoluteFilePath = genWaitResAbsoluteFilePath({
-        absoluteTempDir: parallelWaitTempDir,
-        tag,
-      });
-      await writeWaitResFile({
-        absoluteFilePath: waitResAbsoluteFilePath,
-        content: {
-          tag,
-          lastUpdateTime: Date.now(),
-          finish: false,
-          interval: cmd.wait.interval || WaitDefaultConfig.interval,
-          timeout: cmd.wait.interval || WaitDefaultConfig.timeout,
-        },
-      });
-    })
-  );
+      return {
+        name: script.name,
+        command,
+      };
+    }),
+  ]);
+  if (beforeRun) {
+    const beforeRunRes = await beforeRun();
+    if (!beforeRunRes) {
+      throw new Error("exit on beforeRunRes");
+    }
+  }
+
+  console.log({ commandList });
+
   concurrently(commandList, {
     prefixColors: "auto",
     prefix: "[{time}]-[{name}]",
@@ -94,105 +163,69 @@ export const parallel = async (config: FinalUserConfig<ParallelConfig>) => {
     killOthers: ["failure"],
   });
 
-  // run wait functions
-  Object.keys(waitFuncObj).map(async (tag) => {
-    const cmd = waitFuncObj[tag];
-    if (!cmd?.wait?.func) {
-      return;
+  if (beforeCheck) {
+    const res = await beforeCheck();
+    if (!res) {
+      throw new Error("exit on beforeCheck");
     }
-    const waitResAbsoluteFilePath = genWaitResAbsoluteFilePath({
-      absoluteTempDir: parallelWaitTempDir,
-      tag,
-    });
-    try {
-      const res = await cmd.wait.func();
-      await writeWaitResFile({
-        absoluteFilePath: waitResAbsoluteFilePath,
-        merge: true,
-        content: {
-          lastUpdateTime: Date.now(),
-          finish: true,
-          result: res,
-          message: res ? "success" : "false",
-        },
-      });
-    } catch (error) {
-      await writeWaitResFile({
-        absoluteFilePath: waitResAbsoluteFilePath,
-        merge: true,
-        content: {
-          finish: true,
-          lastUpdateTime: Date.now(),
-          result: false,
-          message: error.message || "unknown error",
-        },
-      });
-    }
-  });
-};
+  }
 
-export const ParallelCliCommand = defineCliCommand<ParallelConfig>({
-  useDefaultConfig: () => {
-    return ParallelDefaultConfig;
+  for (const waitFunc of waitFuncList) {
+    runWaitFunc(waitFunc.func)
+      .then(async (res) => {
+        console.log("check finish");
+        await mergeWaitFile({
+          filePath: waitFunc.path,
+          content: {
+            finish: true,
+            result: res,
+            message: res ? "success" : "false",
+          },
+        });
+      })
+      .catch(async (error) => {
+        await mergeWaitFile({
+          filePath: waitFunc.path,
+          content: {
+            finish: true,
+            result: false,
+            message: error.message || "unknown error",
+          },
+        });
+      });
+  }
+};
+export const ParallelCommand = defineCommand({
+  defaultConfig: ParallelDefaultConfig,
+  name: "parallel",
+  description: "在支持运行多个 npm script 时，同时可将某些 npm script 延迟执行",
+  options: {
+    group: {
+      alias: "g",
+      description: "使用的某一组脚本操作",
+    },
   },
-  defineActions: ({ defineAction }) => {
+  run: async ({ finalUserConfig, helper }) => {
+    await parallel({
+      config: finalUserConfig,
+      commandHelper: helper,
+    });
+  },
+  subCommands: ({ defineSubCommand }) => {
     return [
-      defineAction({
-        name: "parallel",
-        description: "运行多个npm script",
-        run: async ({ finalUserConfig }) => {
-          await parallel(finalUserConfig);
-        },
-      }),
-      defineAction({
-        name: WaitCmdName,
-        description: "parallel命令利用此命令来达到wait功能",
+      defineSubCommand({
+        name: waitCmdName,
+        description: "parallel 内部利用此命令来达到脚本延迟执行功能",
         options: {
-          name: {
-            alias: "n",
-            description: "等待的命令名称",
-            type: "string",
-          },
-          absoluteFilePath: {
+          filePath: {
             alias: "f",
-            description: "要轮询检查的文件的绝对路径",
-            type: "string",
-          },
-          tag: {
-            alias: "tg",
-            description: "等待的函数运行标志",
-            type: "string",
-          },
-          tempDir: {
-            alias: "td",
-            description: "临时文件夹",
-            type: "string",
-          },
-          interval: {
-            alias: "i",
-            description: "临时文件夹",
-            type: "string",
-          },
-          timeout: {
-            alias: "tm",
-            description: "超时时间",
+            description: "要轮询检查的文件的路径",
             type: "string",
           },
         },
-        run: async ({ finalUserConfig, args }) => {
-          const { name = "", absoluteFilePath = "" } = args;
-          let checkResult: CheckWaitFileResult | undefined = undefined;
-          if (absoluteFilePath && name) {
-            checkResult = await checkWaitFile({
-              name,
-              absoluteFilePath,
-            });
-          }
-          if (checkResult?.content.result) {
-            process.exit(0);
-          } else {
-            process.exit(1);
-          }
+        run: async ({ args }) => {
+          const { filePath = "" } = args;
+          await wait({ filePath });
         },
       }),
     ];

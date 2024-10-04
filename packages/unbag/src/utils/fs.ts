@@ -1,11 +1,12 @@
-import path from "./path";
-import fss from "node:fs";
-import { MaybePromise } from "./types";
+import { usePath } from "./path";
+import fs from "node:fs/promises";
 import fsExtra from "fs-extra/esm";
+import { MaybePromise } from "./types";
+export type FsUtils = typeof fs & typeof fsExtra & CustomFsUtils;
+export type CustomFsUtils = ReturnType<typeof useCustomFsUtils>;
 
-const fs = fss.promises;
-
-export const useFs = () => {
+export const useCustomFsUtils = () => {
+  const path = usePath();
   const { readFile, readdir, stat } = fs;
   const { emptyDir, ensureDir, copy, outputFile, pathExists } = fsExtra;
 
@@ -103,7 +104,6 @@ export const useFs = () => {
     }
   };
   return {
-    ...fs,
     outputFile,
     emptyDir,
     ensureDir,
@@ -116,5 +116,15 @@ export const useFs = () => {
     listChildDir,
     isFile,
     isDirectory,
+  };
+};
+
+export const useFs = (): FsUtils => {
+  const customFsUtils = useCustomFsUtils();
+
+  return {
+    ...fs,
+    ...fsExtra,
+    ...customFsUtils,
   };
 };

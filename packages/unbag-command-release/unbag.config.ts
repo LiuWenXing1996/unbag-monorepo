@@ -1,10 +1,5 @@
-import { defineUserConfig, useCliCommand } from "unbag";
-import { HelloCommand } from "./src/index";
+import { defineUserConfig } from "unbag";
 
 export default defineUserConfig({
-  commands: [
-    useCliCommand(HelloCommand, {
-      msg: "hello!",
-    }),
-  ],
+  commands: [],
 });

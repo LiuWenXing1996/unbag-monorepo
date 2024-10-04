@@ -1,7 +1,7 @@
 import { gitCz } from "./git-cz";
 import { CommitConfig, CommitConfigDefault } from "./config";
 import { commitLint } from "./lint";
-import { defineCliCommand, type FinalUserConfig } from "unbag";
+import { defineCommand, type FinalUserConfig } from "unbag";
 
 export const commit = async (params: {
   finalUserConfig: FinalUserConfig<CommitConfig>;
@@ -10,25 +10,21 @@ export const commit = async (params: {
   await gitCz({ finalUserConfig });
 };
 
-export const CommitCommand = defineCliCommand<CommitConfig>({
-  useDefaultConfig: () => {
-    return CommitConfigDefault;
+export const CommitCommand = defineCommand({
+  defaultConfig: CommitConfigDefault,
+  name: "commit",
+  description: "提交文件",
+  run: async ({ finalUserConfig }) => {
+    await commit({ finalUserConfig });
   },
-  defineActions: ({ defineAction }) => {
+  subCommands: ({ defineSubCommand }) => {
     return [
-      defineAction({
-        name: "commit",
-        description: "提交文件",
-        run: async ({ finalUserConfig }) => {
-          await commit({ finalUserConfig });
-        },
-      }),
-      defineAction({
-        name: "commit-lint",
+      defineSubCommand({
+        name: "lint",
         description: "提交文件",
         options: {
           message: {
-            alias: "-m",
+            alias: "m",
             type: "string",
           },
         },

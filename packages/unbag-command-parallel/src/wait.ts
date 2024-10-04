@@ -1,5 +1,7 @@
-import path from "node:path";
 import { sleep, modifyJson, readJson } from "@/utils";
+import { AbsolutePath, CommandHelper, unSafeObjectWrapper } from "unbag";
+import { DeepPartial } from "ts-essentials";
+import fsExtra from "fs-extra/esm";
 export interface WaitConfig {
   timeout: number;
   interval: number;
@@ -8,147 +10,139 @@ export const WaitDefaultConfig: WaitConfig = {
   timeout: 10000,
   interval: 500,
 };
-export interface WaitResFileContent {
-  lastUpdateTime?: number;
-  lastCheckTime?: number;
-  tag?: string;
-  finish?: boolean;
-  result?: boolean;
-  message?: string;
-  interval?: number;
-  timeout?: number;
+
+export interface WaitFileContent {
+  name: string;
+  interval: number;
+  timeout: number;
+  finish: boolean;
+  result: boolean;
+  message: string;
+  updateTime: number;
+  checkTime: number[];
 }
-export const genWaitResAbsoluteFilePath = (params: {
-  absoluteTempDir: string;
-  tag: string;
+
+export const mergeWaitFile = async (params: {
+  filePath: AbsolutePath;
+  content: Partial<Omit<WaitFileContent, "updateTime">>;
 }) => {
-  const { absoluteTempDir, tag } = params;
-  const absoluteFilePath = path.resolve(absoluteTempDir, `${tag}.json`);
-  return absoluteFilePath;
-};
-export const writeWaitResFile = async (params: {
-  absoluteFilePath: string;
-  content?: WaitResFileContent;
-  merge?: boolean;
-}) => {
-  const { absoluteFilePath, content, merge } = params;
-  await modifyJson<WaitResFileContent>(absoluteFilePath, (oldJson) => {
-    if (merge) {
-      return {
-        ...oldJson,
-        ...content,
-      };
-    } else {
-      return content;
-    }
+  const { filePath, content } = params;
+  await modifyJson<WaitFileContent>(filePath.content, (oldJson) => {
+    return {
+      ...oldJson,
+      ...content,
+      updateTime: Date.now(),
+      checkTime: [...oldJson.checkTime, ...(content.checkTime || [])],
+    };
   });
 };
-export const readWaitResFile = async (absoluteFilePath: string) => {
-  try {
-    return readJson<WaitResFileContent>(absoluteFilePath);
-  } catch (error) {}
+
+export const writeWaitFile = async (params: {
+  filePath: AbsolutePath;
+  content: Omit<WaitFileContent, "updateTime">;
+}) => {
+  const { filePath, content } = params;
+  await fsExtra.outputFile(
+    filePath.content,
+    JSON.stringify({
+      ...content,
+      updateTime: Date.now(),
+    }),
+    "utf-8"
+  );
 };
-export const WaitCmdName = "parallel-wait";
+export const readWaitFile = async (filePath: AbsolutePath) => {
+  const content = readJson<WaitFileContent>(filePath.content);
+  if (!content) {
+    throw new Error("readWaitFile error");
+  }
+  return content;
+};
 export interface CheckWaitFileResult {
   checkTime: number;
-  content: WaitResFileContent;
+  content: WaitFileContent;
 }
-export const checkWaitFile = async (params: {
-  name: string;
-  absoluteFilePath: string;
+
+export const check = async (params: {
+  startTime: number;
+  filePath: AbsolutePath;
 }): Promise<CheckWaitFileResult> => {
-  const startTime = Date.now();
-  const { absoluteFilePath, name } = params;
-  const check = async (): Promise<CheckWaitFileResult> => {
-    const thisCheckTime = Date.now();
-    const currentContent = await readWaitResFile(absoluteFilePath);
-    if (!currentContent) {
-      throw Error();
-    }
-    await writeWaitResFile({
-      absoluteFilePath,
-      merge: true,
+  const { filePath, startTime } = params;
+  const thisCheckTime = Date.now();
+  const currentContent = await readWaitFile(filePath);
+  const { name } = currentContent;
+  await mergeWaitFile({
+    filePath,
+    content: {
+      checkTime: [thisCheckTime],
+    },
+  });
+  const {
+    timeout = WaitDefaultConfig.timeout,
+    interval = WaitDefaultConfig.interval,
+    finish,
+  } = currentContent;
+  if (finish) {
+    return {
+      checkTime: thisCheckTime,
+      content: currentContent,
+    };
+  }
+  const timeSpan = thisCheckTime - startTime;
+  if (timeSpan > timeout) {
+    console.log(`${name} wait timeout`);
+    await mergeWaitFile({
+      filePath,
       content: {
-        lastCheckTime: thisCheckTime,
-      },
-    });
-    const {
-      timeout = WaitDefaultConfig.timeout,
-      interval = WaitDefaultConfig.interval,
-      finish,
-    } = currentContent;
-    if (finish) {
-      return {
-        checkTime: thisCheckTime,
-        content: currentContent,
-      };
-    }
-    const timeSpan = thisCheckTime - startTime;
-    if (timeSpan > timeout) {
-      console.log(`${name} wait timeout`);
-      const timeoutContent: WaitResFileContent = {
         finish: true,
         result: false,
         message: "timeout",
-      };
-      await writeWaitResFile({
-        absoluteFilePath,
-        merge: true,
-        content: {
-          ...timeoutContent,
-        },
-      });
-      return {
-        checkTime: thisCheckTime,
-        content: {
-          ...currentContent,
-          ...timeoutContent,
-        },
-      };
-    }
-    console.log(`${name} wait ...`);
-    await sleep(interval);
-    return await check();
-  };
-  return await check();
+      },
+    });
+
+    return {
+      checkTime: thisCheckTime,
+      content: await readWaitFile(filePath),
+    };
+  }
+  console.log(`${name} wait ...`);
+  await sleep(interval);
+  return await check({
+    startTime,
+    filePath,
+  });
 };
 
-// export const checkWaitFuncResByFile = async (params: {
-//   name: string;
-//   tempDir?: string;
-//   tag: string;
-//   timeout?: number;
-//   interval?: number;
-// }) => {
-//   const {
-//     name,
-//     tempDir = defaultTempDir,
-//     tag,
-//     timeout = 10000,
-//     interval = 500,
-//   } = params;
-//   const filePath = getResFilePath({ tempDir, tag });
-//   const startTime = Date.now();
-//   let content = "";
-//   const tryGetRes = async () => {
-//     console.log(`${name} wait ...`);
-//     let timeSpan = Date.now() - startTime;
-//     if (timeSpan > timeout) {
-//       return A;
-//     }
-//     try {
-//       content = await fs.readFile(filePath, "utf-8");
-//     } catch (error) {}
-//     if (!content) {
-//       await sleep(interval);
-//       await tryGetRes();
-//     }
-//   };
-//   await tryGetRes();
-//   return content === SUCCESS;
-// };
-export const genWaitCommand = (params: { name: string; tag: string }) => {
-  const { tag, name } = params || {};
-  let cmd = `unbag ${WaitCmdName} -n ${name} -tg ${tag}`;
+export const wait = async (params: { filePath: string }) => {
+  try {
+    const { filePath } = unSafeObjectWrapper(params);
+    if (!filePath) {
+      throw new Error("filePath undefined");
+    }
+    const absoluteFilePath = new AbsolutePath({ content: filePath });
+    const startTime = Date.now();
+    const checkResult = await check({ startTime, filePath: absoluteFilePath });
+    if (checkResult?.content.result) {
+      process.exit(0);
+    } else {
+      process.exit(1);
+    }
+  } catch (error) {
+    process.exit(1);
+  }
+};
+
+export const waitCmdName = "wait";
+
+export const genWaitCommand = (params: {
+  commandHelper: CommandHelper;
+  waitResAbsoluteFilePath: AbsolutePath;
+}) => {
+  const { waitResAbsoluteFilePath, commandHelper } = params;
+  const { programName, args } = commandHelper;
+  const [parallelCmdName, ...rest] = args;
+  const cmdName = `${programName} ${parallelCmdName} ${waitCmdName}`;
+  const cmdParams = `${rest.join(" ")} -f ${waitResAbsoluteFilePath.content}`;
+  const cmd = `${cmdName} ${cmdParams}`;
   return cmd;
 };

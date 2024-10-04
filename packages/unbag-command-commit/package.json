@@ -45,6 +45,7 @@
     "@commitlint/lint": "^19.2.2",
     "@commitlint/load": "^19.2.0",
     "@commitlint/types": "^19.0.3",
+    "core-js-pure": "^3.38.1",
     "execa": "^9.2.0",
     "inquirer": "^9.0.0"
   }

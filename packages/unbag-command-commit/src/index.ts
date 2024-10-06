@@ -24,11 +24,12 @@ export const CommitCommand = defineCommand({
         description: "提交文件",
         options: {
           message: {
-            alias: "m",
+            description: "需要校验的信息",
             type: "string",
           },
         },
         run: async ({ finalUserConfig, args }) => {
+          console.log({ args });
           await commitLint({ finalUserConfig, message: args.message || "" });
         },
       }),

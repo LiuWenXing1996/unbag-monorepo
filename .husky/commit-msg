@@ -1,4 +1,4 @@
 echo $1
 message=$(cat $1)
 echo $message
-pnpm unbag commit-lint --message "$message"
+pnpm unbag commit lint --message "$message" -m dev

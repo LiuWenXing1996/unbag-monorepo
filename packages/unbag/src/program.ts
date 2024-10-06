@@ -16,7 +16,15 @@ import {
 } from "./core/cli";
 import { filterNullable, Locale } from "./utils/common";
 import { AbsolutePath, usePath } from "./utils/path";
-import { CommandHelper, subCommandToParserCommand } from "./command";
+import {
+  Command,
+  CommandExistedOptions,
+  CommandFactory,
+  CommandHelper,
+  subCommandToParserCommand,
+  validateCommands,
+} from "./command";
+import { mapValues } from "radash";
 
 export class Program {
   constructor(params: {
@@ -122,6 +130,16 @@ export class Program {
     return (await parser.parse(this.args)).mode;
   }
 
+  getParserOptions() {
+    return {
+      [this.rootOption.key]: this.rootOption.options,
+      [this.localeOption.key]: this.localeOption.options,
+      [this.userConfigFilePathOption.key]:
+        this.userConfigFilePathOption.options,
+      [this.modeOption.key]: this.modeOption.options,
+    };
+  }
+
   async parse() {
     const defaultUserConfigBase = useDefaultUserConfigBase();
     const path = usePath();
@@ -163,73 +181,150 @@ export class Program {
 
     const parser = new Parser({
       scriptName: this.name,
-      options: {
-        [this.rootOption.key]: this.rootOption.options,
-        [this.localeOption.key]: this.localeOption.options,
-        [this.userConfigFilePathOption.key]:
-          this.userConfigFilePathOption.options,
-        [this.modeOption.key]: this.modeOption.options,
-      },
+      options: this.getParserOptions(),
     });
 
-    const commands = await Promise.all([
-      ...filterNullable(userConfigFromCli?.commands || []).map(
-        async (commandFactory) => {
-          const { command: commandMaybeFunc, config: configMaybeFunc } =
-            commandFactory;
-          const command = _.isFunction(commandMaybeFunc)
-            ? await commandMaybeFunc()
-            : commandMaybeFunc;
-          return subCommandToParserCommand({
-            command,
-            wrapRun: ({ value, commandPath, parserCommand }) => {
-              const wrapperRun: ParserCommand["run"] = async (...rest) => {
-                const { userConfigBaseParse, configParse } = command;
-                const [args] = rest;
-                const defaultConfig = _.isFunction(command.defaultConfig)
-                  ? await command.defaultConfig()
-                  : command.defaultConfig;
-                const userConfigBaseFromArgs = await userConfigBaseParse?.({
-                  args,
-                });
-                const userConfigCommandFromArgs = await configParse?.({
-                  args,
-                });
-                const userConfigBaseMerged = mergeConfig({
-                  defaultValue: mergedUserConfigBase,
-                  overrides: [userConfigBaseFromArgs],
-                });
-                const config = _.isFunction(configMaybeFunc)
-                  ? await configMaybeFunc()
-                  : configMaybeFunc;
-                const userConfigCommandMerged = mergeConfig({
-                  defaultValue: defaultConfig,
-                  overrides: [config, userConfigCommandFromArgs],
-                });
-                const finalUserConfig = freezeConfig({
-                  base: userConfigBaseMerged,
-                  commandConfig: userConfigCommandMerged,
-                });
-                await value({
-                  args,
-                  finalUserConfig,
-                  helper: new CommandHelper({
-                    program: this,
-                    finalUserConfig,
-                    commandPath,
-                    command,
-                    parserCommand,
-                  }),
-                });
-              };
-              return wrapperRun;
-            },
+    const programOptionsExisted: CommandExistedOptions = {
+      ...mapValues(this.getParserOptions(), (option, optionName) => {
+        return {
+          option,
+          optionName,
+          commandPath: [],
+        };
+      }),
+      version: {
+        optionName: "version",
+        option: {
+          alias: "v",
+        },
+        commandPath: [],
+      },
+      help: {
+        optionName: "help",
+        option: {
+          alias: "h",
+        },
+        commandPath: [],
+      },
+    };
+    const commandList: {
+      command: Command;
+      commandFactory: CommandFactory;
+    }[] = [];
+    for (const commandFactory of userConfigFromCli?.commands || []) {
+      if (commandFactory) {
+        const { command: commandMaybeFunc, config: configMaybeFunc } =
+          commandFactory;
+        const command = _.isFunction(commandMaybeFunc)
+          ? await commandMaybeFunc()
+          : commandMaybeFunc;
+        commandList.push({ command, commandFactory });
+      }
+    }
+    const parserCommandList: ParserCommand[] = [];
+    validateCommands({
+      commands: commandList.map((e) => e.command),
+      commandPath: [],
+    });
+    for (const { command, commandFactory } of commandList) {
+      const { config: configMaybeFunc } = commandFactory;
+      const wrapRun = ({ value, commandPath, parserCommand }) => {
+        const wrapperRun: ParserCommand["run"] = async (...rest) => {
+          const { userConfigBaseParse, configParse } = command;
+          const [args] = rest;
+          const defaultConfig = _.isFunction(command.defaultConfig)
+            ? await command.defaultConfig()
+            : command.defaultConfig;
+          const userConfigBaseFromArgs = await userConfigBaseParse?.({
+            args,
           });
-        }
-      ),
-    ]);
+          const userConfigCommandFromArgs = await configParse?.({
+            args,
+          });
+          const userConfigBaseMerged = mergeConfig({
+            defaultValue: mergedUserConfigBase,
+            overrides: [userConfigBaseFromArgs],
+          });
+          const config = _.isFunction(configMaybeFunc)
+            ? await configMaybeFunc()
+            : configMaybeFunc;
+          const userConfigCommandMerged = mergeConfig({
+            defaultValue: defaultConfig,
+            overrides: [config, userConfigCommandFromArgs],
+          });
+          const finalUserConfig = freezeConfig({
+            base: userConfigBaseMerged,
+            commandConfig: userConfigCommandMerged,
+          });
+          await value({
+            args,
+            finalUserConfig,
+            helper: new CommandHelper({
+              program: this,
+              finalUserConfig,
+              commandPath,
+              command,
+              parserCommand,
+            }),
+          });
+        };
+        return wrapperRun;
+      };
+      const parserCommand = subCommandToParserCommand({
+        command,
+        commandPath: [],
+        program: this,
+        optionsExisted: {
+          ...programOptionsExisted,
+        },
+        wrapRun: ({ value, commandPath, parserCommand }) => {
+          const wrapperRun: ParserCommand["run"] = async (...rest) => {
+            const { userConfigBaseParse, configParse } = command;
+            const [args] = rest;
+            const defaultConfig = _.isFunction(command.defaultConfig)
+              ? await command.defaultConfig()
+              : command.defaultConfig;
+            const userConfigBaseFromArgs = await userConfigBaseParse?.({
+              args,
+            });
+            const userConfigCommandFromArgs = await configParse?.({
+              args,
+            });
+            const userConfigBaseMerged = mergeConfig({
+              defaultValue: mergedUserConfigBase,
+              overrides: [userConfigBaseFromArgs],
+            });
+            const config = _.isFunction(configMaybeFunc)
+              ? await configMaybeFunc()
+              : configMaybeFunc;
+            const userConfigCommandMerged = mergeConfig({
+              defaultValue: defaultConfig,
+              overrides: [config, userConfigCommandFromArgs],
+            });
+            const finalUserConfig = freezeConfig({
+              base: userConfigBaseMerged,
+              commandConfig: userConfigCommandMerged,
+            });
+            await value({
+              args,
+              finalUserConfig,
+              helper: new CommandHelper({
+                program: this,
+                finalUserConfig,
+                commandPath,
+                command,
+                parserCommand,
+              }),
+            });
+          };
+          return wrapperRun;
+        },
+      });
+      parserCommandList.push(parserCommand);
+    }
 
-    for (const command of commands) {
+    debugger;
+    for (const command of parserCommandList) {
       parser.addCommand(command);
     }
 

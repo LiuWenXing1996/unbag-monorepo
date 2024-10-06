@@ -16,7 +16,7 @@ export interface ParserOptions {
   [key: string]: Options;
 }
 
-export interface ParserCommand<Options extends ParserOptions = {}> {
+export interface ParserCommand<Options extends ParserOptions = ParserOptions> {
   name: string;
   description?: string;
   aliases?: string[] | string;

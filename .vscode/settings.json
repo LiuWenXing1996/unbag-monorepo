@@ -18,7 +18,7 @@
         "i18next"
     ],
     "i18n-ally.localesPaths": [
-        "packages/create-unbag/src/i18n/langs"
+        "packages/**/**/src/i18n/langs"
     ],
     "i18n-ally.keystyle": "nested",
     "i18n-ally.sortKeys": true,

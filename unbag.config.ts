@@ -12,13 +12,10 @@ import { RuleConfigSeverity } from "@commitlint/types";
 import { DepsGraph, useFs, createDepsGraph } from "build-tools";
 import waitOn from "wait-on";
 import fs from "node:fs/promises";
-import { name } from "./package.json";
 const __dirname = fileURLToPath(import.meta.url);
 const dirname = new AbsolutePath({
   content: __dirname,
 });
-
-console.log({ name });
 
 export default defineUserConfig(async ({ mode }) => {
   const packages = await resolvePackages({
@@ -185,8 +182,8 @@ export const getCommandsInDevMode = async () => {
         const sortedPackages = depsGraph.sortByDeps();
         type ParallelScript = import("unbag-command-parallel").ParallelScript;
 
-        const scripts: ParallelScript[] = sortedPackages.map(
-          (pkgName, index) => {
+        const scripts: ParallelScript[] = [
+          ...sortedPackages.map((pkgName, index) => {
             const pkg = needDevPackageMap.get(pkgName);
             if (!pkg) {
               throw new Error(`没有找到 ${pkg} 的相关信息`);
@@ -208,9 +205,12 @@ export const getCommandsInDevMode = async () => {
                 },
               },
             };
-          }
-        );
-        console.log({ scripts });
+          }),
+          {
+            name: "unbag-unit-test",
+            command: `pnpm --filter unbag test-watch`,
+          },
+        ];
         return scripts;
       },
     };
@@ -241,10 +241,13 @@ export const getCommandsInDevMode = async () => {
     async () => {
       const resolveTemplates = (await import("unbag-command-create"))
         .resolveTemplates;
+      const templatesDir = new AbsolutePath({
+        content: path.dirname(dirname.content),
+      }).resolve({ next: "./templates" });
       return {
         templates: [
           ...(await resolveTemplates({
-            templatesDir: dirname.resolve({ next: "./templates" }),
+            templatesDir: templatesDir,
           })),
         ],
       };

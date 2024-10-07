@@ -183,6 +183,9 @@ importers:
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
+      i18next:
+        specifier: ^23.15.1
+        version: 23.15.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -229,6 +232,9 @@ importers:
       execa:
         specifier: ^9.2.0
         version: 9.2.0
+      i18next:
+        specifier: ^23.15.1
+        version: 23.15.1
       inquirer:
         specifier: ^9.0.0
         version: 9.3.6
@@ -286,6 +292,9 @@ importers:
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
+      i18next:
+        specifier: ^23.15.1
+        version: 23.15.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -332,6 +341,9 @@ importers:
       execa:
         specifier: ^9.2.0
         version: 9.2.0
+      i18next:
+        specifier: ^23.15.1
+        version: 23.15.1
       semver:
         specifier: ^7.6.3
         version: 7.6.3

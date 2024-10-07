@@ -1,3 +1,5 @@
 - TODO: 补充单元测试
 - TODO:基于 unbag-create-command 实现 create-unbag
 - TODO:基于 unbag-create-command 中的 readme 有问题
+- TODO:基于 unbag-command-parallel 实现一个延迟的统计信息打印？
+- TODO:将定义命令的方式从数组变为对象？

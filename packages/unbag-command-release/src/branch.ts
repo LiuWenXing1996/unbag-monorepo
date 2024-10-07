@@ -28,7 +28,6 @@ export const branch = async (params: {
   const log = useLog({ finalUserConfig });
   const { currentBranchGet, currentBranchStatusGet } = useGit();
   const currentBranchName = await currentBranchGet();
-  // TODO:.....
   if (!currentBranchName) {
     throw new Error(i18next.t("release.branch.currentBranchUndefined"));
   }

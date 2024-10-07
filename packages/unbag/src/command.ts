@@ -33,7 +33,6 @@ export type CommandExistedOptionAliases = {
   [aliasName: string]: CommandExistedOption;
 };
 
-// TODO：直接可以定义 run action？
 export interface Command<
   Config extends object = object,
   Options extends CommandOptions = CommandOptions,

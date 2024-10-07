@@ -3,3 +3,5 @@
 - TODO:基于 unbag-create-command 中的 readme 有问题
 - TODO:基于 unbag-command-parallel 实现一个延迟的统计信息打印？
 - TODO:将定义命令的方式从数组变为对象？
+- TODO:根据 radash 的 template 实现 unbag-create-command的模板功能
+- TODO:实现 release 的子命令 bump changelog ?

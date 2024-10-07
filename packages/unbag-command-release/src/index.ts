@@ -60,10 +60,6 @@ export const releaseDefaultConfig: ReleaseConfig = {
   push: ReleasePushConfigDefault,
 };
 
-// TODO 实现 scope?
-// 还有commit？
-// 甚至 test?
-// TODO:继续实现 release 和其子命令
 export const release = async (params: {
   finalUserConfig: FinalUserConfig<ReleaseConfig>;
   commandHelper: CommandHelper;

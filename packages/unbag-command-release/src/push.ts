@@ -1,4 +1,3 @@
-// TODO:实现 git push
 import { $ } from "execa";
 import { ReleaseConfig } from ".";
 import { FinalUserConfig, useLog } from "unbag";

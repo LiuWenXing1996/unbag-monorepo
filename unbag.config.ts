@@ -9,7 +9,7 @@ import { PackageType, resolvePackages } from "build-tools";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { RuleConfigSeverity } from "@commitlint/types";
-import { DepsGraph, useFs, createDepsGraph } from "build-tools";
+import { DepsGraph, createDepsGraph } from "build-tools";
 import waitOn from "wait-on";
 import fs from "node:fs/promises";
 const __dirname = fileURLToPath(import.meta.url);

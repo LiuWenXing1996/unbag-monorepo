@@ -1,5 +1,4 @@
 import i18next from "i18next";
-import I18nextCLILanguageDetector from "i18next-cli-language-detector";
 import zh from "@/i18n/langs/zh.json";
 import en from "@/i18n/langs/en.json";
 export const defaultNS = "defaultNS";
@@ -12,8 +11,9 @@ export const resources = {
   },
 } as const;
 
-export const initI18n = async () => {
-  await i18next.use(I18nextCLILanguageDetector).init({
+export const initI18n = async (lang: string) => {
+  await i18next.init({
+    lng: lang,
     defaultNS,
     resources,
   });

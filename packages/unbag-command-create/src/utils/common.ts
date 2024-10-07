@@ -45,6 +45,7 @@ export const useInlineTemplates = async (): Promise<CreateTemplateConfig[]> => {
       "templates"
     ),
   });
+  console.log({templatesDir})
   const templates = await resolveTemplates({
     templatesDir,
   });

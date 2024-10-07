@@ -8,9 +8,9 @@ export const CreateCommand = defineCommand({
   defaultConfig: {
     useInline: true,
   } as CreateCommandConfig,
-  run: async ({ finalUserConfig }) => {
+  run: async ({ finalUserConfig, helper }) => {
     const config = finalUserConfig.commandConfig as CreateCommandConfig;
-    await read({ config });
+    await read({ config, commandHelper: helper });
   },
 });
 export { read } from "./read";

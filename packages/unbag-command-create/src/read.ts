@@ -1,16 +1,19 @@
 import i18next from "i18next";
 import { initI18n } from "./i18n";
 import { usePrompts } from "./utils/prompts";
-import { useFs, usePath } from "unbag";
+import { CommandHelper, useFs, usePath } from "unbag";
 import {
   CreateCommandConfig,
   CreateTemplateConfig,
   useInlineTemplates,
 } from "@/utils/common";
 
-export const read = async (params: { config: CreateCommandConfig }) => {
-  const { config } = params;
-  await initI18n();
+export const read = async (params: {
+  config: CreateCommandConfig;
+  commandHelper: CommandHelper;
+}) => {
+  const { config, commandHelper } = params;
+  await initI18n(commandHelper.locale);
   const { input, select, confirm } = usePrompts();
   const fs = useFs();
   const path = usePath();

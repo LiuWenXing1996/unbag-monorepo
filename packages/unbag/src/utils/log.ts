@@ -1,6 +1,5 @@
-import { FinalUserConfig } from "@/core/user-config";
+import { FinalUserConfig } from "@/config";
 import chalk from "chalk";
-import { MaybePromise } from "./types";
 export enum LogTypeEnum {
   Info = "Info",
   Warn = "Warn",

@@ -1,12 +1,10 @@
 import { DeepPartial } from "ts-essentials";
 import { AbsolutePath, usePath } from "./path";
-import { FinalUserConfig } from "@/core/user-config";
+import { FinalUserConfig } from "@/config";
 export function isObject(value: unknown): value is Record<string, any> {
   return Object.prototype.toString.call(value) === "[object Object]";
 }
-export enum Locale {
-  "zh_cn" = "zh_cn",
-}
+
 export const filterNullable = <T>(
   list: T[],
   isNullable?: (value: T) => boolean

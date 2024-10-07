@@ -1,11 +1,7 @@
 import { Options, type InferredOptionTypes } from "yargs";
 import { ParserCommand, ParserOptions } from "./parser";
 import { DeepPartial, MaybePromise } from "./utils/types";
-import {
-  defineUserConfig,
-  FinalUserConfig,
-  UserConfigBase,
-} from "./core/user-config";
+import { FinalUserConfig, UserConfigBase } from "@/config";
 import { Program } from "./program";
 import _ from "lodash";
 import { AbsolutePath } from "./utils/path";
@@ -19,8 +15,6 @@ export type CommandOption = Omit<Options, "alias"> & {
 export type CommandOptions = {
   [optionName: string]: CommandOption;
 };
-
-// export type CommandOptions = Record<string, CommandOption>;
 
 export type CommandExistedOption = {
   optionName: string;
@@ -370,5 +364,9 @@ export class CommandHelper {
         next: subPath,
       });
     return tempDir;
+  }
+
+  get locale() {
+    return this.#program.locale;
   }
 }

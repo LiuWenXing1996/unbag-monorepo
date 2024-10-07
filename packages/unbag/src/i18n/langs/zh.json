@@ -1,0 +1,7 @@
+{
+    "config": {
+        "file": {
+            "notFound": "没有找到配置文件: {{- fileName}}"
+        }
+    }
+}

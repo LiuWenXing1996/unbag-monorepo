@@ -51,6 +51,7 @@
     "detect-newline": "^4.0.1",
     "execa": "^9.2.0",
     "fs-extra": "^11.2.0",
+    "i18next": "^23.15.1",
     "lodash": "^4.17.21",
     "radash": "^12.1.0",
     "ts-essentials": "^10.0.2",

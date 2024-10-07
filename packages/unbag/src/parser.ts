@@ -98,4 +98,7 @@ export class Parser<Options extends ParserOptions = {}> {
   disableVersion() {
     this.#yargs.version(false);
   }
+  localeDetect() {
+    return this.#yargs.locale();
+  }
 }

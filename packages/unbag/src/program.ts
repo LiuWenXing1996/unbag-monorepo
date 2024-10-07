@@ -5,16 +5,9 @@ import {
   freezeConfig,
   mergeConfig,
   useDefaultUserConfigBase,
-} from "./core/user-config";
-import {
-  parseLocaleFromCli,
-  localeDetect,
-  parseRootFromCli,
-  parseUserConfigFilePathFromCli,
-  lookupUserConfigFilePath,
-  loadUserConfigFromFile,
-} from "./core/cli";
-import { filterNullable, Locale } from "./utils/common";
+  UserConfig,
+  UserConfigFunc,
+} from "@/config";
 import { AbsolutePath, usePath } from "./utils/path";
 import {
   Command,
@@ -25,6 +18,10 @@ import {
   validateCommands,
 } from "./command";
 import { mapValues } from "radash";
+import { bundleRequire } from "bundle-require";
+import { useFs } from "./utils/fs";
+import { initI18n } from "./i18n";
+import i18next from "i18next";
 
 export class Program {
   constructor(params: {
@@ -93,6 +90,10 @@ export class Program {
     return _.cloneDeep(args);
   }
 
+  get locale(): string {
+    return i18next.language;
+  }
+
   async parseLocale(): Promise<string | undefined> {
     const parser = new Parser({
       options: {
@@ -130,6 +131,16 @@ export class Program {
     return (await parser.parse(this.args)).mode;
   }
 
+  async localeDetect(): Promise<string | undefined> {
+    const parser = new Parser({
+      options: {
+        [this.modeOption.key]: this.modeOption.options,
+      },
+    });
+    const localeDetected = parser.localeDetect();
+    return localeDetected;
+  }
+
   getParserOptions() {
     return {
       [this.rootOption.key]: this.rootOption.options,
@@ -139,15 +150,68 @@ export class Program {
       [this.modeOption.key]: this.modeOption.options,
     };
   }
+  async loadUserConfigFromFile(params: {
+    filePath: AbsolutePath;
+  }): Promise<UserConfig | UserConfigFunc | undefined> {
+    const { filePath } = params;
+    const { mod } = await bundleRequire({
+      filepath: filePath.content,
+      format: "esm",
+    });
+
+    let result = mod.default || mod;
+    return result;
+  }
+  async lookupUserConfigFilePath(params: {
+    root: AbsolutePath;
+    configFilePath?: string;
+  }): Promise<AbsolutePath | undefined> {
+    const { root, configFilePath } = params;
+    const path = usePath();
+    const fs = useFs();
+    if (configFilePath) {
+      const absoluteFilePath = new AbsolutePath({
+        content: path.resolve(root.content, configFilePath),
+      });
+      const isExit = await fs.pathExists(absoluteFilePath.content);
+      if (!isExit) {
+        throw new Error(
+          i18next.t("config.file.notFound", {
+            fileName: absoluteFilePath.content,
+          })
+        );
+      }
+      return absoluteFilePath;
+    } else {
+      const configFileDefaultList = [
+        "unbag.config.ts",
+        "unbag.config.js",
+        "unbag.config.cjs",
+        "unbag.config.mjs",
+      ];
+      for (const filePath of configFileDefaultList) {
+        const absoluteFilePath = new AbsolutePath({
+          content: path.resolve(root.content, filePath),
+        });
+        const isExit = await fs.pathExists(absoluteFilePath.content);
+        if (!isExit) {
+          break;
+        }
+        return absoluteFilePath;
+      }
+    }
+  }
 
   async parse() {
     const defaultUserConfigBase = useDefaultUserConfigBase();
+    await initI18n(defaultUserConfigBase.locale);
     const path = usePath();
     const localeFromCli = await this.parseLocale();
-    const localeDetected = localeDetect();
-    const locale = (localeFromCli ||
-      localeDetected ||
-      defaultUserConfigBase.locale) as Locale;
+    const localeDetected = await this.localeDetect();
+    const locale =
+      localeFromCli || localeDetected || defaultUserConfigBase.locale;
+
+    await i18next.changeLanguage(locale);
 
     const rootFormCli = await this.parseRoot();
     const root = rootFormCli || defaultUserConfigBase.root;
@@ -158,14 +222,13 @@ export class Program {
     const absoluteRoot = new AbsolutePath({
       content: path.resolve(root),
     });
-    const userConfigFileAbsolutePath = await lookupUserConfigFilePath({
+    const userConfigFileAbsolutePath = await this.lookupUserConfigFilePath({
       root: absoluteRoot,
       configFilePath: userConfigFilePath,
-      locale,
     });
 
     const userConfigMaybeFuncFromCli = userConfigFileAbsolutePath
-      ? await loadUserConfigFromFile({
+      ? await this.loadUserConfigFromFile({
           filePath: userConfigFileAbsolutePath,
         })
       : undefined;
@@ -178,6 +241,8 @@ export class Program {
       defaultValue: defaultUserConfigBase,
       overrides: [userConfigFromCli?.base],
     });
+
+    await i18next.changeLanguage(mergedUserConfigBase.locale);
 
     const parser = new Parser({
       scriptName: this.name,
@@ -228,48 +293,6 @@ export class Program {
     });
     for (const { command, commandFactory } of commandList) {
       const { config: configMaybeFunc } = commandFactory;
-      const wrapRun = ({ value, commandPath, parserCommand }) => {
-        const wrapperRun: ParserCommand["run"] = async (...rest) => {
-          const { userConfigBaseParse, configParse } = command;
-          const [args] = rest;
-          const defaultConfig = _.isFunction(command.defaultConfig)
-            ? await command.defaultConfig()
-            : command.defaultConfig;
-          const userConfigBaseFromArgs = await userConfigBaseParse?.({
-            args,
-          });
-          const userConfigCommandFromArgs = await configParse?.({
-            args,
-          });
-          const userConfigBaseMerged = mergeConfig({
-            defaultValue: mergedUserConfigBase,
-            overrides: [userConfigBaseFromArgs],
-          });
-          const config = _.isFunction(configMaybeFunc)
-            ? await configMaybeFunc()
-            : configMaybeFunc;
-          const userConfigCommandMerged = mergeConfig({
-            defaultValue: defaultConfig,
-            overrides: [config, userConfigCommandFromArgs],
-          });
-          const finalUserConfig = freezeConfig({
-            base: userConfigBaseMerged,
-            commandConfig: userConfigCommandMerged,
-          });
-          await value({
-            args,
-            finalUserConfig,
-            helper: new CommandHelper({
-              program: this,
-              finalUserConfig,
-              commandPath,
-              command,
-              parserCommand,
-            }),
-          });
-        };
-        return wrapperRun;
-      };
       const parserCommand = subCommandToParserCommand({
         command,
         commandPath: [],
@@ -323,7 +346,6 @@ export class Program {
       parserCommandList.push(parserCommand);
     }
 
-    debugger;
     for (const command of parserCommandList) {
       parser.addCommand(command);
     }

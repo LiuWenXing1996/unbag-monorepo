@@ -1,4 +1,4 @@
-import { arraify, filterNullable, Locale } from "@/utils/common";
+import { arraify, filterNullable } from "@/utils/common";
 import { LogConfig, LogConfigDefault } from "@/utils/log";
 import deepFreezeStrict from "deep-freeze-strict";
 import _ from "lodash";
@@ -8,7 +8,7 @@ import { MaybePromise } from "@/utils/types";
 
 export interface UserConfigBase {
   root: string;
-  locale: Locale;
+  locale: string;
   tempDir: string;
   log: LogConfig;
   catch: (error: any) => void;
@@ -35,7 +35,7 @@ export const defineUserConfig = (
 export const useDefaultUserConfigBase = (): UserConfigBase => {
   const defaultConfig: UserConfigBase = {
     root: process.cwd(),
-    locale: Locale.zh_cn,
+    locale: "zh",
     tempDir: "./node_modules/.unbag",
     log: LogConfigDefault,
     catch: () => {},

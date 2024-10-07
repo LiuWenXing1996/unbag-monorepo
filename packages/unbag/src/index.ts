@@ -1,5 +1,5 @@
 export { read } from "./utils/read";
-export { defineUserConfig } from "./core/user-config";
+export { defineUserConfig } from "@/config";
 export { AbsolutePath, RelativePath } from "./utils/path";
 export { useFs } from "@/utils/fs";
 export {
@@ -10,7 +10,6 @@ export {
   unSafeObjectShallowWrapper,
 } from "@/utils/common";
 export { usePath } from "@/utils/path";
-export { useMessage } from "@/utils/message";
 export { useLog } from "@/utils/log";
 export {
   defineCommand,
@@ -20,7 +19,4 @@ export {
   CommandHelper,
   type UseCommandConfigFunc,
 } from "@/command";
-export { type FinalUserConfig, type UserConfig } from "@/core/user-config";
-
-
-// export type { InferredOptionTypes } from "yargs";
+export { type FinalUserConfig, type UserConfig } from "@/config";

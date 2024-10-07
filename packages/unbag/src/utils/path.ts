@@ -58,6 +58,13 @@ export class BasePath {
       content,
     });
   }
+  dir() {
+    const path = usePath();
+    const dir = path.dirname(this.content);
+    return new BasePath({
+      content: dir,
+    });
+  }
 }
 export class RelativePath extends BasePath {
   constructor(params: { content: string }) {

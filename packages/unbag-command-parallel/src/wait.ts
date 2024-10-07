@@ -2,6 +2,7 @@ import { sleep, modifyJson, readJson } from "@/utils";
 import { AbsolutePath, CommandHelper, unSafeObjectWrapper } from "unbag";
 import { DeepPartial } from "ts-essentials";
 import fsExtra from "fs-extra/esm";
+import { initI18n } from "./i18n";
 export interface WaitConfig {
   timeout: number;
   interval: number;
@@ -113,7 +114,12 @@ export const check = async (params: {
   });
 };
 
-export const wait = async (params: { filePath: string }) => {
+export const wait = async (params: {
+  filePath: string;
+  commandHelper: CommandHelper;
+}) => {
+  const { commandHelper } = params;
+  await initI18n(commandHelper.locale);
   try {
     const { filePath } = unSafeObjectWrapper(params);
     if (!filePath) {

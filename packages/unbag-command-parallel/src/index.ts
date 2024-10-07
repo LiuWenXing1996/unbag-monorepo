@@ -21,6 +21,7 @@ import { MaybePromise } from "./utils";
 import { DeepPartial } from "ts-essentials";
 import _ from "lodash";
 import fsExtra from "fs-extra/esm";
+import { initI18n } from "./i18n";
 
 export type ParallelConfigScripts =
   | ParallelScript[]
@@ -70,7 +71,6 @@ export const getParallelScripts = async (params: {
     }
   }
   if (config.scripts) {
-    console.log({ s: config.scripts, sss: _.isFunction(() => {}) });
 
     if (_.isFunction(config.scripts)) {
       return await config.scripts();
@@ -87,6 +87,7 @@ export const parallel = async (params: {
   groupName?: string;
 }) => {
   const { config, commandHelper, groupName } = params;
+  await initI18n(commandHelper.locale);
   const { commandConfig: parallel } = config;
   const { beforeRun, beforeCheck } = parallel;
   const tempDir = commandHelper.tempDir;
@@ -108,7 +109,6 @@ export const parallel = async (params: {
     ...finalScripts.map(async (script) => {
       let command = `${script.command}`;
       if (script.wait?.func) {
-        console.log({ tempDir: tempDir.content });
         const waitFilePath = tempDir.resolve({
           next: `${script.name}_wait_${uuidv4()}`,
         });
@@ -153,8 +153,6 @@ export const parallel = async (params: {
       throw new Error("exit on beforeRunRes");
     }
   }
-
-  console.log({ commandList });
 
   concurrently(commandList, {
     prefixColors: "auto",
@@ -223,9 +221,9 @@ export const ParallelCommand = defineCommand({
             type: "string",
           },
         },
-        run: async ({ args }) => {
+        run: async ({ args, helper }) => {
           const { filePath = "" } = args;
-          await wait({ filePath });
+          await wait({ filePath, commandHelper: helper });
         },
       }),
     ];

@@ -1,7 +1,8 @@
-import { useMessage, usePath, useLog } from "unbag";
+import {  usePath, useLog } from "unbag";
 import { CommitConfig, loadCommitLintConfig } from "./config";
 import inquirer from "inquirer";
 import type { FinalUserConfig } from "unbag";
+import i18next from "i18next";
 import { useCreateRequire, useGit } from "./utils";
 const require = useCreateRequire()(import.meta.url);
 
@@ -33,13 +34,12 @@ export const gitCz = async (params: {
     process(lintConfig.rules, lintConfig.prompt, inquirerIns).then(commit);
   };
   log.debug({ lintConfig });
-  const message = useMessage({ locale: finalUserConfig.base.locale });
   const git = useGit();
   const gitRootPath = await git.gitRootPathGet();
   const stageFiles = await git.stageFilesGet();
   log.debug({ stageFiles, gitRootPath });
   if (stageFiles.length <= 0) {
-    throw new Error(message.commit.branch.stageFiles.empty());
+    throw new Error(i18next.t("commit.branch.stageFiles.empty"));
   }
   czCommit(
     inquirer,

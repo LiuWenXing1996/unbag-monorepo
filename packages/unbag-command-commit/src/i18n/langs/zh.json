@@ -1,0 +1,13 @@
+{
+    "commit": {
+        "branch": {
+            "stageFiles": {
+                "empty": "没有检测到暂存的文件, 请暂存文件后再试"
+            }
+        },
+        "lint": {
+            "error": "校验信息失败, 当前输入信息: {{message}}",
+            "success": "校验信息通过, 当前输入信息: {{message}}"
+        }
+    }
+}

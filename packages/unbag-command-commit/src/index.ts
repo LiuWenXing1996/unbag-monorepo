@@ -1,12 +1,15 @@
 import { gitCz } from "./git-cz";
 import { CommitConfig, CommitConfigDefault } from "./config";
 import { commitLint } from "./lint";
-import { defineCommand, type FinalUserConfig } from "unbag";
+import { CommandHelper, defineCommand, type FinalUserConfig } from "unbag";
+import { initI18n } from "./i18n";
 
 export const commit = async (params: {
   finalUserConfig: FinalUserConfig<CommitConfig>;
+  commandHelper: CommandHelper;
 }) => {
-  const { finalUserConfig } = params;
+  const { finalUserConfig, commandHelper } = params;
+  await initI18n(commandHelper.locale);
   await gitCz({ finalUserConfig });
 };
 
@@ -14,8 +17,8 @@ export const CommitCommand = defineCommand({
   defaultConfig: CommitConfigDefault,
   name: "commit",
   description: "提交文件",
-  run: async ({ finalUserConfig }) => {
-    await commit({ finalUserConfig });
+  run: async ({ finalUserConfig, helper }) => {
+    await commit({ finalUserConfig, commandHelper: helper });
   },
   subCommands: ({ defineSubCommand }) => {
     return [
@@ -28,9 +31,12 @@ export const CommitCommand = defineCommand({
             type: "string",
           },
         },
-        run: async ({ finalUserConfig, args }) => {
-          console.log({ args });
-          await commitLint({ finalUserConfig, message: args.message || "" });
+        run: async ({ finalUserConfig, args, helper }) => {
+          await commitLint({
+            finalUserConfig,
+            message: args.message || "",
+            commandHelper: helper,
+          });
         },
       }),
     ];

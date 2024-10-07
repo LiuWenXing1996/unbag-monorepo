@@ -1,0 +1,93 @@
+{
+    "release": {
+        "scope": {
+            "undefinedCheck": "scope.check 需要配置",
+            "unValidScopeName": "无效的 scope 名称，请检查相关配置 scope.name scope.check"
+        },
+        "branch": {
+            "currentBranchUndefined": "现在没有处在任何分支,请切换到某分支下进行操作",
+            "currentBranchName": "现在处在分支 {{currentBranchName}}",
+            "mainBranchChecking": "正在检查是否处于主分支...",
+            "mainBranchCheckFail": "现在处在分支 {{currentBranchName}},请使用 git checkout {{mainBranchName}} 切换到主分支 {{mainBranchName}} 操作",
+            "mainBranchCheckSuccess": "主分支检查通过",
+            "mainBranchCheckDisable": "主分支检查已禁用",
+            "cleanChecking": "正在检查当前分支是否干净...",
+            "cleanCheckFail": "检测到有未提交的更改：\n{{branchStatusInfo}},\n请提交以上更改, 保持git工作区的干净",
+            "cleanCheckSuccess": "当前分支是干净的",
+            "cleanCheckDisable": "分支是否干净的检查已禁用"
+        },
+        "dry": {
+            "tip": "进入试运行模式，将会自动禁用一些操作",
+            "bump": {
+                "versionFileWriteDisable": "试运行模式，禁用版本描述文件写入"
+            },
+            "changelog": {
+                "fileWriteDisable": "试运行模式，禁用更新日志写入"
+            },
+            "commit": {
+                "disable": "试运行模式，禁用更改文件提交"
+            },
+            "push": {
+                "disable": "试运行模式，禁用 git push"
+            },
+            "tag": {
+                "disable": "试运行模式，禁用 git tag 添加"
+            }
+        },
+        "bump": {
+            "processing": "正在生成下一个版本号...",
+            "byCommits": "正在使用以往的 commits 生成下一个版本号...",
+            "commitsList": "查找到 {{commitsLength}} 条提交记录",
+            "commitsNoData": "未找到任何的提交记录, 使用旧版本号 {{oldVersion}} 作为下一个版本号",
+            "commitsGenUnValidReleaseType": "自动生成 releaseType 失败",
+            "commitsGenReleaseTypeSuccess": "自动生成 releaseType: {{releaseType}}",
+            "genUnValidVersion": "自动生成 version 失败",
+            "notFoundVersionFile": "没有找到项目的版本描述文件, 请检查配置文件中的 release.bump.versionFilePath、release.bump.versionFilePathResolve, release.bump.versionFileRead",
+            "unValidOldVersion": "无效的旧版号，请检查相关配置 release.bump.versionFilePath release.bump.versionFilePathResolve release.bump.versionFileRead",
+            "oldVersion": "当前版本号 {{oldVersion}}",
+            "releaseAsUnValid": "releaseAs 必须是一个格式正确的 semver 版本号, 当前值: {{releaseAs}}",
+            "versionByReleaseAs": "使用 {{releaseAs}} 作为下一个版本号",
+            "releaseTypeUnValid": "releaseType 必须是一个跟是正确的 server ReleaseType, 当前值: {{releaseType}}",
+            "versionByReleaseType": "使用 {{releaseType}} 生成了下一个版本号: {{version}}",
+            "end": "版本号生成结束, 旧版本号: {{oldVersion}}, 下一个版本号: {{version}}",
+            "unValidVersionResult": "生成的版本号无效",
+            "versionFileWriteSuccess": "版本描述文件已被写入下一个版本号：{{version}}",
+            "versionFileWriteDisable": "版本描述文件写入已被禁用"
+        },
+        "changelog": {
+            "generating": "正在生成更新日志...",
+            "newChangeset": "将会新增以下日志: {{newChangeset}}",
+            "fileWriting": "正在写入更新日志...",
+            "fileWriteSuccess": "写入更新日志成功",
+            "fileWriteDisable": "写入更新日志已被禁用"
+        },
+        "commit": {
+            "processing": "准备自动提交更改文件...",
+            "willCommitAll": "将会自动提交所有更改文件",
+            "fileCollecting": "正在自动收集更改文件...",
+            "commitFilesEmpty": "未检测到需要提交的文件, 退出自动提交",
+            "commitFilesInfo": "需要提交的文件:\n   {{filesInfo}}",
+            "messageUndefined": "提交信息不能为空, 请检查配置中的 commit.message,commit.messageFormat",
+            "messageInfo": "提交信息: {{message}}",
+            "disable": "自动提交更改文件已被禁用",
+            "success": "自动提交成功"
+        },
+        "tag": {
+            "processing": "准备添加 git tag ...",
+            "undefinedGenPrefix": "生成的 tag prefix 无效，请检查 tag.genPrefix ",
+            "prefix": "tagPrefix: {{prefix}}",
+            "name": "tagName: {{name}}",
+            "message": "tagMessage: {{message}}",
+            "force": "已启用强制添加 git tag",
+            "disable": "添加 git tag 已被禁用",
+            "addSuccess": "添加 git tag 成功, name: {{tagName}}, message: {{tagMessage}}"
+        },
+        "push": {
+            "processing": "准备执行 git push ...",
+            "disable": "git push 已被禁用",
+            "force": "已启用强制 git push",
+            "fail": "git push 失败",
+            "success": "git push 完成"
+        }
+    }
+}

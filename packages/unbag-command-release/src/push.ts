@@ -1,7 +1,8 @@
 // TODO:实现 git push
 import { $ } from "execa";
 import { ReleaseConfig } from ".";
-import { FinalUserConfig, useLog, useMessage } from "unbag";
+import { FinalUserConfig, useLog } from "unbag";
+import i18next from "i18next";
 
 export interface ReleasePushConfig {
   disable?: boolean;
@@ -15,33 +16,32 @@ export const push = async (params: {
 }) => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({ locale: finalUserConfig.base.locale });
   const {
     commandConfig: {
       dry,
       push: { disable, force },
     },
   } = finalUserConfig;
-  log.info(message.release.push.processing());
+  log.info(i18next.t("release.push.processing"));
   let _disable = disable;
   if (dry) {
     _disable = true;
-    log.warn(message.release.dry.push.disable());
+    log.warn(i18next.t("release.dry.push.disable"));
   }
 
   if (_disable) {
-    log.warn(message.release.push.disable());
+    log.warn(i18next.t("release.push.disable"));
     return;
   }
 
   try {
     if (force) {
-      log.warn(message.release.push.disable());
+      log.warn(i18next.t("release.push.force"));
     }
     await $`git push --follow-tags ${force ? ["-f"] : []}`;
   } catch (err) {
-    log.warn(message.release.push.fail());
+    log.warn(i18next.t("release.push.fail"));
     throw err;
   }
-  log.info(message.release.push.success());
+  log.info(i18next.t("release.push.success"));
 };

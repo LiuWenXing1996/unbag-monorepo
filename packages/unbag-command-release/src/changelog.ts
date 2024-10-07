@@ -5,7 +5,8 @@ import type { Stream } from "node:stream";
 import type { ParserOptions, WriterOptions } from "conventional-changelog-core";
 import { ReleaseConfig } from ".";
 import { MaybePromise } from "./types";
-import { FinalUserConfig, useFs, useLog, useMessage, usePath } from "unbag";
+import { FinalUserConfig, useFs, useLog, usePath } from "unbag";
+import i18next from "i18next";
 export interface ReleaseChangelogFileContent {
   header?: string;
   body?: string;
@@ -125,10 +126,7 @@ export const changelog = async (params: {
 }) => {
   const { finalUserConfig, bumpRes } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({
-    locale: finalUserConfig.base.locale,
-  });
-  log.info(message.release.changelog.generating());
+  log.info(i18next.t("release.changelog.generating"));
   const {
     commandConfig: {
       dry,
@@ -193,20 +191,20 @@ export const changelog = async (params: {
   let _fileWriteDisable = fileWriteDisable;
   if (dry) {
     _fileWriteDisable = true;
-    log.warn(message.release.dry.changelog.fileWriteDisable());
+    log.warn(i18next.t("release.dry.changelog.fileWriteDisable"));
   }
   if (!logAddChangesetDisable) {
-    log.warn(message.release.changelog.newChangeset({ newChangeset }));
+    log.warn(i18next.t("release.changelog.newChangeset", { newChangeset }));
   }
   if (!_fileWriteDisable) {
-    log.info(message.releaseChangelogFileWriting());
+    log.info(i18next.t("release.changelog.fileWriting"));
     await fileWrite({
       finalUserConfig,
       changelogRes: newContent,
     });
-    log.info(message.releaseChangelogFileWriteSuccess());
+    log.info(i18next.t("release.changelog.fileWriteSuccess"));
   } else {
-    log.warn(message.releaseChangelogFileWriteDisable());
+    log.warn(i18next.t("release.changelog.fileWriteDisable"));
   }
   return newContent;
 };

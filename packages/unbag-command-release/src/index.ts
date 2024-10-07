@@ -18,13 +18,15 @@ import {
 import { useDefaultReleasePresetPath } from "./utils";
 import { push, ReleasePushConfig, ReleasePushConfigDefault } from "./push";
 import {
+  CommandHelper,
   defineCommand,
   FinalUserConfig,
   unSafeFunctionWrapper,
   useLog,
-  useMessage,
 } from "unbag";
 import { MaybePromise } from "./types";
+import { initI18n } from "./i18n";
+import i18next from "i18next";
 export interface ReleaseConfig {
   dry?: boolean;
   scope?: {
@@ -64,27 +66,28 @@ export const releaseDefaultConfig: ReleaseConfig = {
 // TODO:继续实现 release 和其子命令
 export const release = async (params: {
   finalUserConfig: FinalUserConfig<ReleaseConfig>;
+  commandHelper: CommandHelper;
 }) => {
-  const { finalUserConfig } = params;
+  const { finalUserConfig, commandHelper } = params;
+  await initI18n(commandHelper.locale);
   const log = useLog({ finalUserConfig });
-  const message = useMessage({ locale: finalUserConfig.base.locale });
   const {
     commandConfig: { dry, scope },
   } = finalUserConfig;
   if (dry) {
-    log.warn(message.release.dry.tip());
+    log.warn(i18next.t("release.dry.tip"));
   }
   if (scope) {
     const { check, name } = scope;
     if (!check) {
-      throw new Error(message.release.scope.undefinedCheck());
+      throw new Error(i18next.t("release.scope.undefinedCheck"));
     }
     const validName = await unSafeFunctionWrapper(check)({
       name,
       finalUserConfig,
     });
     if (!validName) {
-      throw new Error(message.release.scope.unValidScopeName());
+      throw new Error(i18next.t("release.scope.unValidScopeName"));
     }
   }
   await branch({ finalUserConfig });
@@ -124,7 +127,7 @@ export const ReleaseCommand = defineCommand({
       dry: args.dry,
     };
   },
-  run: async ({ finalUserConfig }) => {
-    await release({ finalUserConfig });
+  run: async ({ finalUserConfig, helper }) => {
+    await release({ finalUserConfig, commandHelper: helper });
   },
 });

@@ -1,9 +1,10 @@
-import { FinalUserConfig, useLog, useMessage } from "unbag";
+import { FinalUserConfig, useLog } from "unbag";
 import { ReleaseConfig } from ".";
 import { BumpResult } from "./bump";
 import { ReleaseChangelogFileContent } from "./changelog";
 import { $ } from "execa";
 import { MaybePromise } from "./types";
+import i18next from "i18next";
 export interface ReleaseCommitConfig {
   disable?: boolean;
   message?: string;
@@ -66,10 +67,7 @@ export const commit = async (params: {
 }) => {
   const { finalUserConfig, bumpRes, changelogRes } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({
-    locale: finalUserConfig.base.locale,
-  });
-  log.info(message.release.commit.processing());
+  log.info(i18next.t("release.commit.processing"));
   const {
     commandConfig: {
       dry,
@@ -84,22 +82,24 @@ export const commit = async (params: {
   } = finalUserConfig;
   let addFiles: string[] = [];
   if (addAll) {
-    log.info(message.release.commit.willCommitAll());
+    log.info(i18next.t("release.commit.willCommitAll"));
   } else {
-    log.info(message.release.commit.fileCollecting());
+    log.info(i18next.t("release.commit.fileCollecting"));
     addFiles = await filesCollect({
       finalUserConfig,
       bumpRes,
       changelogRes,
     });
     if (addFiles.length <= 0) {
-      log.warn(message.release.commit.commitFilesEmpty());
+      log.warn(i18next.t("release.commit.commitFilesEmpty"));
       return;
     }
     log.info(
-      message.release.commit.commitFilesInfo({
-        files: [...addFiles],
-      })
+      log.warn(
+        i18next.t("release.commit.commitFilesInfo", {
+          filesInfo: addFiles.join("\n   "),
+        })
+      )
     );
   }
   const finalCommitMsg =
@@ -114,20 +114,18 @@ export const commit = async (params: {
       addAll,
     }));
   if (!finalCommitMsg) {
-    throw new Error(message.release.commit.messageUndefined());
+    throw new Error(i18next.t("release.commit.messageUndefined"));
   }
   log.info(
-    message.release.commit.messageInfo({
-      message: finalCommitMsg,
-    })
+    i18next.t("release.commit.messageInfo", { message: finalCommitMsg })
   );
   let _disable = disable;
   if (dry) {
     _disable = true;
-    log.warn(message.release.dry.commit.disable());
+    log.warn(i18next.t("release.dry.commit.disable"));
   }
   if (_disable) {
-    log.warn(message.release.commit.disable());
+    log.warn(i18next.t("release.commit.disable"));
     return;
   }
   if (addAll) {
@@ -136,5 +134,5 @@ export const commit = async (params: {
     await $`git add ${[...addFiles]}`;
   }
   await $`git commit -m ${finalCommitMsg}`;
-  log.info(message.releaseCommitSuccess());
+  log.info(i18next.t("release.commit.success"));
 };

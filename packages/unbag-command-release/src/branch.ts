@@ -1,8 +1,8 @@
 import { FinalUserConfig } from "unbag";
 import { ReleaseConfig } from ".";
 import { useLog } from "unbag";
-import { useMessage } from "unbag";
 import { useGit } from "./utils";
+import i18next from "i18next";
 export interface ReleaseBranchConfig {
   mainName: string;
   mainCheckDisable: boolean;
@@ -26,47 +26,42 @@ export const branch = async (params: {
     },
   } = finalUserConfig;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({
-    locale: finalUserConfig.base.locale,
-  });
   const { currentBranchGet, currentBranchStatusGet } = useGit();
   const currentBranchName = await currentBranchGet();
   // TODO:.....
   if (!currentBranchName) {
-    throw new Error(message.releaseCurrentBranchUndefined());
+    throw new Error(i18next.t("release.branch.currentBranchUndefined"));
   }
   log.info(
-    message.releaseCurrentBranchName({
-      currentBranchName,
-    })
+    i18next.t("release.branch.currentBranchName", { currentBranchName })
   );
   if (!mainCheckDisable) {
-    log.info(message.releaseMainBranchChecking());
+    log.info(i18next.t("release.branch.mainBranchChecking"));
     if (currentBranchName !== mainName) {
       throw new Error(
-        message.releaseMainBranchCheckFail({
+        i18next.t("release.branch.mainBranchCheckFail", {
           currentBranchName,
           mainBranchName: mainName,
         })
       );
     }
-    log.info(message.releaseMainBranchCheckSuccess());
+    log.info(i18next.t("release.branch.mainBranchCheckSuccess"));
   } else {
-    log.warn(message.releaseMainBranchCheckDisable());
+    log.info(i18next.t("release.branch.mainBranchCheckDisable"));
   }
   if (!cleanCheckDisable) {
-    log.info(message.releaseBranchCleanChecking());
+    log.info(i18next.t("release.branch.cleanChecking"));
     const currentBranchStatus = await currentBranchStatusGet();
     if (currentBranchStatus) {
       throw new Error(
-        message.releaseBranchCleanCheckFail({
+        i18next.t("release.branch.cleanCheckFail", {
           branchStatusInfo: currentBranchStatus,
         })
       );
     }
-    log.info(message.releaseBranchCleanCheckSuccess());
+    log.info(i18next.t("release.branch.cleanCheckSuccess"));
   } else {
-    log.warn(message.releaseBranchCleanCheckDisable());
+    log.info(i18next.t("release.branch.cleanCheckDisable"));
   }
   return {
     currentBranchName,

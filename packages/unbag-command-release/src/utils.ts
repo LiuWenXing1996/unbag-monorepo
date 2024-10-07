@@ -1,8 +1,9 @@
-import { FinalUserConfig, useMessage } from "unbag";
+import { FinalUserConfig } from "unbag";
 import { ReleaseConfig } from ".";
 import { DeepPartial } from "ts-essentials";
 import module from "node:module";
 import { $ } from "execa";
+import i18next from "i18next";
 
 export const useGit = () => {
   const currentBranchGet = async () => {
@@ -41,7 +42,6 @@ export const useTagPrefix = async (params: {
   finalUserConfig: FinalUserConfig<ReleaseConfig>;
 }) => {
   const { finalUserConfig } = params;
-  const message = useMessage({ locale: finalUserConfig.base.locale });
   const {
     commandConfig: {
       tag: { genPrefix },
@@ -49,7 +49,7 @@ export const useTagPrefix = async (params: {
   } = finalUserConfig;
   const prefix = await unSafeFunctionWrapper(genPrefix)({ finalUserConfig });
   if (!prefix) {
-    throw new Error(message.release.tag.undefinedGenPrefix());
+    throw new Error(i18next.t("release.tag.undefinedGenPrefix"));
   }
   return prefix;
 };
@@ -61,7 +61,6 @@ export const useDefaultReleasePresetPath = () => {
   );
   return presetPath;
 };
-
 
 export const unSafeFunctionWrapper = <
   T extends (...args: any) => any,

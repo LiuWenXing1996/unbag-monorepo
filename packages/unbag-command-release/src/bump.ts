@@ -6,13 +6,13 @@ import {
   useFs,
   FinalUserConfig,
   usePath,
-  useMessage,
   unSafeFunctionWrapper,
 } from "unbag";
 import { Bumper } from "conventional-recommended-bump";
 import { useTagPrefix } from "./utils";
 import { ReleaseConfig } from ".";
 import { MaybePromise } from "./types";
+import i18next from "i18next";
 export interface VersionFileFileContent {
   version: string;
 }
@@ -115,10 +115,7 @@ export const genVersionByCommits = async (params: {
 }): Promise<BumpResult> => {
   const { finalUserConfig, data } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({
-    locale: finalUserConfig.base.locale,
-  });
-  log.info(message.releaseBumpingByCommits());
+  log.info(i18next.t("release.bump.byCommits"));
   const {
     commandConfig: {
       scope,
@@ -146,19 +143,13 @@ export const genVersionByCommits = async (params: {
     commits = commits.filter((e) => e.scope === scope.name);
   }
   log.info(
-    message.releaseBumpCommitsList({
-      commits,
-    })
+    i18next.t("release.bump.commitsList", { commitsLength: commits.length })
   );
   if (commits.length > 0) {
     log.info(commits.map((e) => `    ${e.header}`).join("\n"));
   }
   if (commits.length <= 0) {
-    log.warn(
-      message.releaseBumpCommitsNoData({
-        oldVersion,
-      })
-    );
+    log.warn(i18next.t("release.bump.commitsNoData", { oldVersion }));
     return {
       version: oldVersion,
       oldVersion,
@@ -173,7 +164,7 @@ export const genVersionByCommits = async (params: {
     releaseType = VERSIONS[result.level];
   }
   if (!releaseType) {
-    throw new Error(message.releaseBumpCommitsGenUnValidReleaseType());
+    throw new Error(i18next.t("release.bump.commitsGenUnValidReleaseType"));
   }
   if (releasePre) {
     if (isInPrerelease(oldVersion)) {
@@ -183,17 +174,14 @@ export const genVersionByCommits = async (params: {
     }
   }
   if (!isReleaseType(releaseType)) {
-    throw new Error(message.releaseBumpCommitsGenUnValidReleaseType());
+    throw new Error(i18next.t("release.bump.commitsGenUnValidReleaseType"));
   }
   log.info(
-    message.releaseBumpCommitsGenReleaseTypeSuccess({
-      releaseType,
-    })
+    i18next.t("release.bump.commitsGenReleaseTypeSuccess", { releaseType })
   );
   const version = semver.inc(oldVersion, releaseType, releasePreTag);
   if (!version) {
-    log.error(message.releaseBumpGenUnValidVersion());
-    throw new Error(message.releaseBumpGenUnValidVersion());
+    throw new Error(i18next.t("release.bump.genUnValidVersion"));
   }
   return {
     version,
@@ -213,10 +201,7 @@ export const genVersion = async (params: {
 }): Promise<BumpResult> => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({
-    locale: finalUserConfig.base.locale,
-  });
-  log.info(message.releaseBumping());
+  log.info(i18next.t("release.bump.processing"));
   const {
     commandConfig: {
       bump: { versionFileRead, releaseAs, releaseType, releasePreTag },
@@ -226,26 +211,20 @@ export const genVersion = async (params: {
     finalUserConfig,
   });
   if (!versionFileContent) {
-    throw new Error(message.releaseBumpNotFoundVersionFile());
+    throw new Error(i18next.t("release.bump.notFoundVersionFile"));
   }
   if (!versionFileContent.version) {
-    throw new Error(message.release.bump.unValidOldVersion());
+    throw new Error(i18next.t("release.bump.unValidOldVersion"));
   }
   const oldVersion = versionFileContent.version;
-  log.info(
-    message.releaseBumpOldVersion({
-      oldVersion,
-    })
-  );
+  log.info(i18next.t("release.bump.oldVersion", { oldVersion }));
   if (releaseAs) {
     if (!semver.valid(releaseAs)) {
-      throw new Error(message.releaseBumpReleaseAsUnValid(releaseAs));
+      throw new Error(
+        i18next.t("release.bump.releaseAsUnValid", { releaseAs })
+      );
     }
-    log.info(
-      message.releaseBumpOldVersion({
-        oldVersion,
-      })
-    );
+    log.info(i18next.t("release.bump.versionByReleaseAs", { releaseAs }));
     return {
       version: releaseAs,
       oldVersion,
@@ -253,17 +232,16 @@ export const genVersion = async (params: {
   }
   if (releaseType) {
     if (!isReleaseType(releaseType)) {
-      throw new Error(message.releaseBumpReleaseTypeUnValid(releaseType));
+      throw new Error(
+        i18next.t("release.bump.releaseTypeUnValid", { releaseType })
+      );
     }
     const version = semver.inc(oldVersion, releaseType, releasePreTag);
     if (!version) {
-      throw new Error(message.releaseBumpGenUnValidVersion());
+      throw new Error(i18next.t("release.bump.genUnValidVersion"));
     }
     log.info(
-      message.releaseBumpVersionByReleaseType({
-        releaseType,
-        version,
-      })
+      i18next.t("release.bump.versionByReleaseType", { releaseType, version })
     );
     return {
       version,
@@ -283,20 +261,17 @@ export const bump = async (params: {
 }): Promise<BumpResult> => {
   const { finalUserConfig } = params;
   const log = useLog({ finalUserConfig });
-  const message = useMessage({
-    locale: finalUserConfig.base.locale,
-  });
   const versionResult = await genVersion({
     finalUserConfig,
   });
   log.info(
-    message.release.bump.end({
+    i18next.t("release.bump.end", {
       version: versionResult.version,
       oldVersion: versionResult.oldVersion,
     })
   );
   if (semver.compare(versionResult.oldVersion, versionResult.version) >= 0) {
-    throw new Error(message.release.bump.unValidVersionResult());
+    throw new Error(i18next.t("release.bump.unValidVersionResult"));
   }
   const {
     commandConfig: {
@@ -309,7 +284,7 @@ export const bump = async (params: {
 
   if (dry) {
     _versionFileWriteDisable = true;
-    log.warn(message.release.dry.bump.versionFileWriteDisable());
+    log.warn(i18next.t("release.dry.bump.versionFileWriteDisable"));
   }
 
   if (!_versionFileWriteDisable) {
@@ -318,12 +293,12 @@ export const bump = async (params: {
       bumpRes: versionResult,
     });
     log.info(
-      message.releaseBumpVersionFileWriteSuccess({
+      i18next.t("release.bump.versionFileWriteSuccess", {
         version: versionResult.version,
       })
     );
   } else {
-    log.warn(message.releaseBumpVersionFileWriteDisable());
+    log.warn(i18next.t("release.bump.versionFileWriteDisable"));
   }
   return versionResult;
 };

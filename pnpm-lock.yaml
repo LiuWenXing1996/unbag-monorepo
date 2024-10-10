@@ -250,6 +250,12 @@ importers:
       '@inquirer/prompts':
         specifier: ^5.5.0
         version: 5.5.0
+      '@types/fs-extra':
+        specifier: ^11.0.4
+        version: 11.0.4
+      '@types/micromatch':
+        specifier: ^4.0.9
+        version: 4.0.9
       chalk:
         specifier: ^5.3.0
         version: 5.3.0
@@ -259,12 +265,21 @@ importers:
       core-js-pure:
         specifier: ^3.38.1
         version: 3.38.1
+      fs-extra:
+        specifier: ^11.2.0
+        version: 11.2.0
       i18next:
         specifier: ^23.15.1
         version: 23.15.1
       i18next-cli-language-detector:
         specifier: ^1.1.8
         version: 1.1.8(i18next@23.15.1)
+      micromatch:
+        specifier: ^4.0.8
+        version: 4.0.8
+      radash:
+        specifier: ^12.1.0
+        version: 12.1.0
       unbag:
         specifier: workspace:^
         version: link:../unbag
@@ -2254,6 +2269,10 @@ packages:
       '@babel/types': 7.25.7
     dev: false
 
+  /@types/braces@3.0.4:
+    resolution: {integrity: sha512-0WR3b8eaISjEW7RpZnclONaLFDf7buaowRHdqLp4vLj54AsSAYWfh3DRbfiYJY9XDxMgx1B4sE1Afw2PGpuHOA==}
+    dev: false
+
   /@types/conventional-changelog-core@4.2.8:
     resolution: {integrity: sha512-1hA2HeaQomDGq9yOkl1EHfCgWJcYphKB3otr398Ta/sjOTQS7a/Saf9RDEnQg4zSBYJfAzMzZlY5lIIh2sAuqA==}
     dependencies:
@@ -2335,6 +2354,12 @@ packages:
 
   /@types/mdurl@2.0.0:
     resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
+    dev: false
+
+  /@types/micromatch@4.0.9:
+    resolution: {integrity: sha512-7V+8ncr22h4UoYRLnLXSpTxjQrNUXtWHGeMPRJt1nULXI57G9bIcpyrHlmrQ7QK24EyyuXvYcSSWAM8GA9nqCg==}
+    dependencies:
+      '@types/braces': 3.0.4
     dev: false
 
   /@types/mute-stream@0.0.4:
@@ -2944,6 +2969,13 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       fill-range: 7.0.1
+
+  /braces@3.0.3:
+    resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
+    engines: {node: '>=8'}
+    dependencies:
+      fill-range: 7.1.1
+    dev: false
 
   /browserslist@4.24.0:
     resolution: {integrity: sha512-Rmb62sR1Zpjql25eSanFGEhAxcFwfA1K0GuQcLoaJBAcENegrQut3hYdhXFF1obQfiDyqIW/cLM5HSJ/9k884A==}
@@ -3706,6 +3738,13 @@ packages:
     dependencies:
       to-regex-range: 5.0.1
 
+  /fill-range@7.1.1:
+    resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
+    engines: {node: '>=8'}
+    dependencies:
+      to-regex-range: 5.0.1
+    dev: false
+
   /find-node-modules@2.1.3:
     resolution: {integrity: sha512-UC2I2+nx1ZuOBclWVNdcnbDR5dlrOdVb7xNjmT/lHE+LsgztWks3dG7boJ37yTS/venXw84B/mAW9uHVoC5QRg==}
     dependencies:
@@ -3735,7 +3774,7 @@ packages:
     dependencies:
       detect-file: 1.0.0
       is-glob: 4.0.3
-      micromatch: 4.0.5
+      micromatch: 4.0.8
       resolve-dir: 1.0.1
     dev: false
 
@@ -4466,6 +4505,14 @@ packages:
     dependencies:
       braces: 3.0.2
       picomatch: 2.3.1
+
+  /micromatch@4.0.8:
+    resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
+    engines: {node: '>=8.6'}
+    dependencies:
+      braces: 3.0.3
+      picomatch: 2.3.1
+    dev: false
 
   /mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}

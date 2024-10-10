@@ -30,6 +30,26 @@ export const listChildDir = async (dir?: string) => {
   return dirs;
 };
 
+export const listFiles = async (dir?: string) => {
+  const files: string[] = [];
+  if (!dir) {
+    return [];
+  }
+  const getFiles = async (currentDir: string) => {
+    const fileList = (await fs.readdir(currentDir)) as string[];
+    for (const file of fileList) {
+      const name = path.resolve(currentDir, file);
+      if ((await fs.stat(name)).isDirectory()) {
+        await getFiles(name);
+      } else {
+        files.push(name);
+      }
+    }
+  };
+  await getFiles(dir);
+  return files;
+};
+
 export const readJson = async <T>(path: string): Promise<T> => {
   let jsonObj: T | undefined = undefined;
   const content = (await fs.readFile(path, "utf-8")) as string;
@@ -45,7 +65,7 @@ export const useInlineTemplates = async (): Promise<CreateTemplateConfig[]> => {
       "templates"
     ),
   });
-  console.log({templatesDir})
+  console.log({ templatesDir });
   const templates = await resolveTemplates({
     templatesDir,
   });

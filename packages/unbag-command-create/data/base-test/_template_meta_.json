@@ -1,0 +1,7 @@
+{
+    "name": "template-base",
+    "description": "template-base",
+    "files": [
+        "./package.json"
+    ]
+}

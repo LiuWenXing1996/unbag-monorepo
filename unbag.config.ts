@@ -182,35 +182,45 @@ export const getCommandsInDevMode = async () => {
         const sortedPackages = depsGraph.sortByDeps();
         type ParallelScript = import("unbag-command-parallel").ParallelScript;
 
-        const scripts: ParallelScript[] = [
-          ...sortedPackages.map((pkgName, index) => {
-            const pkg = needDevPackageMap.get(pkgName);
-            if (!pkg) {
-              throw new Error(`没有找到 ${pkg} 的相关信息`);
+        const scripts: ParallelScript[] = [];
+        for (const [index, pkgName] of sortedPackages.entries()) {
+          const pkg = needDevPackageMap.get(pkgName);
+          if (!pkg) {
+            throw new Error(`没有找到 ${pkg} 的相关信息`);
+          }
+          const waitFunc = async () => {
+            if (index > 0) {
+              const depPkgName = sortedPackages[index - 1];
+              const depPkg = needDevPackageMap.get(depPkgName);
+              await waitOn({
+                resources: [...(depPkg?.buildResources || [])],
+              });
             }
-
-            return {
-              name: pkg.name,
-              command: `pnpm --filter ${pkg.name} dev`,
-              wait: {
-                func: async () => {
-                  if (index > 0) {
-                    const depPkgName = sortedPackages[index - 1];
-                    const depPkg = needDevPackageMap.get(depPkgName);
-                    await waitOn({
-                      resources: [...(depPkg?.buildResources || [])],
-                    });
-                  }
-                  return true;
+            return true;
+          };
+          scripts.push(
+            ...[
+              {
+                name: pkg.name,
+                command: `pnpm --filter ${pkg.name} dev`,
+                wait: {
+                  func: async () => {
+                    return await waitFunc();
+                  },
                 },
               },
-            };
-          }),
-          {
-            name: "unbag-unit-test",
-            command: `pnpm --filter unbag test-watch`,
-          },
-        ];
+              {
+                name: `${pkg.name}-unit-test`,
+                command: `pnpm --filter ${pkg.name} test-watch`,
+                wait: {
+                  func: async () => {
+                    return await waitFunc();
+                  },
+                },
+              },
+            ]
+          );
+        }
         return scripts;
       },
     };

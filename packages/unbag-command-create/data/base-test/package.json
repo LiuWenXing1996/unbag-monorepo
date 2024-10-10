@@ -1,7 +1,7 @@
 {
-  "name": "undefined",
+  "name": "{{NAME}}",
   "version": "0.0.1",
-  "description": "undefined",
+  "description": "{{DESCRIPTION}}",
   "type": "module",
   "scripts": {
     "build": "unbag transform",
